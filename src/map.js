@@ -20,24 +20,30 @@
 window.MOV = window.MOV || {};
 
 /* ─── ZONES ─────────────────────────────────────────
-   Three places a deployment lives. The order here is the order on screen.
+   Three places a deployment lives, laid out as islands rather than columns.
+   `span` is how many twelfths of the map an island takes: they hold different
+   amounts, so they are different sizes. Three equal pillars is what a grid
+   gives you when nobody decides, and it is not a decision.
    ─────────────────────────────────────────────────── */
 window.MOV.ZONES = [
   {
     id: "machine",
     letter: "A",
+    span: 7,
     name: "Your machine",
     note: "Where you type. Everything here is a file you own and can read.",
   },
   {
     id: "github",
     letter: "B",
+    span: 5,
     name: "GitHub",
     note: "Where the code lives. mov never uploads a file to a server.",
   },
   {
     id: "azure",
     letter: "C",
+    span: 12,
     name: "Azure",
     note: "Where it becomes real, and the only zone that costs money.",
   },

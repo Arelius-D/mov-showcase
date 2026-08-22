@@ -199,14 +199,13 @@ window.MOV = window.MOV || {};
      One transform on one element. The arcs live inside it, so nothing is
      recomputed — they scale with what they connect.
 
-     A transform does not change layout size, so a scaled-up stage would sit
-     over whatever follows it. The map's height is set to the stage's real
-     height times the scale, which puts the space back and lets the page keep
-     flowing normally. That is the whole reason this is a scale control and not
-     a canvas: it stays a page.
+     The stage is laid out at the inverse of the scale and then drawn at it, so
+     the two cancel and the rendered width never changes. Zoom changes how much
+     fits, not how much room is needed, which is why there is no overflow and
+     no scrollbar of its own. The browser already has one.
      ────────────────────────────────────────────────── */
   var MIN_SCALE = 0.6;
-  var MAX_SCALE = 1.6;
+  var MAX_SCALE = 1.4;
   var SCALE_STEP = 0.1;
   var STORED_SCALE = "mov-showcase-scale";
 
@@ -217,10 +216,21 @@ window.MOV = window.MOV || {};
     return Math.min(MAX_SCALE, Math.max(MIN_SCALE, Math.round(value * 100) / 100));
   }
 
+  /* Width cancels out; height does not. A transform never changes layout size,
+     so the stage still reserves its unscaled height: too much of it when zoomed
+     out, too little when zoomed in, where it would run under the legend. The
+     map is given the height the stage is actually drawn at. This is honest
+     space, not a scroll container — the page keeps scrolling as one page. */
+  function reserve() {
+    mapBox.style.height = stage.offsetHeight * scale + "px";
+  }
+
   function applyScale(next) {
     scale = clamp(next);
-    stage.style.transform = scale === 1 ? "" : "scale(" + scale + ")";
-    mapBox.style.height = stage.offsetHeight * scale + "px";
+    /* One property. The stylesheet works out both the transform and the
+       compensating width from it, so the two can never disagree. */
+    stage.style.setProperty("--scale", String(scale));
+    reserve();
     level.textContent = Math.round(scale * 100) + "%";
     try {
       localStorage.setItem(STORED_SCALE, String(scale));
@@ -265,12 +275,12 @@ window.MOV = window.MOV || {};
       { passive: false }
     );
 
-    /* The stage's own height changes when the window does, so the space the
-       map reserves has to be recalculated from the new height, not the old. */
+    /* The stage's own height changes with the window, and the reserved space
+       has to follow it rather than the height it had when the page loaded. */
     if (typeof ResizeObserver === "function") {
-      new ResizeObserver(function () {
-        mapBox.style.height = stage.offsetHeight * scale + "px";
-      }).observe(stage);
+      new ResizeObserver(reserve).observe(stage);
+    } else {
+      window.addEventListener("resize", reserve);
     }
 
     applyScale(stored && !Number.isNaN(stored) ? stored : 1);

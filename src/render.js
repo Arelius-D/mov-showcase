@@ -109,6 +109,7 @@ window.MOV = window.MOV || {};
   function zoneSection(zone) {
     var section = element("section", "zone");
     section.dataset.zone = zone.id;
+    section.style.setProperty("--span", zone.span);
     section.setAttribute("aria-labelledby", "zone-" + zone.id);
 
     var head = element("div", "zone__head");

@@ -58,7 +58,6 @@
   --font-sans: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
   --font-mono: "JetBrains Mono", "Cascadia Code", ui-monospace, monospace;
 
-  --map-min-height: 34rem;
   --panel-width: 22rem;
   /* Wide enough that three zones plus a 3rem gutter each still leave a card
      that reads comfortably, once the fixed panel has taken its share. */
@@ -315,17 +314,24 @@ button {
 
 .map {
   position: relative;
-  min-height: var(--map-min-height);
-  /* Scaled past 100% the stage is wider than its box. Scrolling inside the map
-     keeps that away from the panel; at 100% nothing overflows and no scrollbar
-     appears. */
-  overflow: auto;
 }
 
 /* The only thing that scales. Both the zones and the arc overlay are inside
-   it, so zoom is one transform and the arcs move with what they connect. */
+   it, so zoom is one transform and the arcs move with what they connect.
+
+   The width is the inverse of the scale, so the two cancel: at 70% the stage
+   is laid out 1/0.7 wider and then drawn at 0.7, arriving at exactly the width
+   it started with while fitting half as much again inside it. Zooming
+   therefore changes how much you can see and never how much room it needs —
+   no overflow in either axis, and no scrollbar of its own. The browser's is
+   the only one on the page. */
+/* Both of these are overwritten from JS, and declared here so the page is
+   correct before a line of it runs. */
 .stage {
+  --scale: 1;
   position: relative;
+  width: calc(100% / var(--scale));
+  transform: scale(var(--scale));
   transform-origin: top left;
 }
 
@@ -344,12 +350,21 @@ button {
   pointer-events: none;
 }
 
+/* Twelve columns so an island can take the share it needs. A zone declares
+   its own span in map.js, because how much room Azure wants compared to
+   GitHub is a fact about the content. */
 .map__zones {
   position: relative;
   z-index: 1;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+  grid-template-columns: repeat(12, minmax(0, 1fr));
   gap: var(--space-2xl);
+  align-items: start;
+}
+
+.zone {
+  --span: 12;
+  grid-column: span var(--span);
 }
 
 .zone {
@@ -391,10 +406,13 @@ button {
   font-size: var(--text-xs);
 }
 
+/* Groups tile. Stacked in one column they were a vertical list with headings
+   on it, which is the thing the islands exist to stop being. */
 .zone__groups {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-lg);
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+  gap: var(--space-md);
+  align-items: start;
 }
 
 /* A cluster of things that belong together. The inset is quiet on purpose: it
@@ -701,6 +719,14 @@ button {
 @media (width < 60rem) {
   .workbench {
     grid-template-columns: minmax(0, 1fr);
+  }
+
+  .map__zones {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .zone {
+    grid-column: auto;
   }
 
   .panel {
