@@ -75,10 +75,10 @@ window.MOV = window.MOV || {};
     button.dataset.object = item.id;
     // The accessible name is the object's own name; the blurb reads as its
     // description rather than being glued onto the name.
-    button.setAttribute("aria-label", item.name);
+    button.setAttribute("aria-label", item.short || item.name);
 
     var body = element("span");
-    body.appendChild(element("span", "object__name", item.name));
+    body.appendChild(element("span", "object__name", item.short || item.name));
     body.appendChild(element("span", "object__blurb", item.blurb));
 
     button.appendChild(glyph(item.kind));

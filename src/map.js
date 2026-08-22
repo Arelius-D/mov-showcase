@@ -74,6 +74,11 @@ window.MOV.GROUPS = [
 /* ─── OBJECTS ───────────────────────────────────────
    `kind` is used for the glyph and nothing else. `detail` is two or three
    sentences: enough to be true, short enough to be read standing up.
+
+   `short` is what the card says, `name` is what the thing is really called.
+   Eight cards in Zone C carrying the same company token said nothing eight
+   times; the generated name is worth more in the panel, where it reads as
+   evidence that the patterns in naming.json produced it.
    ─────────────────────────────────────────────────── */
 window.MOV.OBJECTS = [
   /* ── Zone A — your machine ── */
@@ -115,6 +120,7 @@ window.MOV.OBJECTS = [
     id: "workspace",
     zone: "machine",
     group: "declared",
+    short: "Workspace file",
     kind: "file",
     name: "mov.workspace.json",
     blurb: "Which tenant, which subscription.",
@@ -129,6 +135,7 @@ window.MOV.OBJECTS = [
     id: "naming",
     zone: "machine",
     group: "declared",
+    short: "Naming patterns",
     kind: "file",
     name: "naming.json",
     blurb: "Every name, from one pattern each.",
@@ -143,6 +150,7 @@ window.MOV.OBJECTS = [
     id: "defaults",
     zone: "machine",
     group: "declared",
+    short: "Defaults",
     kind: "file",
     name: "defaults.json",
     blurb: "What every environment inherits.",
@@ -157,6 +165,7 @@ window.MOV.OBJECTS = [
     id: "profile",
     zone: "machine",
     group: "declared",
+    short: "Environment profile",
     kind: "file",
     name: "profiles/v34.json",
     blurb: "One environment, described.",
@@ -171,6 +180,7 @@ window.MOV.OBJECTS = [
     id: "keys",
     zone: "machine",
     group: "produced",
+    short: "Keys",
     kind: "key",
     name: "keys/",
     blurb: "A fresh key per environment.",
@@ -185,6 +195,7 @@ window.MOV.OBJECTS = [
     id: "state",
     zone: "machine",
     group: "produced",
+    short: "State",
     kind: "file",
     name: "state/",
     blurb: "What Azure said back.",
@@ -263,6 +274,7 @@ window.MOV.OBJECTS = [
     id: "rg",
     zone: "azure",
     group: "environment",
+    short: "Resource group",
     kind: "group",
     name: "rg-novatrix-v34",
     blurb: "One environment, one group.",
@@ -273,6 +285,7 @@ window.MOV.OBJECTS = [
     id: "budget",
     zone: "azure",
     group: "environment",
+    short: "Budget",
     kind: "cost",
     name: "budget-novatrix-v34",
     blurb: "Alerts before the credit does.",
@@ -283,6 +296,7 @@ window.MOV.OBJECTS = [
     id: "vnet",
     zone: "azure",
     group: "network",
+    short: "Virtual network",
     kind: "network",
     name: "vnet-novatrix",
     blurb: "The private address space.",
@@ -293,6 +307,7 @@ window.MOV.OBJECTS = [
     id: "subnet",
     zone: "azure",
     group: "network",
+    short: "Subnet",
     kind: "network",
     name: "snet-novatrix-web",
     blurb: "The slice the machine sits in.",
@@ -303,6 +318,7 @@ window.MOV.OBJECTS = [
     id: "nsg",
     zone: "azure",
     group: "network",
+    short: "Security group",
     kind: "shield",
     name: "nsg-novatrix-web",
     blurb: "Which ports are open, and to whom.",
@@ -317,6 +333,7 @@ window.MOV.OBJECTS = [
     id: "pip",
     zone: "azure",
     group: "machine-c",
+    short: "Public IP",
     kind: "network",
     name: "pip-novatrix-web",
     blurb: "The address on the internet.",
@@ -327,6 +344,7 @@ window.MOV.OBJECTS = [
     id: "nic",
     zone: "azure",
     group: "machine-c",
+    short: "Network interface",
     kind: "network",
     name: "nic-novatrix-web",
     blurb: "What joins the machine to the network.",
@@ -337,6 +355,7 @@ window.MOV.OBJECTS = [
     id: "vm",
     zone: "azure",
     group: "machine-c",
+    short: "Virtual machine",
     kind: "server",
     name: "vm-novatrix-web",
     blurb: "Ubuntu 24.04, and the reason for all of it.",

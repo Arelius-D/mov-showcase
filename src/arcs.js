@@ -7,9 +7,9 @@
 
    Two routing cases, because one rule cannot serve both:
 
-     cross-zone  anchored on the facing sides, control points pushed along the
-                 horizontal, so the curve leaves and arrives travelling the way
-                 the eye is already moving.
+     cross-zone  anchored on the facing edges of whichever axis the two are
+                 further apart on, with the control points pushed along it, so
+                 a curve leaves and arrives travelling the way it is going.
 
      same-zone   both ends on the left edge, bowed left but kept inside the
                  card. Objects in a zone are a vertical stack, so a straight
@@ -38,6 +38,15 @@ window.MOV = window.MOV || {};
   var BOW_MAX = 15;
   var LABEL_LIFT = 4; /* sit the label just off the line, not on it */
 
+  /* Every arc used to leave from its object's exact centre, so all eight of the
+     VM's arcs started at one point and lay on top of each other — worst when
+     the far end was roughly level, which turns the curve into a straight line
+     with nothing to separate it from its neighbours. Each arc gets its own slot
+     along the object's edge instead. The step shrinks to fit rather than
+     spilling out of a card that has a lot of arcs. */
+  var FAN_STEP = 7;
+  var FAN_MARGIN = 12;
+
   /* Layout coordinates, not screen ones. getBoundingClientRect reports what is
      on screen, which means it reports post-transform values — so the moment the
      stage is scaled, every arc computed from it would be wrong by that factor.
@@ -63,9 +72,24 @@ window.MOV = window.MOV || {};
     return {
       left: left,
       right: left + node.offsetWidth,
+      top: top,
+      bottom: top + node.offsetHeight,
       cx: left + node.offsetWidth / 2,
       cy: top + node.offsetHeight / 2,
+      width: node.offsetWidth,
+      height: node.offsetHeight,
     };
+  }
+
+  /* Which slot this arc takes on that object's edge, as an offset from centre.
+     Declaration order decides, so it is stable between renders. */
+  function slot(extent, arcIndex, objectId) {
+    var list = slots[objectId];
+    if (!list || list.length < 2) return 0;
+
+    var position = list.indexOf(arcIndex);
+    var step = Math.min(FAN_STEP, (extent - FAN_MARGIN) / (list.length - 1));
+    return (position - (list.length - 1) / 2) * Math.max(0, step);
   }
 
   /* A cubic's midpoint, which is where the label goes. Not the average of the
@@ -77,39 +101,70 @@ window.MOV = window.MOV || {};
     };
   }
 
-  function route(a, b, sameZone) {
+  function route(a, b, sameZone, index, fromId, toId) {
     if (sameZone) {
-      var bow = Math.min(
-        BOW_MAX,
-        Math.max(BOW_MIN, Math.abs(b.cy - a.cy) * BOW_RATIO)
-      );
+      var ay = a.cy + slot(a.height, index, fromId);
+      var by = b.cy + slot(b.height, index, toId);
+      var bow = Math.min(BOW_MAX, Math.max(BOW_MIN, Math.abs(by - ay) * BOW_RATIO));
       return {
         x1: a.left,
-        y1: a.cy,
+        y1: ay,
         c1x: a.left - bow,
-        c1y: a.cy,
+        c1y: ay,
         c2x: b.left - bow,
-        c2y: b.cy,
+        c2y: by,
         x2: b.left,
-        y2: b.cy,
+        y2: by,
       };
     }
 
-    var rightward = a.cx < b.cx;
-    var x1 = rightward ? a.right : a.left;
-    var x2 = rightward ? b.left : b.right;
-    var push = Math.max(MIN_PUSH, Math.abs(x2 - x1) * PUSH_RATIO);
-    var sign = rightward ? 1 : -1;
+    /* Whichever way the two objects are further apart is the way the curve
+       should travel. The islands are no longer a single row: Azure sits below
+       the other two, so an arc into it is a vertical journey, and anchoring
+       that on the left and right edges sent it looping out sideways to reach
+       something directly underneath. */
+    var horizontal = Math.abs(b.cx - a.cx) >= Math.abs(b.cy - a.cy);
+
+    if (horizontal) {
+      var rightward = a.cx < b.cx;
+      var x1 = rightward ? a.right : a.left;
+      var x2 = rightward ? b.left : b.right;
+      var push = Math.max(MIN_PUSH, Math.abs(x2 - x1) * PUSH_RATIO);
+      var sign = rightward ? 1 : -1;
+      /* Fanned across the edge the arc leaves from, which for a horizontal
+         journey is the vertical one. */
+      var hy1 = a.cy + slot(a.height, index, fromId);
+      var hy2 = b.cy + slot(b.height, index, toId);
+
+      return {
+        x1: x1,
+        y1: hy1,
+        c1x: x1 + push * sign,
+        c1y: hy1,
+        c2x: x2 - push * sign,
+        c2y: hy2,
+        x2: x2,
+        y2: hy2,
+      };
+    }
+
+    var downward = a.cy < b.cy;
+    var y1 = downward ? a.bottom : a.top;
+    var y2 = downward ? b.top : b.bottom;
+    var vpush = Math.max(MIN_PUSH, Math.abs(y2 - y1) * PUSH_RATIO);
+    var vsign = downward ? 1 : -1;
+    var vx1 = a.cx + slot(a.width, index, fromId);
+    var vx2 = b.cx + slot(b.width, index, toId);
 
     return {
-      x1: x1,
-      y1: a.cy,
-      c1x: x1 + push * sign,
-      c1y: a.cy,
-      c2x: x2 - push * sign,
-      c2y: b.cy,
-      x2: x2,
-      y2: b.cy,
+      x1: vx1,
+      y1: y1,
+      c1x: vx1,
+      c1y: y1 + vpush * vsign,
+      c2x: vx2,
+      c2y: y2 - vpush * vsign,
+      x2: vx2,
+      y2: y2,
     };
   }
 
@@ -131,10 +186,18 @@ window.MOV = window.MOV || {};
   }
 
   var zoneOf = {};
+  var slots = {};
 
   function build(layer) {
     window.MOV.OBJECTS.forEach(function (item) {
       zoneOf[item.id] = item.zone;
+    });
+
+    window.MOV.ARCS.forEach(function (arc, index) {
+      slots[arc.from] = slots[arc.from] || [];
+      slots[arc.to] = slots[arc.to] || [];
+      slots[arc.from].push(index);
+      slots[arc.to].push(index);
     });
 
     window.MOV.ARCS.forEach(function (arc, index) {
@@ -171,7 +234,14 @@ window.MOV = window.MOV || {};
       var label = layer.querySelector('text[data-arc="' + index + '"]');
       if (!a || !b || !path) return;
 
-      var geometry = route(a, b, zoneOf[arc.from] === zoneOf[arc.to]);
+      var geometry = route(
+        a,
+        b,
+        zoneOf[arc.from] === zoneOf[arc.to],
+        index,
+        arc.from,
+        arc.to
+      );
       path.setAttribute("d", d(geometry));
 
       var middle = midpoint(geometry);
