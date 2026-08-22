@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>mov — what it actually does</title>
+    <meta
+      name="description"
+      content="An interactive map of a profile-driven Azure CLI: a JSON file on your machine, a repository on GitHub, and infrastructure in Azure — and every arc between them."
+    />
+    <link rel="stylesheet" href="src/styles.css" />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ctext y='19' font-size='19'%3E%E2%97%88%3C/text%3E%3C/svg%3E"
+    />
+  </head>
+  <body>
+    <div class="page">
+      <header class="masthead">
+        <div>
+          <h1 class="masthead__title">mov</h1>
+          <p class="masthead__lede">
+            An environment is a JSON file. This is what that file reaches, and
+            what reaches back. Click anything to find out what it is; hover to
+            see only what it is connected to.
+          </p>
+        </div>
+        <button
+          class="theme-toggle"
+          type="button"
+          id="theme-toggle"
+          aria-live="polite"
+        >
+          <span id="theme-toggle-label">Light</span>
+        </button>
+      </header>
+
+      <main class="workbench">
+        <!-- The map is one focus scope: the SVG sits behind the zones and is
+             purely presentational, so it is hidden from assistive tech. Every
+             relationship it draws is also listed in the panel as text. -->
+        <div class="map" id="map">
+          <svg
+            class="map__arcs"
+            id="arcs"
+            aria-hidden="true"
+            focusable="false"
+          ></svg>
+          <div class="map__zones" id="zones"></div>
+        </div>
+
+        <aside
+          class="panel"
+          id="panel"
+          aria-live="polite"
+          aria-label="Details of the selected object"
+        ></aside>
+      </main>
+
+      <footer class="legend" id="legend"></footer>
+    </div>
+
+    <!-- Classic scripts, in dependency order. No modules: ES module imports are
+         blocked over file://, and this page has to open by double-clicking it. -->
+    <script src="src/map.js"></script>
+    <script src="src/render.js"></script>
+    <script src="src/arcs.js"></script>
+    <script src="src/interact.js"></script>
+  </body>
+</html>

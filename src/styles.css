@@ -1,0 +1,615 @@
+/* ═══════════════════════════════════════════════════
+   mov-showcase — design system and layout
+
+   House rules, enforced by verify/check.py rather than by intention:
+     · every colour is oklch() or a var(--…). No hex, no rgb(), no hsl().
+     · every length is rem, em, %, ch or a viewport unit. No px.
+     · no !important. If a rule loses, the selector was wrong.
+     · every custom property declared is used, and every one used is declared.
+
+   Order below is deliberate: tokens, then reset, then layout, then components.
+   A rule that needs to win does so by specificity or by sitting later in the
+   file, which is a decision someone made rather than an escape hatch.
+   ═══════════════════════════════════════════════════ */
+
+/* ═══════════════════════════════════════════════════
+   TOKENS — structure. Theme-independent, declared once.
+   ═══════════════════════════════════════════════════ */
+:root {
+  /* Spacing — a 4-step scale doubling roughly every two steps */
+  --space-2xs: 0.25rem; /* 4  */
+  --space-xs: 0.5rem; /* 8  */
+  --space-sm: 0.75rem; /* 12 */
+  --space-md: 1rem; /* 16 */
+  --space-lg: 1.5rem; /* 24 */
+
+  --radius-sm: 0.375rem;
+  --radius-md: 0.625rem;
+  --radius-lg: 1rem;
+  --radius-pill: 62.5rem;
+
+  --text-2xs: 0.6875rem; /* 11 — the zone letter, arc labels */
+  --text-xs: 0.75rem; /* 12 — kind tags, evidence */
+  --text-sm: 0.8125rem; /* 13 — blurbs */
+  --text-base: 0.9375rem; /* 15 — body, detail text */
+  --text-lg: 1.125rem; /* 18 — object names in the panel */
+  --text-xl: 1.5rem; /* 24 — zone names */
+  --text-2xl: 2rem; /* 32 — the page title */
+
+  --leading-tight: 1.25;
+  --leading-normal: 1.6;
+
+  --weight-medium: 500;
+  --weight-semibold: 600;
+
+  --hairline: 0.0625rem; /* 1 */
+  --stroke-arc: 0.09375rem; /* 1.5 — SVG stroke, at rest */
+  --stroke-arc-lit: 0.15625rem; /* 2.5 — SVG stroke, highlighted */
+
+  --motion-fast: 0.12s;
+  --motion-base: 0.22s;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+
+  --dim: 0.16; /* opacity of everything unrelated to the hovered object */
+
+  --font-sans: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --font-mono: "JetBrains Mono", "Cascadia Code", ui-monospace, monospace;
+
+  --map-min-height: 34rem;
+  --panel-width: 22rem;
+  --layout-max: 84rem;
+}
+
+/* ═══════════════════════════════════════════════════
+   THEME: Deep Field (dark) — also the default
+   ═══════════════════════════════════════════════════ */
+:root,
+[data-theme="deep-field"] {
+  color-scheme: dark;
+
+  --bg-base: oklch(0.19 0.018 254);
+  --bg-zone: oklch(0.235 0.021 253);
+  --bg-object: oklch(0.285 0.025 252);
+  --bg-object-hover: oklch(0.335 0.031 251);
+  --bg-panel: oklch(0.245 0.022 253);
+  --bg-evidence: oklch(0.165 0.016 254);
+
+  --text-primary: oklch(0.965 0.006 250);
+  --text-secondary: oklch(0.79 0.011 250);
+  --text-muted: oklch(0.66 0.013 250);
+
+  --border: oklch(0.965 0.006 250 / 0.12);
+  --border-strong: oklch(0.965 0.006 250 / 0.26);
+
+  --accent: oklch(0.78 0.13 195);
+  --accent-quiet: oklch(0.78 0.13 195 / 0.16);
+
+  /* One hue per arc kind, all at a matched lightness so no single kind
+     shouts over the others when they overlap. */
+  --arc-causes: oklch(0.78 0.13 195);
+  --arc-pulls: oklch(0.79 0.14 72);
+  --arc-reports: oklch(0.72 0.07 268);
+  --arc-removes: oklch(0.7 0.17 22);
+
+  --focus-ring: oklch(0.85 0.15 195);
+  --shadow-panel: 0 0.5rem 2rem oklch(0 0 0 / 0.45);
+  --shadow-object: 0 0.0625rem 0.1875rem oklch(0 0 0 / 0.3);
+}
+
+/* ═══════════════════════════════════════════════════
+   THEME: Paper (light)
+   ═══════════════════════════════════════════════════ */
+[data-theme="paper"] {
+  color-scheme: light;
+
+  --bg-base: oklch(0.975 0.004 250);
+  --bg-zone: oklch(0.945 0.006 250);
+  --bg-object: oklch(0.995 0.002 250);
+  --bg-object-hover: oklch(0.93 0.012 240);
+  --bg-panel: oklch(0.995 0.002 250);
+  --bg-evidence: oklch(0.955 0.006 250);
+
+  --text-primary: oklch(0.24 0.017 254);
+  --text-secondary: oklch(0.42 0.015 254);
+  --text-muted: oklch(0.53 0.013 254);
+
+  --border: oklch(0.24 0.017 254 / 0.14);
+  --border-strong: oklch(0.24 0.017 254 / 0.3);
+
+  --accent: oklch(0.53 0.11 205);
+  --accent-quiet: oklch(0.53 0.11 205 / 0.14);
+
+  --arc-causes: oklch(0.53 0.11 205);
+  --arc-pulls: oklch(0.56 0.13 60);
+  --arc-reports: oklch(0.52 0.08 268);
+  --arc-removes: oklch(0.52 0.18 25);
+
+  --focus-ring: oklch(0.45 0.13 205);
+  --shadow-panel: 0 0.5rem 2rem oklch(0 0 0 / 0.13);
+  --shadow-object: 0 0.0625rem 0.1875rem oklch(0 0 0 / 0.08);
+}
+
+/* Someone who has expressed no preference in the page gets the one their
+   system asked for. An explicit [data-theme] always wins, because it is later
+   and more specific than this. */
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme]) {
+    color-scheme: light;
+
+    --bg-base: oklch(0.975 0.004 250);
+    --bg-zone: oklch(0.945 0.006 250);
+    --bg-object: oklch(0.995 0.002 250);
+    --bg-object-hover: oklch(0.93 0.012 240);
+    --bg-panel: oklch(0.995 0.002 250);
+    --bg-evidence: oklch(0.955 0.006 250);
+
+    --text-primary: oklch(0.24 0.017 254);
+    --text-secondary: oklch(0.42 0.015 254);
+    --text-muted: oklch(0.53 0.013 254);
+
+    --border: oklch(0.24 0.017 254 / 0.14);
+    --border-strong: oklch(0.24 0.017 254 / 0.3);
+
+    --accent: oklch(0.53 0.11 205);
+    --accent-quiet: oklch(0.53 0.11 205 / 0.14);
+
+    --arc-causes: oklch(0.53 0.11 205);
+    --arc-pulls: oklch(0.56 0.13 60);
+    --arc-reports: oklch(0.52 0.08 268);
+    --arc-removes: oklch(0.52 0.18 25);
+
+    --focus-ring: oklch(0.45 0.13 205);
+    --shadow-panel: 0 0.5rem 2rem oklch(0 0 0 / 0.13);
+    --shadow-object: 0 0.0625rem 0.1875rem oklch(0 0 0 / 0.08);
+  }
+}
+
+/* ═══════════════════════════════════════════════════
+   RESET — only what this page actually needs
+   ═══════════════════════════════════════════════════ */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body,
+h1,
+h2,
+h3,
+p,
+figure,
+pre {
+  margin: 0;
+}
+
+body {
+  background: var(--bg-base);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: var(--text-base);
+  line-height: var(--leading-normal);
+  -webkit-font-smoothing: antialiased;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+:focus-visible {
+  outline: var(--stroke-arc-lit) solid var(--focus-ring);
+  outline-offset: var(--space-2xs);
+}
+
+/* ═══════════════════════════════════════════════════
+   PAGE
+   ═══════════════════════════════════════════════════ */
+.page {
+  max-width: var(--layout-max);
+  margin-inline: auto;
+  padding: var(--space-lg);
+}
+
+.masthead {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-md);
+  align-items: baseline;
+  justify-content: space-between;
+  margin-block-end: var(--space-lg);
+}
+
+.masthead__title {
+  font-size: var(--text-2xl);
+  font-weight: var(--weight-semibold);
+  line-height: var(--leading-tight);
+  letter-spacing: -0.02em;
+}
+
+.masthead__lede {
+  max-width: 52ch;
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+}
+
+.theme-toggle {
+  display: inline-flex;
+  gap: var(--space-2xs);
+  align-items: center;
+  padding: var(--space-2xs) var(--space-sm);
+  border: var(--hairline) solid var(--border);
+  border-radius: var(--radius-pill);
+  color: var(--text-secondary);
+  font-size: var(--text-xs);
+  transition: color var(--motion-fast) var(--ease-out),
+    border-color var(--motion-fast) var(--ease-out);
+}
+
+.theme-toggle:hover {
+  color: var(--text-primary);
+  border-color: var(--border-strong);
+}
+
+/* ═══════════════════════════════════════════════════
+   THE MAP — three zones, with one SVG behind them
+   ═══════════════════════════════════════════════════ */
+.workbench {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) var(--panel-width);
+  gap: var(--space-lg);
+  align-items: start;
+}
+
+.map {
+  position: relative;
+  min-height: var(--map-min-height);
+}
+
+/* The overlay spans the whole map and must never eat a click meant for an
+   object underneath it. */
+.map__arcs {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.map__zones {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+  gap: var(--space-lg);
+}
+
+.zone {
+  padding: var(--space-md);
+  background: var(--bg-zone);
+  border: var(--hairline) solid var(--border);
+  border-radius: var(--radius-lg);
+}
+
+.zone__head {
+  display: flex;
+  gap: var(--space-xs);
+  align-items: baseline;
+  margin-block-end: var(--space-2xs);
+}
+
+.zone__letter {
+  display: inline-grid;
+  place-items: center;
+  width: 1.375rem;
+  height: 1.375rem;
+  background: var(--accent-quiet);
+  border-radius: var(--radius-sm);
+  color: var(--accent);
+  font-size: var(--text-2xs);
+  font-weight: var(--weight-semibold);
+}
+
+.zone__name {
+  font-size: var(--text-xl);
+  font-weight: var(--weight-semibold);
+  line-height: var(--leading-tight);
+  letter-spacing: -0.01em;
+}
+
+.zone__note {
+  margin-block-end: var(--space-md);
+  color: var(--text-muted);
+  font-size: var(--text-xs);
+}
+
+.zone__objects {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+/* ═══════════════════════════════════════════════════
+   OBJECTS — buttons, because they are clickable
+   ═══════════════════════════════════════════════════ */
+.object {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: var(--space-xs);
+  align-items: start;
+  padding: var(--space-xs) var(--space-sm);
+  background: var(--bg-object);
+  border: var(--hairline) solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-object);
+  text-align: start;
+  transition: background var(--motion-fast) var(--ease-out),
+    border-color var(--motion-fast) var(--ease-out),
+    opacity var(--motion-base) var(--ease-out),
+    transform var(--motion-fast) var(--ease-out);
+}
+
+.object:hover {
+  background: var(--bg-object-hover);
+  border-color: var(--border-strong);
+}
+
+.object__glyph {
+  width: 1rem;
+  height: 1rem;
+  margin-block-start: 0.1875rem;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.object__name {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  line-height: var(--leading-tight);
+  overflow-wrap: anywhere;
+}
+
+.object__blurb {
+  color: var(--text-muted);
+  font-size: var(--text-xs);
+  line-height: var(--leading-tight);
+}
+
+/* Hovering or selecting anything puts the map in a "focused" state: the
+   related objects keep full opacity, everything else recedes. Driven by a
+   class on the map so one state change repaints everything consistently. */
+.map.is-focused .object {
+  opacity: var(--dim);
+}
+
+.map.is-focused .object.is-related {
+  opacity: 1;
+}
+
+.map.is-focused .object.is-active {
+  opacity: 1;
+  border-color: var(--accent);
+  transform: translateX(var(--space-2xs));
+}
+
+/* ═══════════════════════════════════════════════════
+   ARCS
+   ═══════════════════════════════════════════════════ */
+.arc {
+  fill: none;
+  stroke-width: var(--stroke-arc);
+  stroke-linecap: round;
+  opacity: 0.5;
+  transition: opacity var(--motion-base) var(--ease-out),
+    stroke-width var(--motion-base) var(--ease-out);
+}
+
+.arc[data-kind="causes"] {
+  stroke: var(--arc-causes);
+}
+
+.arc[data-kind="pulls"] {
+  stroke: var(--arc-pulls);
+  stroke-dasharray: 0.375rem 0.3125rem;
+}
+
+.arc[data-kind="reports"] {
+  stroke: var(--arc-reports);
+  stroke-dasharray: 0.125rem 0.25rem;
+}
+
+.arc[data-kind="removes"] {
+  stroke: var(--arc-removes);
+  stroke-dasharray: 0.5rem 0.25rem 0.125rem 0.25rem;
+}
+
+.map.is-focused .arc {
+  opacity: 0.07;
+}
+
+.map.is-focused .arc.is-related {
+  opacity: 1;
+  stroke-width: var(--stroke-arc-lit);
+}
+
+.arc-label {
+  fill: var(--text-secondary);
+  font-family: var(--font-sans);
+  font-size: var(--text-2xs);
+  opacity: 0;
+  transition: opacity var(--motion-base) var(--ease-out);
+}
+
+.map.is-focused .arc-label.is-related {
+  opacity: 1;
+}
+
+/* ═══════════════════════════════════════════════════
+   DETAIL PANEL
+   ═══════════════════════════════════════════════════ */
+.panel {
+  position: sticky;
+  top: var(--space-lg);
+  padding: var(--space-md);
+  background: var(--bg-panel);
+  border: var(--hairline) solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-panel);
+}
+
+.panel__kind {
+  display: inline-block;
+  margin-block-end: var(--space-xs);
+  padding: 0 var(--space-xs);
+  background: var(--accent-quiet);
+  border-radius: var(--radius-pill);
+  color: var(--accent);
+  font-size: var(--text-2xs);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.panel__name {
+  font-family: var(--font-mono);
+  font-size: var(--text-lg);
+  font-weight: var(--weight-semibold);
+  line-height: var(--leading-tight);
+  overflow-wrap: anywhere;
+}
+
+.panel__detail {
+  margin-block-start: var(--space-sm);
+  color: var(--text-secondary);
+}
+
+.panel__evidence {
+  margin-block-start: var(--space-md);
+  padding: var(--space-sm);
+  background: var(--bg-evidence);
+  border-radius: var(--radius-md);
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  line-height: var(--leading-normal);
+  overflow-x: auto;
+  white-space: pre;
+}
+
+.panel__links {
+  margin-block-start: var(--space-md);
+  padding-block-start: var(--space-sm);
+  border-block-start: var(--hairline) solid var(--border);
+}
+
+.panel__links-title {
+  color: var(--text-muted);
+  font-size: var(--text-2xs);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.panel__link {
+  display: block;
+  width: 100%;
+  padding: var(--space-2xs) 0;
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+  text-align: start;
+  transition: color var(--motion-fast) var(--ease-out);
+}
+
+.panel__link:hover {
+  color: var(--accent);
+}
+
+.panel__link-verb {
+  color: var(--text-muted);
+  font-size: var(--text-xs);
+}
+
+.panel__empty {
+  color: var(--text-muted);
+  font-size: var(--text-sm);
+}
+
+/* ═══════════════════════════════════════════════════
+   LEGEND
+   ═══════════════════════════════════════════════════ */
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-md);
+  margin-block-start: var(--space-lg);
+  padding-block-start: var(--space-md);
+  border-block-start: var(--hairline) solid var(--border);
+}
+
+.legend__item {
+  display: flex;
+  gap: var(--space-xs);
+  align-items: center;
+  color: var(--text-muted);
+  font-size: var(--text-xs);
+}
+
+.legend__swatch {
+  width: 1.5rem;
+  height: 0;
+  border-block-start-style: solid;
+  border-block-start-width: var(--stroke-arc-lit);
+  flex-shrink: 0;
+}
+
+.legend__swatch[data-kind="causes"] {
+  border-color: var(--arc-causes);
+}
+
+.legend__swatch[data-kind="pulls"] {
+  border-color: var(--arc-pulls);
+  border-block-start-style: dashed;
+}
+
+.legend__swatch[data-kind="reports"] {
+  border-color: var(--arc-reports);
+  border-block-start-style: dotted;
+}
+
+.legend__swatch[data-kind="removes"] {
+  border-color: var(--arc-removes);
+  border-block-start-style: dashed;
+}
+
+/* ═══════════════════════════════════════════════════
+   NARROW — the panel stops being a sidebar, and the arcs
+   stop being useful, so they go rather than overlap.
+   ═══════════════════════════════════════════════════ */
+@media (width < 60rem) {
+  .workbench {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .panel {
+    position: static;
+  }
+
+  .map__arcs {
+    display: none;
+  }
+}
+
+/* ═══════════════════════════════════════════════════
+   Someone who asked for less motion gets none of it. The
+   dimming stays: it carries meaning, it is not decoration.
+   ═══════════════════════════════════════════════════ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.001s;
+    animation-duration: 0.001s;
+  }
+}
