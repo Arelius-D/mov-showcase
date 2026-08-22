@@ -22,6 +22,8 @@
   --space-sm: 0.75rem; /* 12 */
   --space-md: 1rem; /* 16 */
   --space-lg: 1.5rem; /* 24 */
+  --space-xl: 2rem; /* 32 */
+  --space-2xl: 3rem; /* 48 — the gutter arcs travel through */
 
   --radius-sm: 0.375rem;
   --radius-md: 0.625rem;
@@ -51,13 +53,16 @@
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
 
   --dim: 0.16; /* opacity of everything unrelated to the hovered object */
+  --arc-rest: 0.14; /* cross-zone arcs when nothing is being pointed at */
 
   --font-sans: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
   --font-mono: "JetBrains Mono", "Cascadia Code", ui-monospace, monospace;
 
   --map-min-height: 34rem;
   --panel-width: 22rem;
-  --layout-max: 84rem;
+  /* Wide enough that three zones plus a 3rem gutter each still leave a card
+     that reads comfortably, once the fixed panel has taken its share. */
+  --layout-max: 90rem;
 }
 
 /* ═══════════════════════════════════════════════════
@@ -211,7 +216,7 @@ button {
 .page {
   max-width: var(--layout-max);
   margin-inline: auto;
-  padding: var(--space-lg);
+  padding: var(--space-xl);
 }
 
 .masthead {
@@ -220,7 +225,7 @@ button {
   gap: var(--space-md);
   align-items: baseline;
   justify-content: space-between;
-  margin-block-end: var(--space-lg);
+  margin-block-end: var(--space-2xl);
 }
 
 .masthead__title {
@@ -260,7 +265,7 @@ button {
 .workbench {
   display: grid;
   grid-template-columns: minmax(0, 1fr) var(--panel-width);
-  gap: var(--space-lg);
+  gap: var(--space-xl);
   align-items: start;
 }
 
@@ -269,11 +274,15 @@ button {
   min-height: var(--map-min-height);
 }
 
-/* The overlay spans the whole map and must never eat a click meant for an
-   object underneath it. */
+/* The overlay sits ON TOP of the zones, not behind them: a zone has an opaque
+   background, so arcs drawn underneath were visible only in the gutters
+   between zones and vanished the moment they crossed a card. Above them and
+   click-through is how a diagram like this has to work — the arcs are the
+   point of the page, and they cannot be occluded by the things they connect. */
 .map__arcs {
   position: absolute;
   inset: 0;
+  z-index: 2;
   width: 100%;
   height: 100%;
   overflow: visible;
@@ -282,13 +291,14 @@ button {
 
 .map__zones {
   position: relative;
+  z-index: 1;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
-  gap: var(--space-lg);
+  grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+  gap: var(--space-2xl);
 }
 
 .zone {
-  padding: var(--space-md);
+  padding: var(--space-lg);
   background: var(--bg-zone);
   border: var(--hairline) solid var(--border);
   border-radius: var(--radius-lg);
@@ -321,7 +331,7 @@ button {
 }
 
 .zone__note {
-  margin-block-end: var(--space-md);
+  margin-block-end: var(--space-lg);
   color: var(--text-muted);
   font-size: var(--text-xs);
 }
@@ -329,7 +339,7 @@ button {
 .zone__objects {
   display: flex;
   flex-direction: column;
-  gap: var(--space-xs);
+  gap: var(--space-sm);
 }
 
 /* ═══════════════════════════════════════════════════
@@ -338,9 +348,9 @@ button {
 .object {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
-  gap: var(--space-xs);
+  gap: var(--space-sm);
   align-items: start;
-  padding: var(--space-xs) var(--space-sm);
+  padding: var(--space-sm) var(--space-md);
   background: var(--bg-object);
   border: var(--hairline) solid var(--border);
   border-radius: var(--radius-md);
@@ -365,7 +375,10 @@ button {
   flex-shrink: 0;
 }
 
+/* Both of these are spans inside a grid cell. Left inline they share a line
+   and collide; the name is not a label for the blurb, it sits above it. */
 .object__name {
+  display: block;
   font-family: var(--font-mono);
   font-size: var(--text-sm);
   font-weight: var(--weight-medium);
@@ -374,6 +387,7 @@ button {
 }
 
 .object__blurb {
+  display: block;
   color: var(--text-muted);
   font-size: var(--text-xs);
   line-height: var(--leading-tight);
@@ -403,9 +417,17 @@ button {
   fill: none;
   stroke-width: var(--stroke-arc);
   stroke-linecap: round;
-  opacity: 0.5;
+  opacity: var(--arc-rest);
   transition: opacity var(--motion-base) var(--ease-out),
     stroke-width var(--motion-base) var(--ease-out);
+}
+
+/* At rest the map shows structure, not detail. An arc that stays inside one
+   zone has nothing on the far side of the card to reach, so it hugs the edge
+   as a stray mark rather than reading as a connection — it waits until someone
+   asks for that object. The focus rules below sit later and override this. */
+.arc[data-span="same"] {
+  opacity: 0;
 }
 
 .arc[data-kind="causes"] {
@@ -427,8 +449,10 @@ button {
   stroke-dasharray: 0.5rem 0.25rem 0.125rem 0.25rem;
 }
 
+/* Two classes beats one attribute, and both of these come after the rule that
+   hides same-zone arcs, so a related arc surfaces whichever kind it is. */
 .map.is-focused .arc {
-  opacity: 0.07;
+  opacity: 0.04;
 }
 
 .map.is-focused .arc.is-related {
@@ -436,8 +460,14 @@ button {
   stroke-width: var(--stroke-arc-lit);
 }
 
+/* A halo in the page background, painted under the glyphs, so a label stays
+   readable wherever the curve happens to put it. */
 .arc-label {
-  fill: var(--text-secondary);
+  fill: var(--text-primary);
+  stroke: var(--bg-base);
+  stroke-width: 0.1875rem;
+  stroke-linejoin: round;
+  paint-order: stroke fill;
   font-family: var(--font-sans);
   font-size: var(--text-2xs);
   opacity: 0;
@@ -454,7 +484,7 @@ button {
 .panel {
   position: sticky;
   top: var(--space-lg);
-  padding: var(--space-md);
+  padding: var(--space-lg);
   background: var(--bg-panel);
   border: var(--hairline) solid var(--border);
   border-radius: var(--radius-lg);
@@ -542,9 +572,9 @@ button {
 .legend {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--space-md);
-  margin-block-start: var(--space-lg);
-  padding-block-start: var(--space-md);
+  gap: var(--space-lg);
+  margin-block-start: var(--space-2xl);
+  padding-block-start: var(--space-lg);
   border-block-start: var(--hairline) solid var(--border);
 }
 

@@ -1,9 +1,9 @@
 /* ═══════════════════════════════════════════════════
    mov-showcase — arcs: endpoints to curves
 
-   One SVG overlay behind the zones. Paths are computed from where the objects
-   actually ended up, never from hand-placed coordinates, so the map survives a
-   resize, a font that loads late, and an object being added to map.js.
+   One SVG overlay over the zones, click-through. Paths are computed from where
+   the objects actually ended up, never from hand-placed coordinates, so the map
+   survives a resize, a font that loads late, and an object added to map.js.
 
    Two routing cases, because one rule cannot serve both:
 
@@ -11,9 +11,9 @@
                  horizontal, so the curve leaves and arrives travelling the way
                  the eye is already moving.
 
-     same-zone   both ends anchored on the left edge and bowed further left.
-                 Objects in a zone are a vertical stack; a straight line from
-                 one to another would cut through everything between them.
+     same-zone   both ends on the left edge, bowed left but kept inside the
+                 card. Objects in a zone are a vertical stack, so a straight
+                 line between two of them cuts through everything in between.
 
    Coordinates here are CSS pixels, which is what getBoundingClientRect deals
    in and what an SVG with no viewBox uses as its user units. The no-px rule is
@@ -29,8 +29,13 @@ window.MOV = window.MOV || {};
 
   var MIN_PUSH = 40; /* keeps short hops curved rather than nearly straight */
   var PUSH_RATIO = 0.45;
-  var BOW_MIN = 28;
-  var BOW_RATIO = 0.35;
+  /* Objects sit one --space-md in from their zone's edge, so a bow wider than
+     that escapes the card. It used to reach well outside the map, which was
+     invisible while the arcs painted underneath and became a line across the
+     masthead the moment they came to the front. */
+  var BOW_MIN = 9;
+  var BOW_RATIO = 0.1;
+  var BOW_MAX = 15;
   var LABEL_LIFT = 4; /* sit the label just off the line, not on it */
 
   function box(id, origin) {
@@ -56,7 +61,10 @@ window.MOV = window.MOV || {};
 
   function route(a, b, sameZone) {
     if (sameZone) {
-      var bow = Math.max(BOW_MIN, Math.abs(b.cy - a.cy) * BOW_RATIO);
+      var bow = Math.min(
+        BOW_MAX,
+        Math.max(BOW_MIN, Math.abs(b.cy - a.cy) * BOW_RATIO)
+      );
       return {
         x1: a.left,
         y1: a.cy,
@@ -112,7 +120,16 @@ window.MOV = window.MOV || {};
     });
 
     window.MOV.ARCS.forEach(function (arc, index) {
-      var path = svg("path", { class: "arc", "data-kind": arc.kind });
+      /* Cross-zone arcs are the structure of the page and are drawn at rest.
+         Arcs inside a zone are detail: at rest they are noise hugging the edge
+         of a card with nothing on the other side of them, so they wait to be
+         asked for. The router already knows which is which. */
+      var span = zoneOf[arc.from] === zoneOf[arc.to] ? "same" : "cross";
+      var path = svg("path", {
+        class: "arc",
+        "data-kind": arc.kind,
+        "data-span": span,
+      });
       path.dataset.arc = String(index);
       path.dataset.from = arc.from;
       path.dataset.to = arc.to;
