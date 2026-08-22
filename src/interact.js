@@ -194,6 +194,88 @@ window.MOV = window.MOV || {};
     });
   }
 
+
+  /* ── zoom ──────────────────────────────────────────
+     One transform on one element. The arcs live inside it, so nothing is
+     recomputed — they scale with what they connect.
+
+     A transform does not change layout size, so a scaled-up stage would sit
+     over whatever follows it. The map's height is set to the stage's real
+     height times the scale, which puts the space back and lets the page keep
+     flowing normally. That is the whole reason this is a scale control and not
+     a canvas: it stays a page.
+     ────────────────────────────────────────────────── */
+  var MIN_SCALE = 0.6;
+  var MAX_SCALE = 1.6;
+  var SCALE_STEP = 0.1;
+  var STORED_SCALE = "mov-showcase-scale";
+
+  var scale = 1;
+  var stage, mapBox, level;
+
+  function clamp(value) {
+    return Math.min(MAX_SCALE, Math.max(MIN_SCALE, Math.round(value * 100) / 100));
+  }
+
+  function applyScale(next) {
+    scale = clamp(next);
+    stage.style.transform = scale === 1 ? "" : "scale(" + scale + ")";
+    mapBox.style.height = stage.offsetHeight * scale + "px";
+    level.textContent = Math.round(scale * 100) + "%";
+    try {
+      localStorage.setItem(STORED_SCALE, String(scale));
+    } catch (ignored) {
+      /* Storage refused. The zoom still works, it just will not be remembered. */
+    }
+  }
+
+  function zoom() {
+    stage = document.getElementById("stage");
+    mapBox = document.getElementById("map");
+    level = document.getElementById("zoom-reset");
+
+    var stored = null;
+    try {
+      stored = parseFloat(localStorage.getItem(STORED_SCALE));
+    } catch (ignored) {
+      stored = null;
+    }
+
+    document.getElementById("zoom-in").addEventListener("click", function () {
+      applyScale(scale + SCALE_STEP);
+    });
+    document.getElementById("zoom-out").addEventListener("click", function () {
+      applyScale(scale - SCALE_STEP);
+    });
+    level.addEventListener("click", function () {
+      applyScale(1);
+    });
+
+    /* Ctrl+wheel is the gesture people already use to zoom, and the browser's
+       own version of it would zoom the whole page including the controls. Only
+       claimed over the map, and only with the modifier held, so ordinary
+       scrolling is untouched. */
+    mapBox.addEventListener(
+      "wheel",
+      function (event) {
+        if (!event.ctrlKey) return;
+        event.preventDefault();
+        applyScale(scale + (event.deltaY < 0 ? SCALE_STEP : -SCALE_STEP));
+      },
+      { passive: false }
+    );
+
+    /* The stage's own height changes when the window does, so the space the
+       map reserves has to be recalculated from the new height, not the old. */
+    if (typeof ResizeObserver === "function") {
+      new ResizeObserver(function () {
+        mapBox.style.height = stage.offsetHeight * scale + "px";
+      }).observe(stage);
+    }
+
+    applyScale(stored && !Number.isNaN(stored) ? stored : 1);
+  }
+
   function theme() {
     var button = document.getElementById("theme-toggle");
     var label = document.getElementById("theme-toggle-label");
@@ -246,6 +328,7 @@ window.MOV = window.MOV || {};
     related = relations();
 
     window.MOV.arcs();
+    zoom();
     theme();
     bind();
     paint();

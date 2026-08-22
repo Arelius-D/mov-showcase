@@ -43,6 +43,28 @@ window.MOV.ZONES = [
   },
 ];
 
+/* ─── GROUPS ────────────────────────────────────────
+   Clusters inside a zone. A flat list per zone flattened structure that is
+   really there: vnet, subnet and nsg are one thing, pip, nic and vm are
+   another, and only the arcs said so. Grouping says it in the layout, and puts
+   related objects close enough that the arcs between them stay short.
+
+   Order here is the order down the zone.
+   ─────────────────────────────────────────────────── */
+window.MOV.GROUPS = [
+  { id: "tools", zone: "machine", name: "The tools" },
+  { id: "declared", zone: "machine", name: "What you declare" },
+  { id: "produced", zone: "machine", name: "What mov produces" },
+
+  { id: "yours", zone: "github", name: "Your code" },
+  { id: "upstream", zone: "github", name: "Where mov comes from" },
+
+  { id: "account", zone: "azure", name: "The account" },
+  { id: "environment", zone: "azure", name: "The environment" },
+  { id: "network", zone: "azure", name: "Network" },
+  { id: "machine-c", zone: "azure", name: "The machine" },
+];
+
 /* ─── OBJECTS ───────────────────────────────────────
    `kind` is used for the glyph and nothing else. `detail` is two or three
    sentences: enough to be true, short enough to be read standing up.
@@ -52,6 +74,7 @@ window.MOV.OBJECTS = [
   {
     id: "shell",
     zone: "machine",
+    group: "tools",
     kind: "shell",
     name: "Your shell",
     blurb: "PowerShell, on any OS.",
@@ -61,6 +84,7 @@ window.MOV.OBJECTS = [
   {
     id: "mov",
     zone: "machine",
+    group: "tools",
     kind: "tool",
     name: "mov",
     blurb: "The tool itself.",
@@ -74,6 +98,7 @@ window.MOV.OBJECTS = [
   {
     id: "az",
     zone: "machine",
+    group: "tools",
     kind: "tool",
     name: "Azure CLI",
     blurb: "The thing that actually talks to Azure.",
@@ -83,6 +108,7 @@ window.MOV.OBJECTS = [
   {
     id: "workspace",
     zone: "machine",
+    group: "declared",
     kind: "file",
     name: "mov.workspace.json",
     blurb: "Which tenant, which subscription.",
@@ -96,6 +122,7 @@ window.MOV.OBJECTS = [
   {
     id: "naming",
     zone: "machine",
+    group: "declared",
     kind: "file",
     name: "naming.json",
     blurb: "Every name, from one pattern each.",
@@ -109,6 +136,7 @@ window.MOV.OBJECTS = [
   {
     id: "defaults",
     zone: "machine",
+    group: "declared",
     kind: "file",
     name: "defaults.json",
     blurb: "What every environment inherits.",
@@ -122,6 +150,7 @@ window.MOV.OBJECTS = [
   {
     id: "profile",
     zone: "machine",
+    group: "declared",
     kind: "file",
     name: "profiles/v34.json",
     blurb: "One environment, described.",
@@ -135,6 +164,7 @@ window.MOV.OBJECTS = [
   {
     id: "keys",
     zone: "machine",
+    group: "produced",
     kind: "key",
     name: "keys/",
     blurb: "A fresh key per environment.",
@@ -148,6 +178,7 @@ window.MOV.OBJECTS = [
   {
     id: "state",
     zone: "machine",
+    group: "produced",
     kind: "file",
     name: "state/",
     blurb: "What Azure said back.",
@@ -159,6 +190,7 @@ window.MOV.OBJECTS = [
   {
     id: "app-repo",
     zone: "github",
+    group: "yours",
     kind: "repo",
     name: "Your application repo",
     blurb: "The content the server serves.",
@@ -168,6 +200,7 @@ window.MOV.OBJECTS = [
   {
     id: "bootstrap",
     zone: "github",
+    group: "yours",
     kind: "script",
     name: "scripts/bootstrap.sh",
     blurb: "What the host becomes.",
@@ -181,6 +214,7 @@ window.MOV.OBJECTS = [
   {
     id: "releases",
     zone: "github",
+    group: "upstream",
     kind: "release",
     name: "MOV-CLI releases",
     blurb: "Where updates come from.",
@@ -190,6 +224,7 @@ window.MOV.OBJECTS = [
   {
     id: "gh",
     zone: "github",
+    group: "upstream",
     kind: "tool",
     name: "gh",
     blurb: "The credential you already have.",
@@ -201,6 +236,7 @@ window.MOV.OBJECTS = [
   {
     id: "tenant",
     zone: "azure",
+    group: "account",
     kind: "cloud",
     name: "Tenant",
     blurb: "The directory everything belongs to.",
@@ -210,6 +246,7 @@ window.MOV.OBJECTS = [
   {
     id: "subscription",
     zone: "azure",
+    group: "account",
     kind: "cloud",
     name: "Subscription",
     blurb: "Where the bill lands.",
@@ -219,6 +256,7 @@ window.MOV.OBJECTS = [
   {
     id: "rg",
     zone: "azure",
+    group: "environment",
     kind: "group",
     name: "rg-novatrix-v34",
     blurb: "One environment, one group.",
@@ -228,6 +266,7 @@ window.MOV.OBJECTS = [
   {
     id: "budget",
     zone: "azure",
+    group: "environment",
     kind: "cost",
     name: "budget-novatrix-v34",
     blurb: "Alerts before the credit does.",
@@ -237,6 +276,7 @@ window.MOV.OBJECTS = [
   {
     id: "vnet",
     zone: "azure",
+    group: "network",
     kind: "network",
     name: "vnet-novatrix",
     blurb: "The private address space.",
@@ -246,6 +286,7 @@ window.MOV.OBJECTS = [
   {
     id: "subnet",
     zone: "azure",
+    group: "network",
     kind: "network",
     name: "snet-novatrix-web",
     blurb: "The slice the machine sits in.",
@@ -255,6 +296,7 @@ window.MOV.OBJECTS = [
   {
     id: "nsg",
     zone: "azure",
+    group: "network",
     kind: "shield",
     name: "nsg-novatrix-web",
     blurb: "Which ports are open, and to whom.",
@@ -268,6 +310,7 @@ window.MOV.OBJECTS = [
   {
     id: "pip",
     zone: "azure",
+    group: "machine-c",
     kind: "network",
     name: "pip-novatrix-web",
     blurb: "The address on the internet.",
@@ -277,6 +320,7 @@ window.MOV.OBJECTS = [
   {
     id: "nic",
     zone: "azure",
+    group: "machine-c",
     kind: "network",
     name: "nic-novatrix-web",
     blurb: "What joins the machine to the network.",
@@ -286,6 +330,7 @@ window.MOV.OBJECTS = [
   {
     id: "vm",
     zone: "azure",
+    group: "machine-c",
     kind: "server",
     name: "vm-novatrix-web",
     blurb: "Ubuntu 24.04, and the reason for all of it.",
@@ -299,6 +344,7 @@ window.MOV.OBJECTS = [
   {
     id: "entra",
     zone: "azure",
+    group: "account",
     kind: "people",
     name: "Users and groups",
     blurb: "Tenant-scoped, so kept apart.",

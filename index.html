@@ -25,28 +25,41 @@
             see only what it is connected to.
           </p>
         </div>
-        <button
-          class="theme-toggle"
-          type="button"
-          id="theme-toggle"
-          aria-live="polite"
-        >
-          <span id="theme-toggle-label">Light</span>
-        </button>
+        <div class="controls">
+          <div class="zoom" role="group" aria-label="Map zoom">
+            <button class="zoom__step" type="button" id="zoom-out" aria-label="Zoom out">
+              &minus;
+            </button>
+            <button class="zoom__level" type="button" id="zoom-reset" aria-live="polite">
+              100%
+            </button>
+            <button class="zoom__step" type="button" id="zoom-in" aria-label="Zoom in">
+              +
+            </button>
+          </div>
+          <button class="theme-toggle" type="button" id="theme-toggle" aria-live="polite">
+            <span id="theme-toggle-label">Light</span>
+          </button>
+        </div>
       </header>
 
       <main class="workbench">
         <!-- The map is one focus scope: the SVG sits behind the zones and is
              purely presentational, so it is hidden from assistive tech. Every
              relationship it draws is also listed in the panel as text. -->
+        <!-- The stage is the thing that scales. Zones and arcs are inside it
+             together, so zooming is one transform on one element and the arcs
+             never have to be redrawn to match. -->
         <div class="map" id="map">
-          <svg
-            class="map__arcs"
-            id="arcs"
-            aria-hidden="true"
-            focusable="false"
-          ></svg>
-          <div class="map__zones" id="zones"></div>
+          <div class="stage" id="stage">
+            <svg
+              class="map__arcs"
+              id="arcs"
+              aria-hidden="true"
+              focusable="false"
+            ></svg>
+            <div class="map__zones" id="zones"></div>
+          </div>
         </div>
 
         <aside

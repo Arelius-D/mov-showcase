@@ -77,6 +77,7 @@
   --bg-object: oklch(0.285 0.025 252);
   --bg-object-hover: oklch(0.335 0.031 251);
   --bg-panel: oklch(0.245 0.022 253);
+  --bg-group: oklch(0.208 0.019 254);
   --bg-evidence: oklch(0.165 0.016 254);
 
   --text-primary: oklch(0.965 0.006 250);
@@ -112,6 +113,7 @@
   --bg-object: oklch(0.995 0.002 250);
   --bg-object-hover: oklch(0.93 0.012 240);
   --bg-panel: oklch(0.995 0.002 250);
+  --bg-group: oklch(0.968 0.005 250);
   --bg-evidence: oklch(0.955 0.006 250);
 
   --text-primary: oklch(0.24 0.017 254);
@@ -146,6 +148,7 @@
     --bg-object: oklch(0.995 0.002 250);
     --bg-object-hover: oklch(0.93 0.012 240);
     --bg-panel: oklch(0.995 0.002 250);
+    --bg-group: oklch(0.968 0.005 250);
     --bg-evidence: oklch(0.955 0.006 250);
 
     --text-primary: oklch(0.24 0.017 254);
@@ -241,6 +244,47 @@ button {
   font-size: var(--text-sm);
 }
 
+.controls {
+  display: flex;
+  gap: var(--space-xs);
+  align-items: center;
+}
+
+.zoom {
+  display: flex;
+  align-items: center;
+  border: var(--hairline) solid var(--border);
+  border-radius: var(--radius-pill);
+  overflow: hidden;
+}
+
+.zoom__step,
+.zoom__level {
+  padding: var(--space-2xs) var(--space-sm);
+  color: var(--text-secondary);
+  font-size: var(--text-xs);
+  font-variant-numeric: tabular-nums;
+  transition: background var(--motion-fast) var(--ease-out),
+    color var(--motion-fast) var(--ease-out);
+}
+
+.zoom__step {
+  font-size: var(--text-sm);
+  line-height: 1;
+}
+
+.zoom__level {
+  min-width: 4ch;
+  border-inline: var(--hairline) solid var(--border);
+  text-align: center;
+}
+
+.zoom__step:hover,
+.zoom__level:hover {
+  background: var(--accent-quiet);
+  color: var(--accent);
+}
+
 .theme-toggle {
   display: inline-flex;
   gap: var(--space-2xs);
@@ -272,6 +316,17 @@ button {
 .map {
   position: relative;
   min-height: var(--map-min-height);
+  /* Scaled past 100% the stage is wider than its box. Scrolling inside the map
+     keeps that away from the panel; at 100% nothing overflows and no scrollbar
+     appears. */
+  overflow: auto;
+}
+
+/* The only thing that scales. Both the zones and the arc overlay are inside
+   it, so zoom is one transform and the arcs move with what they connect. */
+.stage {
+  position: relative;
+  transform-origin: top left;
 }
 
 /* The overlay sits ON TOP of the zones, not behind them: a zone has an opaque
@@ -336,10 +391,36 @@ button {
   font-size: var(--text-xs);
 }
 
-.zone__objects {
+.zone__groups {
   display: flex;
   flex-direction: column;
-  gap: var(--space-sm);
+  gap: var(--space-lg);
+}
+
+/* A cluster of things that belong together. The inset is quiet on purpose: it
+   should read as "these four are one idea", not as a second card competing
+   with the zone around it. */
+.group {
+  padding: var(--space-sm);
+  background: var(--bg-group);
+  border-radius: var(--radius-md);
+}
+
+.group__name {
+  margin-block-end: var(--space-xs);
+  color: var(--text-muted);
+  font-size: var(--text-2xs);
+  font-weight: var(--weight-medium);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* Tighter than the gap between groups. Proximity is doing the grouping; the
+   background only confirms it. */
+.group__objects {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2xs);
 }
 
 /* ═══════════════════════════════════════════════════

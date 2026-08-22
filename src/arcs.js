@@ -15,9 +15,9 @@
                  card. Objects in a zone are a vertical stack, so a straight
                  line between two of them cuts through everything in between.
 
-   Coordinates here are CSS pixels, which is what getBoundingClientRect deals
-   in and what an SVG with no viewBox uses as its user units. The no-px rule is
-   a rule about the stylesheet, where a hard length would break someone's zoom.
+   Coordinates here are CSS pixels in the stage's own layout space, which is
+   what an SVG with no viewBox uses as its user units. The no-px rule is a rule
+   about the stylesheet, where a hard length would break someone's zoom.
    ═══════════════════════════════════════════════════ */
 
 window.MOV = window.MOV || {};
@@ -38,15 +38,33 @@ window.MOV = window.MOV || {};
   var BOW_MAX = 15;
   var LABEL_LIFT = 4; /* sit the label just off the line, not on it */
 
-  function box(id, origin) {
+  /* Layout coordinates, not screen ones. getBoundingClientRect reports what is
+     on screen, which means it reports post-transform values — so the moment the
+     stage is scaled, every arc computed from it would be wrong by that factor.
+     offsetLeft and offsetTop are pre-transform, so geometry stays in the
+     stage's own space and zooming is one transform on one element with nothing
+     to recompute.
+
+     offsetLeft is measured against offsetParent rather than the stage, so the
+     chain has to be walked and summed. */
+  function box(id, stage) {
     var node = document.getElementById("object-" + id);
     if (!node) return null;
-    var rect = node.getBoundingClientRect();
+
+    var left = 0;
+    var top = 0;
+    var cursor = node;
+    while (cursor && cursor !== stage) {
+      left += cursor.offsetLeft;
+      top += cursor.offsetTop;
+      cursor = cursor.offsetParent;
+    }
+
     return {
-      left: rect.left - origin.left,
-      right: rect.right - origin.left,
-      cx: rect.left + rect.width / 2 - origin.left,
-      cy: rect.top + rect.height / 2 - origin.top,
+      left: left,
+      right: left + node.offsetWidth,
+      cx: left + node.offsetWidth / 2,
+      cy: top + node.offsetHeight / 2,
     };
   }
 
@@ -145,12 +163,10 @@ window.MOV = window.MOV || {};
     });
   }
 
-  function place(layer, map) {
-    var origin = map.getBoundingClientRect();
-
+  function place(layer, stage) {
     window.MOV.ARCS.forEach(function (arc, index) {
-      var a = box(arc.from, origin);
-      var b = box(arc.to, origin);
+      var a = box(arc.from, stage);
+      var b = box(arc.to, stage);
       var path = layer.querySelector('path[data-arc="' + index + '"]');
       var label = layer.querySelector('text[data-arc="' + index + '"]');
       if (!a || !b || !path) return;
@@ -166,28 +182,28 @@ window.MOV = window.MOV || {};
 
   window.MOV.arcs = function () {
     var layer = document.getElementById("arcs");
-    var map = document.getElementById("map");
+    var stage = document.getElementById("stage");
 
     build(layer);
-    place(layer, map);
+    place(layer, stage);
 
     /* Re-measure whenever the map changes size for any reason: a window
        resize, a font arriving, the panel growing as someone reads. Observing
        the element covers all three; listening for `resize` covers only one. */
     if (typeof ResizeObserver === "function") {
       new ResizeObserver(function () {
-        place(layer, map);
-      }).observe(map);
+        place(layer, stage);
+      }).observe(stage);
     } else {
       window.addEventListener("resize", function () {
-        place(layer, map);
+        place(layer, stage);
       });
     }
 
     /* Web fonts change every measurement when they land. */
     if (document.fonts && document.fonts.ready) {
       document.fonts.ready.then(function () {
-        place(layer, map);
+        place(layer, stage);
       });
     }
   };

@@ -86,7 +86,27 @@ window.MOV = window.MOV || {};
     return button;
   }
 
-  function zoneSection(zone, objects) {
+  /* A cluster inside a zone. Its own heading, so the structure is announced to
+     a screen reader as well as drawn: a zone is a region, a group is a section
+     within it. */
+  function groupSection(group, objects) {
+    var section = element("section", "group");
+    section.dataset.group = group.id;
+    section.setAttribute("aria-labelledby", "group-" + group.id);
+
+    var name = element("h3", "group__name", group.name);
+    name.id = "group-" + group.id;
+    section.appendChild(name);
+
+    var list = element("div", "group__objects");
+    objects.forEach(function (item) {
+      list.appendChild(objectButton(item));
+    });
+    section.appendChild(list);
+    return section;
+  }
+
+  function zoneSection(zone) {
     var section = element("section", "zone");
     section.dataset.zone = zone.id;
     section.setAttribute("aria-labelledby", "zone-" + zone.id);
@@ -98,14 +118,20 @@ window.MOV = window.MOV || {};
     name.id = "zone-" + zone.id;
     head.appendChild(name);
 
-    var list = element("div", "zone__objects");
-    objects.forEach(function (item) {
-      list.appendChild(objectButton(item));
-    });
-
     section.appendChild(head);
     section.appendChild(element("p", "zone__note", zone.note));
-    section.appendChild(list);
+
+    var groups = element("div", "zone__groups");
+    window.MOV.GROUPS.filter(function (group) {
+      return group.zone === zone.id;
+    }).forEach(function (group) {
+      var members = window.MOV.OBJECTS.filter(function (item) {
+        return item.group === group.id;
+      });
+      groups.appendChild(groupSection(group, members));
+    });
+
+    section.appendChild(groups);
     return section;
   }
 
@@ -130,10 +156,7 @@ window.MOV = window.MOV || {};
   window.MOV.render = function () {
     var zones = document.getElementById("zones");
     window.MOV.ZONES.forEach(function (zone) {
-      var members = window.MOV.OBJECTS.filter(function (item) {
-        return item.zone === zone.id;
-      });
-      zones.appendChild(zoneSection(zone, members));
+      zones.appendChild(zoneSection(zone));
     });
     renderLegend(document.getElementById("legend"));
   };
