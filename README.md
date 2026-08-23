@@ -2,10 +2,11 @@
 
 **Live: [mov-cli.duckdns.org](https://mov-cli.duckdns.org)**
 
-An interactive map of what [mov](https://github.com/Arelius-D/MOV-CLI) does.
-Three zones, the objects in each, and the connections between them.
+An interactive map of [mov](https://github.com/Arelius-D/MOV-CLI). Three zones,
+what sits in each, and what passes between them.
 
-Click anything to see what it is. Hover to see what it connects to.
+Click anything to read about it. Hover to see what it connects to. Type in the
+filter to narrow the map.
 
 ## Running it
 
@@ -19,10 +20,10 @@ blocked over `file://`.
 
 ```
 index.html        markup
-src/map.js        zones, objects, arcs. All page content.
+src/map.js        zones, groups, objects, arcs. All page content.
 src/render.js     data to DOM
 src/arcs.js       arc geometry
-src/interact.js   hover, selection, panel, theme, zoom
+src/interact.js   hover, selection, panel, theme, zoom, filter
 src/styles.css    tokens, reset, layout, components
 verify/check.py   house rules
 ```
@@ -30,8 +31,17 @@ verify/check.py   house rules
 Everything on the page comes from `map.js`. Adding an object is one entry in
 one array.
 
-Arc paths are computed from where objects land, not from fixed coordinates.
-The map survives a resize, a late font, or a new object.
+Arc paths are computed from where objects land, not from fixed coordinates. The
+map survives a resize, a late font, or a new object. Each arc routes along
+whichever axis its two ends are further apart on, and takes its own slot on the
+edge it leaves from so arcs sharing an object do not stack.
+
+Zoom scales one element. The stage is laid out at the inverse of the scale and
+drawn at it, so the rendered width never changes and nothing overflows.
+
+The filter matches two ways: substring over every field, and subsequence over
+names, so `vnw` finds `vnet-novatrix-web`. A match brings its connections with
+it.
 
 ## Checks
 

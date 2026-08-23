@@ -286,13 +286,122 @@ window.MOV = window.MOV || {};
     applyScale(stored && !Number.isNaN(stored) ? stored : 1);
   }
 
+
+  /* ── finder ────────────────────────────────────────
+     Two ways to match, because one does not serve both intentions.
+
+     Substring, over every field a visitor can read: someone hunting for "the
+     one that clones the repo" is searching the detail, not the name.
+
+     Subsequence, over the name alone: "vnw" should find vnet-novatrix-web.
+     Run loose over the whole text it matches everything, which is how the
+     first attempt returned 23 of 25 objects for a three-letter query. A name
+     is short enough for the letters to mean something.
+
+     A match brings its connections with it. On a map about relationships, an
+     object on its own answers half the question.
+     ────────────────────────────────────────────────── */
+  var finder, counter;
+
+  function subsequence(needle, haystack) {
+    var at = 0;
+    for (var i = 0; i < needle.length; i++) {
+      at = haystack.indexOf(needle[i], at);
+      if (at === -1) return false;
+      at += 1;
+    }
+    return true;
+  }
+
+  function searchable(item) {
+    return [
+      item.name,
+      item.short,
+      item.blurb,
+      item.detail,
+      item.kind,
+      item.evidence && item.evidence.text,
+    ]
+      .filter(Boolean)
+      .join(" ")
+      .toLowerCase();
+  }
+
+  function matches(query, item) {
+    if (searchable(item).indexOf(query) !== -1) return true;
+    return [item.name, item.short].filter(Boolean).some(function (field) {
+      return subsequence(query, field.toLowerCase());
+    });
+  }
+
+  function filter(term) {
+    var query = term.trim().toLowerCase();
+    map.classList.toggle("is-filtered", Boolean(query));
+
+    if (!query) {
+      document.querySelectorAll(".object, .arc, .group").forEach(function (node) {
+        node.classList.remove("is-match", "is-empty");
+      });
+      counter.textContent = "";
+      return;
+    }
+
+    var hit = {};
+    window.MOV.OBJECTS.forEach(function (item) {
+      if (matches(query, item)) hit[item.id] = true;
+    });
+
+    /* Neighbours of a hit are shown too, dimmer only in the sense that they
+       were not what you typed. */
+    var shown = Object.assign({}, hit);
+    Object.keys(hit).forEach(function (id) {
+      Object.keys(related[id].objects).forEach(function (other) {
+        shown[other] = true;
+      });
+    });
+
+    document.querySelectorAll(".object").forEach(function (node) {
+      node.classList.toggle("is-match", Boolean(shown[node.dataset.object]));
+    });
+
+    document.querySelectorAll(".arc, .arc-label").forEach(function (node) {
+      var arc = window.MOV.ARCS[Number(node.dataset.arc)];
+      node.classList.toggle("is-match", Boolean(hit[arc.from] || hit[arc.to]));
+    });
+
+    /* A group whose every object is dimmed is noise now. */
+    document.querySelectorAll(".group").forEach(function (node) {
+      var members = node.querySelectorAll(".object");
+      var any = Array.prototype.some.call(members, function (object) {
+        return shown[object.dataset.object];
+      });
+      node.classList.toggle("is-empty", !any);
+    });
+
+    var found = Object.keys(hit).length;
+    counter.textContent = found ? found + " of " + window.MOV.OBJECTS.length : "nothing";
+  }
+
+  function search() {
+    finder = document.getElementById("search");
+    counter = document.getElementById("search-count");
+
+    finder.addEventListener("input", function () {
+      filter(finder.value);
+    });
+
+    finder.addEventListener("keydown", function (event) {
+      if (event.key !== "Escape") return;
+      finder.value = "";
+      filter("");
+    });
+  }
+
   function theme() {
     var button = document.getElementById("theme-toggle");
-    var label = document.getElementById("theme-toggle-label");
 
     function apply(name) {
       document.documentElement.setAttribute("data-theme", name);
-      label.textContent = THEMES[name];
       try {
         localStorage.setItem(STORED_THEME, name);
       } catch (ignored) {
@@ -308,15 +417,9 @@ window.MOV = window.MOV || {};
       stored = null;
     }
 
-    if (stored && THEMES[stored]) {
-      apply(stored);
-    } else {
-      /* No explicit choice yet: leave the attribute off so the stylesheet's
-         prefers-color-scheme block decides, and label the button with the
-         other option. */
-      var wantsLight = window.matchMedia("(prefers-color-scheme: light)").matches;
-      label.textContent = wantsLight ? "Dark" : "Light";
-    }
+    /* No explicit choice yet: leave the attribute off so the stylesheet's
+       prefers-color-scheme block decides what the glyph shows. */
+    if (stored && THEMES[stored]) apply(stored);
 
     button.addEventListener("click", function () {
       var current = document.documentElement.getAttribute("data-theme");
@@ -340,6 +443,7 @@ window.MOV = window.MOV || {};
     window.MOV.arcs();
     zoom();
     theme();
+    search();
     bind();
     paint();
   });

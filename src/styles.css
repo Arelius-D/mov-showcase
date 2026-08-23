@@ -286,22 +286,146 @@ button {
   color: var(--accent);
 }
 
+
+.masthead__kicker {
+  margin-block-end: var(--space-xs);
+  color: var(--text-muted);
+  font-size: var(--text-sm);
+}
+
+/* ═══════════════════════════════════════════════════
+   THEME TOGGLE — sun and moon in one glyph
+
+   The rays retract and the disc is bitten into a crescent, rather than one
+   icon being swapped for another. The shape carries the change, so the button
+   needs no label and there is nothing to translate.
+   ═══════════════════════════════════════════════════ */
 .theme-toggle {
-  display: inline-flex;
-  gap: var(--space-2xs);
-  align-items: center;
-  padding: var(--space-2xs) var(--space-sm);
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
   border: var(--hairline) solid var(--border);
   border-radius: var(--radius-pill);
   color: var(--text-secondary);
-  font-size: var(--text-xs);
   transition: color var(--motion-fast) var(--ease-out),
     border-color var(--motion-fast) var(--ease-out);
 }
 
 .theme-toggle:hover {
-  color: var(--text-primary);
+  color: var(--accent);
   border-color: var(--border-strong);
+}
+
+.theme-toggle__glyph {
+  width: 1rem;
+  height: 1rem;
+  overflow: visible;
+}
+
+.theme-toggle__disc,
+.theme-toggle__rays,
+.theme-toggle__crescent {
+  transition: opacity var(--motion-base) var(--ease-out),
+    transform var(--motion-base) var(--ease-out);
+  transform-origin: center;
+}
+
+/* Dark theme shows the sun: press it to get light. */
+.theme-toggle__crescent {
+  opacity: 0;
+  transform: scale(0.6);
+}
+
+:root[data-theme="paper"] .theme-toggle__rays {
+  opacity: 0;
+  transform: scale(0.4) rotate(-45deg);
+}
+
+:root[data-theme="paper"] .theme-toggle__disc {
+  opacity: 0;
+}
+
+:root[data-theme="paper"] .theme-toggle__crescent {
+  opacity: 1;
+  transform: scale(1);
+}
+
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme]) .theme-toggle__rays {
+    opacity: 0;
+    transform: scale(0.4) rotate(-45deg);
+  }
+
+  :root:not([data-theme]) .theme-toggle__disc {
+    opacity: 0;
+  }
+
+  :root:not([data-theme]) .theme-toggle__crescent {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* ═══════════════════════════════════════════════════
+   FINDER — type to narrow the map
+   ═══════════════════════════════════════════════════ */
+.finder {
+  display: flex;
+  gap: var(--space-sm);
+  align-items: center;
+  margin-block-end: var(--space-lg);
+}
+
+.finder__input {
+  flex: 1 1 auto;
+  max-width: 24rem;
+  padding: var(--space-xs) var(--space-sm);
+  background: var(--bg-object);
+  border: var(--hairline) solid var(--border);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  font: inherit;
+  font-size: var(--text-sm);
+}
+
+.finder__input::placeholder {
+  color: var(--text-muted);
+}
+
+.finder__input:hover {
+  border-color: var(--border-strong);
+}
+
+.finder__count {
+  color: var(--text-muted);
+  font-size: var(--text-xs);
+  font-variant-numeric: tabular-nums;
+}
+
+/* A match keeps its colour; everything else recedes exactly as it does when
+   something is hovered, so the page has one idea of "not relevant now". */
+.map.is-filtered .object {
+  opacity: var(--dim);
+}
+
+.map.is-filtered .object.is-match {
+  opacity: 1;
+  border-color: var(--accent);
+}
+
+.map.is-filtered .arc {
+  opacity: 0.04;
+}
+
+.map.is-filtered .arc.is-match {
+  opacity: 1;
+  stroke-width: var(--stroke-arc-lit);
+}
+
+.group.is-empty {
+  opacity: var(--dim);
 }
 
 /* ═══════════════════════════════════════════════════

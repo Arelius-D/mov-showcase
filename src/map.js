@@ -362,6 +362,21 @@ window.MOV.OBJECTS = [
       "Puts the VM in the subnet and gives it the public address. Rarely interesting until it is the thing that failed.",
   },
   {
+    id: "cloud-init",
+    zone: "azure",
+    group: "machine-c",
+    kind: "script",
+    short: "cloud-init",
+    name: "cloud-init",
+    blurb: "The machine's first instructions.",
+    detail:
+      "Runs once on first boot, before anyone logs in. It updates the OS, installs the packages the profile asked for, clones your repository and runs your bootstrap. mov hands it over at create time as part of the VM, so there is no moment where a laptop has to be reachable.",
+    evidence: {
+      language: "text",
+      text: "package_update: true\npackage_upgrade: true\npackages:\n  - git\n  - nginx\nruncmd:\n  - git clone --depth 1 --branch master ...\n  - bash /opt/app/scripts/bootstrap.sh",
+    },
+  },
+  {
     id: "vm",
     zone: "azure",
     group: "machine-c",
@@ -419,8 +434,10 @@ window.MOV.ARCS = [
   { from: "keys", to: "vm", label: "authorised key", kind: "causes" },
 
   /* the ones people do not expect */
-  { from: "vm", to: "app-repo", label: "clones on boot", kind: "pulls" },
-  { from: "vm", to: "bootstrap", label: "runs as root", kind: "pulls" },
+  { from: "cloud-init", to: "app-repo", label: "clones on boot", kind: "pulls" },
+  { from: "cloud-init", to: "bootstrap", label: "runs as root", kind: "pulls" },
+  { from: "cloud-init", to: "vm", label: "first boot", kind: "causes" },
+  { from: "defaults", to: "cloud-init", label: "packages, update, upgrade", kind: "causes" },
   { from: "mov", to: "releases", label: "mov update fetches", kind: "pulls" },
   { from: "gh", to: "releases", label: "authenticates", kind: "pulls" },
 
