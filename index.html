@@ -9,10 +9,19 @@
       content="An interactive map of a profile-driven Azure CLI: a JSON file on your machine, a repository on GitHub, and infrastructure in Azure — and every arc between them."
     />
     <link rel="stylesheet" href="src/styles.css" />
-    <link
-      rel="icon"
-      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ctext y='19' font-size='19'%3E%E2%97%88%3C/text%3E%3C/svg%3E"
+    <link rel="icon" href="brand/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="brand/favicon-32.png" sizes="32x32" />
+    <link rel="apple-touch-icon" href="brand/favicon-180.png" />
+
+    <!-- Local files, so the page still makes no request off this host and still
+         opens over file://. -->
+    <meta property="og:title" content="mov — a CLI harness for Azure" />
+    <meta
+      property="og:description"
+      content="An environment is one JSON file. Three zones, and everything that passes between them."
     />
+    <meta property="og:image" content="brand/lockup.png" />
+    <meta name="twitter:card" content="summary_large_image" />
   </head>
   <body>
     <div class="page">

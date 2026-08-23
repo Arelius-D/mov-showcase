@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">
+  <rect x="2" y="2" width="60" height="60" rx="13" fill="none" stroke="#7d8590" stroke-width="3"/>
+  <line x1="2" y1="16" x2="62" y2="16" stroke="#7d8590" stroke-width="2.6"/>
+  <circle cx="13" cy="9" r="2.3" fill="#ff5f56"/>
+  <circle cx="21.5" cy="9" r="2.3" fill="#ffbd2e"/>
+  <circle cx="30" cy="9" r="2.3" fill="#27c93f"/>
+
+  <text x="10" y="44" font-size="18" font-weight="bold" fill="#38bdf8" letter-spacing="0.2">mov</text>
+  <rect x="44.5" y="45.5" width="10" height="3.5" rx="1" fill="#2dd4bf"/>
+
+</svg>

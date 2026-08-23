@@ -1,5 +1,7 @@
 # mov-showcase
 
+<img src="brand/lockup.png" alt="mov, profile driven Azure control" width="620">
+
 **Live: [mov-cli.duckdns.org](https://mov-cli.duckdns.org)**
 
 An interactive map of [mov](https://github.com/Arelius-D/MOV-CLI). Three zones,
