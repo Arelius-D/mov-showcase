@@ -1,5 +1,7 @@
 # mov-showcase
 
+**Live: [mov-cli.duckdns.org](https://mov-cli.duckdns.org)**
+
 An interactive map of what [mov](https://github.com/Arelius-D/MOV-CLI) actually
 does: three zones, the objects in each, and every arc between them.
 
