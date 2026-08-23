@@ -1,12 +1,13 @@
 /* ═══════════════════════════════════════════════════
    mov-showcase — the entire content of the page
 
-   Every zone, object and arc is declared here once. render.js builds the DOM
-   from this and nothing else, so there is no object on the page that is not in
-   this file and no text written in two places. verify/check.py fails the build
-   if an arc names an object that does not exist, if an object sits in a zone
-   that was never declared, or if an object has no arc at all — an island on a
-   map about relationships is a content bug, not a layout one.
+   Every zone, group, object and arc is declared here once. render.js builds
+   the DOM from this and nothing else, so there is no object on the page that
+   is not in this file and no text written in two places. verify/check.py fails
+   the build if an arc names an object that does not exist, if an object sits
+   in a zone or group that was never declared, or if an object has no arc at
+   all — an island on a map about relationships is a content bug, not a layout
+   one.
 
    Every value shown is one mov actually produced against a real subscription,
    copied from the workspace or from the tool's own output. The single
@@ -31,7 +32,7 @@ window.MOV.ZONES = [
     letter: "A",
     span: 7,
     name: "Your machine",
-    note: "Where you type. Everything here is a file you own and can read.",
+    note: "Files you own and can read. Nothing here is Azure's.",
   },
   {
     id: "github",
@@ -45,7 +46,7 @@ window.MOV.ZONES = [
     letter: "C",
     span: 12,
     name: "Azure",
-    note: "Where it becomes real, and the only zone that costs money.",
+    note: "Where it becomes real. The only zone that bills you.",
   },
 ];
 
@@ -58,22 +59,21 @@ window.MOV.ZONES = [
    Order here is the order down the zone.
    ─────────────────────────────────────────────────── */
 window.MOV.GROUPS = [
-  { id: "tools", zone: "machine", name: "The tools" },
+  { id: "tools", zone: "machine", name: "Tools" },
   { id: "declared", zone: "machine", name: "What you declare" },
-  { id: "produced", zone: "machine", name: "What mov produces" },
+  { id: "produced", zone: "machine", name: "What mov writes back" },
 
   { id: "yours", zone: "github", name: "Your code" },
   { id: "upstream", zone: "github", name: "Where mov comes from" },
 
-  { id: "account", zone: "azure", name: "The account" },
-  { id: "environment", zone: "azure", name: "The environment" },
+  { id: "account", zone: "azure", name: "Account" },
+  { id: "environment", zone: "azure", name: "Environment" },
   { id: "network", zone: "azure", name: "Network" },
   { id: "machine-c", zone: "azure", name: "The machine" },
 ];
 
 /* ─── OBJECTS ───────────────────────────────────────
-   `kind` is used for the glyph and nothing else. `detail` is two or three
-   sentences: enough to be true, short enough to be read standing up.
+   `kind` is used for the glyph and nothing else.
 
    `short` is what the card says, `name` is what the thing is really called.
    Eight cards in Zone C carrying the same company token said nothing eight
@@ -88,9 +88,9 @@ window.MOV.OBJECTS = [
     group: "tools",
     kind: "shell",
     name: "Your shell",
-    blurb: "PowerShell, on any OS.",
+    blurb: "PowerShell, any OS.",
     detail:
-      "mov is a command you type. It runs on Windows, macOS and Linux from the same PowerShell you already have, and installs per-user — it never asks for administrator rights.",
+      "mov is a command you type. Windows, macOS and Linux, same PowerShell. It installs per-user and never asks for administrator rights.",
   },
   {
     id: "mov",
@@ -98,9 +98,9 @@ window.MOV.OBJECTS = [
     group: "tools",
     kind: "tool",
     name: "mov",
-    blurb: "The tool itself.",
+    blurb: "The tool.",
     detail:
-      "Reads your JSON, works out every name and every parameter, and drives the Azure CLI. It holds no Azure knowledge of its own: no region, size, image or API version appears anywhere in its source, and a test fails the build if one ever does.",
+      "Reads your JSON, works out every name and parameter, drives the Azure CLI. It knows nothing about Azure on its own: no region, size, image or API version appears in its source, and a test fails the build if one does.",
     evidence: {
       language: "text",
       text: "mov plan v34     what would change\nmov up v34       make it so\nmov down v34     delete the lot",
@@ -112,20 +112,20 @@ window.MOV.OBJECTS = [
     group: "tools",
     kind: "tool",
     name: "Azure CLI",
-    blurb: "The thing that actually talks to Azure.",
+    blurb: "What actually talks to Azure.",
     detail:
-      "mov shells out to `az` rather than reimplementing Azure's API, so what it does is a command you could have typed. Every one of those commands is recorded, which is why the deployment is inspectable rather than a black box.",
+      "mov shells out to `az` instead of reimplementing Azure's API. Everything it does is a command you could have typed, and every one is recorded.",
   },
   {
     id: "workspace",
     zone: "machine",
     group: "declared",
-    short: "Workspace file",
     kind: "file",
+    short: "Workspace file",
     name: "mov.workspace.json",
     blurb: "Which tenant, which subscription.",
     detail:
-      "Marks a directory as a workspace and pins the subscription mov is allowed to act on. Acting on the wrong subscription is not a mistake you can undo, so the pin is the default — you can aim one command elsewhere, but never by accident.",
+      "Pins the subscription mov may act on. Deploying to the wrong one is not undoable, so it is the default rather than a flag you have to remember.",
     evidence: {
       language: "json",
       text: '{\n  "name": "mov25-azure",\n  "azure": {\n    "tenantId": "183c226e-…",\n    "subscriptionId": "fb5e8372-…"\n  }\n}',
@@ -135,12 +135,12 @@ window.MOV.OBJECTS = [
     id: "naming",
     zone: "machine",
     group: "declared",
-    short: "Naming patterns",
     kind: "file",
+    short: "Naming patterns",
     name: "naming.json",
-    blurb: "Every name, from one pattern each.",
+    blurb: "One pattern per resource type.",
     detail:
-      "One pattern per resource type, plus the rule each name must satisfy. A name that breaks its rule is a hard error — mov will not quietly truncate a storage account to fit, it tells you which pattern produced what and which rule it broke.",
+      "Every name in Azure comes from here, with the rule it has to satisfy. A name that breaks its rule is a hard error. mov will not truncate a storage account to make it fit.",
     evidence: {
       language: "json",
       text: '"patterns": {\n  "resourceGroup": "rg-{company}-{env}",\n  "virtualMachine": "vm-{company}-{purpose}",\n  "storageAccount": "st{company}{user}{seq:02d}"\n}',
@@ -150,12 +150,12 @@ window.MOV.OBJECTS = [
     id: "defaults",
     zone: "machine",
     group: "declared",
-    short: "Defaults",
     kind: "file",
+    short: "Defaults",
     name: "defaults.json",
     blurb: "What every environment inherits.",
     detail:
-      "Region, tags, budget, VM size, admin user, which packages a host gets. A profile only has to say what makes it different. Nothing here is a code-side fallback: if a value is missing, mov names the file that was supposed to supply it instead of inventing one.",
+      "Region, tags, budget, VM size, admin user, host packages. A profile only states what makes it different. Nothing here is a code-side fallback: a missing value names the file that should have supplied it.",
     evidence: {
       language: "json",
       text: '"location": "swedencentral",\n"cost": { "amount": 200, "currency": "SEK" },\n"itemDefaults": {\n  "compute.vms": {\n    "size": "Standard_B2ts_v2",\n    "image": "Ubuntu2404"\n  }\n}',
@@ -165,12 +165,12 @@ window.MOV.OBJECTS = [
     id: "profile",
     zone: "machine",
     group: "declared",
-    short: "Environment profile",
     kind: "file",
+    short: "Environment profile",
     name: "profiles/v34.json",
     blurb: "One environment, described.",
     detail:
-      "The whole environment as data: which stages run, the address space, the firewall rules, how many machines. This is the file you edit. Everything in Zone C exists because something in here asked for it.",
+      "Which stages run, the address space, the firewall rules, how many machines. This is the file you edit. Everything in Zone C exists because something in here asked for it.",
     evidence: {
       language: "json",
       text: '"env": "v34",\n"stages": ["preflight","rg","network","cost","compute","verify"],\n"network": {\n  "addressSpace": "10.34.0.0/16",\n  "subnets": [{ "purpose": "web", "prefix": "10.34.1.0/24" }]\n}',
@@ -180,12 +180,12 @@ window.MOV.OBJECTS = [
     id: "keys",
     zone: "machine",
     group: "produced",
-    short: "Keys",
     kind: "key",
+    short: "Keys",
     name: "keys/",
-    blurb: "A fresh key per environment.",
+    blurb: "One key per environment.",
     detail:
-      "mov generates the VM's SSH key at deploy time and puts it here, next to a workspace-local ssh_config. Your ~/.ssh is never read or written. Tearing the environment down deletes the key, because the next build should not be reachable with the last build's secret.",
+      "Generated at deploy, alongside a workspace-local ssh_config. Teardown deletes it: an old key is a way into the next build. Your ~/.ssh is never touched.",
     evidence: {
       language: "text",
       text: "keys/\n  mov-v34          the private key, this environment only\n  mov-v34.pub      what Azure put on the machine\n  ssh_config       so `mov ssh v34` needs no global config",
@@ -195,12 +195,12 @@ window.MOV.OBJECTS = [
     id: "state",
     zone: "machine",
     group: "produced",
-    short: "State",
     kind: "file",
+    short: "State",
     name: "state/",
     blurb: "What Azure said back.",
     detail:
-      "Which deployments ran, what they returned, and a transcript of every command issued. This is what `mov status` reads, what teardown targets, and what `mov docs` turns into a paste-ready record of the work.",
+      "Which deployments ran, what they returned, and every command issued. `mov status` reads it, teardown targets it, and `mov docs` turns it into a record of the work.",
   },
 
   /* ── Zone B — GitHub ── */
@@ -210,9 +210,9 @@ window.MOV.OBJECTS = [
     group: "yours",
     kind: "repo",
     name: "Your application repo",
-    blurb: "The content the server serves.",
+    blurb: "What the server serves.",
     detail:
-      "An ordinary repository of yours. mov does not copy files onto the machine — the machine clones this itself on first boot. Push a change and the next deploy picks it up, with no step where a file is uploaded from your laptop.",
+      "An ordinary repository of yours. The machine clones it on first boot. mov copies nothing onto the host, so there is no step where a file leaves your laptop.",
   },
   {
     id: "bootstrap",
@@ -222,7 +222,7 @@ window.MOV.OBJECTS = [
     name: "scripts/bootstrap.sh",
     blurb: "What the host becomes.",
     detail:
-      "One script, run as root once the packages are in. It is yours, not mov's — what a server should become is not a decision a deployment tool gets to make. mov ships a starting point you copy and edit, and runs only what is in your repository.",
+      "One script, run as root once the packages are in. It is yours, not mov's. mov ships a starting point to copy and edit, and runs only what is in your repository.",
     evidence: {
       language: "text",
       text: "MOV_ENV       the environment that produced this host\nMOV_REPO      owner/name that was cloned\nMOV_REF       the branch or tag\nMOV_APP_DIR   where it landed",
@@ -236,7 +236,7 @@ window.MOV.OBJECTS = [
     name: "MOV-CLI releases",
     blurb: "Where updates come from.",
     detail:
-      "Each release carries a wheel: the tool and nothing else, with no git history, no test suite and no docs. `mov update` fetches the newest one and verifies the version actually changed afterwards, rather than trusting the installer's exit code.",
+      "Each release carries a wheel: the tool and nothing else. No git history, no test suite, no docs. `mov update` fetches the newest and then checks the version actually changed.",
   },
   {
     id: "gh",
@@ -246,7 +246,7 @@ window.MOV.OBJECTS = [
     name: "gh",
     blurb: "The credential you already have.",
     detail:
-      "Because downloads go through gh when it is present, a private repository installs and updates exactly like a public one, for anyone allowed to see it. No token to paste, no secret in a config file.",
+      "Downloads go through gh when it is present, so a private repository installs and updates exactly like a public one. No token to paste, no secret in a config file.",
   },
 
   /* ── Zone C — Azure ── */
@@ -256,9 +256,9 @@ window.MOV.OBJECTS = [
     group: "account",
     kind: "cloud",
     name: "Tenant",
-    blurb: "The directory everything belongs to.",
+    blurb: "The directory it all belongs to.",
     detail:
-      "Identity lives here, above any subscription. That is why users and groups have a lifecycle of their own — deleting a resource group does not, and should not, delete a person.",
+      "Identity lives here, above any subscription. Users and groups get their own lifecycle because deleting a resource group should not delete a person.",
   },
   {
     id: "subscription",
@@ -268,36 +268,46 @@ window.MOV.OBJECTS = [
     name: "Subscription",
     blurb: "Where the bill lands.",
     detail:
-      "The one mov.workspace.json pins. mov refuses to act when the CLI is signed in to a different one, and says which command fixes it rather than simply declining.",
+      "The one mov.workspace.json pins. Signed in to a different one, mov refuses to act and names the command that fixes it.",
+  },
+  {
+    id: "entra",
+    zone: "azure",
+    group: "account",
+    kind: "people",
+    name: "Users and groups",
+    blurb: "Tenant-scoped, kept apart.",
+    detail:
+      "mov creates Entra ID users and groups, and never removes them as part of tearing an environment down. Deleting a resource group is routine. Deleting a person is not.",
   },
   {
     id: "rg",
     zone: "azure",
     group: "environment",
-    short: "Resource group",
     kind: "group",
+    short: "Resource group",
     name: "rg-novatrix-v34",
     blurb: "One environment, one group.",
     detail:
-      "Everything an environment owns lives in a single resource group, which is what makes teardown a single, complete act. The name came from a pattern, not from a person typing it.",
+      "Everything an environment owns sits in a single resource group, which makes teardown one complete act. The name came from a pattern, not from someone typing it.",
   },
   {
     id: "budget",
     zone: "azure",
     group: "environment",
-    short: "Budget",
     kind: "cost",
+    short: "Budget",
     name: "budget-novatrix-v34",
-    blurb: "Alerts before the credit does.",
+    blurb: "Alerts before the credit goes.",
     detail:
-      "Thresholds at 50, 80 and 90 percent of actual spend, plus one on the forecast. Worth knowing: a free-trial subscription already stops itself when the credit runs out, so these alerts are a warning rather than the brake.",
+      "Thresholds at 50, 80 and 90 percent of actual spend, plus one on the forecast. A free-trial subscription already stops itself when the credit runs out, so these warn rather than brake.",
   },
   {
     id: "vnet",
     zone: "azure",
     group: "network",
-    short: "Virtual network",
     kind: "network",
+    short: "Virtual network",
     name: "vnet-novatrix",
     blurb: "The private address space.",
     detail:
@@ -307,23 +317,23 @@ window.MOV.OBJECTS = [
     id: "subnet",
     zone: "azure",
     group: "network",
-    short: "Subnet",
     kind: "network",
+    short: "Subnet",
     name: "snet-novatrix-web",
     blurb: "The slice the machine sits in.",
     detail:
-      "10.34.1.0/24. A profile can declare several, each with its own firewall and its own decision about whether anything from outside may reach it at all.",
+      "10.34.1.0/24. A profile can declare several, each with its own firewall and its own answer to whether anything outside may reach it.",
   },
   {
     id: "nsg",
     zone: "azure",
     group: "network",
-    short: "Security group",
     kind: "shield",
+    short: "Security group",
     name: "nsg-novatrix-web",
-    blurb: "Which ports are open, and to whom.",
+    blurb: "Which ports, and to whom.",
     detail:
-      "Three rules from the profile: 80 and 443 to the world, and 22 from whatever admin.sshSource names. mov warns on every run while that source is still the whole internet — correct as a default, and yours to overrule.",
+      "Three rules from the profile: 80 and 443 to the world, 22 from whatever admin.sshSource names. mov warns on every run while that source is still the whole internet.",
     evidence: {
       language: "json",
       text: '{ "name": "http",  "priority": 100, "ports": ["80"] }\n{ "name": "https", "priority": 110, "ports": ["443"] }\n{ "name": "ssh",   "priority": 120, "ports": ["22"],\n  "source": "${admin.sshSource}" }',
@@ -333,48 +343,38 @@ window.MOV.OBJECTS = [
     id: "pip",
     zone: "azure",
     group: "machine-c",
-    short: "Public IP",
     kind: "network",
+    short: "Public IP",
     name: "pip-novatrix-web",
     blurb: "The address on the internet.",
     detail:
-      "A static public address, so the machine keeps it while it is stopped. Rebuild the environment and you get a new one — which is exactly why mov removes the old host entry from ssh_config on teardown, instead of letting you connect to whoever gets that address next.",
+      "Static, so the machine keeps it while stopped. Rebuild and you get a new one, which is why teardown removes the old host entry from ssh_config rather than leaving it aimed at whoever gets that address next.",
   },
   {
     id: "nic",
     zone: "azure",
     group: "machine-c",
-    short: "Network interface",
     kind: "network",
+    short: "Network interface",
     name: "nic-novatrix-web",
-    blurb: "What joins the machine to the network.",
+    blurb: "Joins the machine to the network.",
     detail:
-      "The card that puts the VM in the subnet and gives it the public address. Rarely interesting until it is the thing that failed.",
+      "Puts the VM in the subnet and gives it the public address. Rarely interesting until it is the thing that failed.",
   },
   {
     id: "vm",
     zone: "azure",
     group: "machine-c",
-    short: "Virtual machine",
     kind: "server",
+    short: "Virtual machine",
     name: "vm-novatrix-web",
-    blurb: "Ubuntu 24.04, and the reason for all of it.",
+    blurb: "Ubuntu 24.04, and the point of all this.",
     detail:
-      "Created with your public key already on it and cloud-init instructions to fetch its own content. Stopping it deallocates the compute so it stops costing, and keeps the disk so starting it again is quick.",
+      "Created with your public key on it and cloud-init instructions to fetch its own content. Stopping deallocates the compute so it stops costing, and keeps the disk so starting again is quick.",
     evidence: {
       language: "text",
       text: "OK   web: http://20.240.236.41/ -> 200 in 37s",
     },
-  },
-  {
-    id: "entra",
-    zone: "azure",
-    group: "account",
-    kind: "people",
-    name: "Users and groups",
-    blurb: "Tenant-scoped, so kept apart.",
-    detail:
-      "mov can create Entra ID users and groups, but never removes them as part of tearing an environment down. Deleting a resource group is routine; deleting a person is not, so it takes its own explicit command.",
   },
 ];
 

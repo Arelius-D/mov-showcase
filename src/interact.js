@@ -57,7 +57,7 @@ window.MOV = window.MOV || {};
         element(
           "p",
           "panel__empty",
-          "Pick anything on the map. Hovering shows what it is connected to; clicking keeps it open."
+          "Hover anything to see what it connects to. Click to keep it open."
         )
       );
       return;

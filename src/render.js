@@ -137,8 +137,8 @@ window.MOV = window.MOV || {};
   }
 
   var LEGEND = [
-    { kind: "causes", text: "configuration becoming infrastructure" },
-    { kind: "pulls", text: "something fetching for itself" },
+    { kind: "causes", text: "config becoming infrastructure" },
+    { kind: "pulls", text: "fetched, not uploaded" },
     { kind: "reports", text: "what came back" },
     { kind: "removes", text: "what teardown takes with it" },
   ];
