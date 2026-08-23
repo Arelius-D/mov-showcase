@@ -12,8 +12,8 @@
                  a curve leaves and arrives travelling the way it is going.
 
      same-zone   both ends on the left edge, bowed left but kept inside the
-                 card. Objects in a zone are a vertical stack, so a straight
-                 line between two of them cuts through everything in between.
+                 card. Two objects in one group sit close together, so the bow
+                 has to be generous or the arc is a stub rather than a curve.
 
    Coordinates here are CSS pixels in the stage's own layout space, which is
    what an SVG with no viewBox uses as its user units. The no-px rule is a rule
@@ -33,10 +33,11 @@ window.MOV = window.MOV || {};
      that escapes the card. It used to reach well outside the map, which was
      invisible while the arcs painted underneath and became a line across the
      masthead the moment they came to the front. */
-  var BOW_MIN = 9;
-  var BOW_RATIO = 0.1;
-  var BOW_MAX = 15;
+  var BOW_MIN = 14;
+  var BOW_RATIO = 0.2;
+  var BOW_MAX = 26;
   var LABEL_LIFT = 4; /* sit the label just off the line, not on it */
+  var LABEL_ROOM = 14; /* the arc has to be longer than the words by this much */
 
   /* Every arc used to leave from its object's exact centre, so all eight of the
      VM's arcs started at one point and lay on top of each other — worst when
@@ -247,6 +248,20 @@ window.MOV = window.MOV || {};
       var middle = midpoint(geometry);
       label.setAttribute("x", middle.x);
       label.setAttribute("y", middle.y - LABEL_LIFT);
+
+      /* A label longer than the arc it belongs to is not a label, it is a word
+         lying across the diagram with a line behind it. Short hops between two
+         objects in the same group are the common case: the connection is
+         obvious from the two things it joins, and the panel names it in words
+         anyway. Measured rather than guessed at from the endpoints, because the
+         curve is longer than the straight line between them.
+
+         The class comes off before measuring: hidden text measures zero, which
+         would un-hide it on the next pass and flap. */
+      label.classList.remove("is-cramped");
+      if (label.getComputedTextLength() + LABEL_ROOM > path.getTotalLength()) {
+        label.classList.add("is-cramped");
+      }
     });
   }
 

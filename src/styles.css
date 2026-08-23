@@ -46,7 +46,7 @@
 
   --hairline: 0.0625rem; /* 1 */
   --stroke-arc: 0.09375rem; /* 1.5 — SVG stroke, at rest */
-  --stroke-arc-lit: 0.15625rem; /* 2.5 — SVG stroke, highlighted */
+  --stroke-arc-lit: 0.11875rem; /* 1.9 — SVG stroke, highlighted */
 
   --motion-fast: 0.12s;
   --motion-base: 0.22s;
@@ -89,12 +89,14 @@
   --accent: oklch(0.78 0.13 195);
   --accent-quiet: oklch(0.78 0.13 195 / 0.16);
 
-  /* One hue per arc kind, all at a matched lightness so no single kind
-     shouts over the others when they overlap. */
-  --arc-causes: oklch(0.78 0.13 195);
-  --arc-pulls: oklch(0.79 0.14 72);
-  --arc-reports: oklch(0.72 0.07 268);
-  --arc-removes: oklch(0.7 0.17 22);
+  /* Identical lightness and chroma, hue the only difference. This is the whole
+     reason for working in OKLCH: vary one channel and nothing shouts over
+     anything else. They were drifting by 0.09 in L and 0.10 in C, which is why
+     one of them popped. */
+  --arc-causes: oklch(0.76 0.12 195);
+  --arc-pulls: oklch(0.76 0.12 72);
+  --arc-reports: oklch(0.76 0.12 268);
+  --arc-removes: oklch(0.76 0.12 22);
 
   --focus-ring: oklch(0.85 0.15 195);
   --shadow-panel: 0 0.5rem 2rem oklch(0 0 0 / 0.45);
@@ -125,10 +127,10 @@
   --accent: oklch(0.53 0.11 205);
   --accent-quiet: oklch(0.53 0.11 205 / 0.14);
 
-  --arc-causes: oklch(0.53 0.11 205);
-  --arc-pulls: oklch(0.56 0.13 60);
-  --arc-reports: oklch(0.52 0.08 268);
-  --arc-removes: oklch(0.52 0.18 25);
+  --arc-causes: oklch(0.54 0.12 205);
+  --arc-pulls: oklch(0.54 0.12 60);
+  --arc-reports: oklch(0.54 0.12 268);
+  --arc-removes: oklch(0.54 0.12 25);
 
   --focus-ring: oklch(0.45 0.13 205);
   --shadow-panel: 0 0.5rem 2rem oklch(0 0 0 / 0.13);
@@ -160,10 +162,10 @@
     --accent: oklch(0.53 0.11 205);
     --accent-quiet: oklch(0.53 0.11 205 / 0.14);
 
-    --arc-causes: oklch(0.53 0.11 205);
-    --arc-pulls: oklch(0.56 0.13 60);
-    --arc-reports: oklch(0.52 0.08 268);
-    --arc-removes: oklch(0.52 0.18 25);
+    --arc-causes: oklch(0.54 0.12 205);
+    --arc-pulls: oklch(0.54 0.12 60);
+    --arc-reports: oklch(0.54 0.12 268);
+    --arc-removes: oklch(0.54 0.12 25);
 
     --focus-ring: oklch(0.45 0.13 205);
     --shadow-panel: 0 0.5rem 2rem oklch(0 0 0 / 0.13);
@@ -575,6 +577,12 @@ button {
 
 .map.is-focused .arc-label.is-related {
   opacity: 1;
+}
+
+/* Wider than the arc it names. display rather than opacity, so it beats the
+   rule above without either of them having to shout. */
+.arc-label.is-cramped {
+  display: none;
 }
 
 /* ═══════════════════════════════════════════════════
