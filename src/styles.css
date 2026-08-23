@@ -299,9 +299,10 @@ button {
 /* ═══════════════════════════════════════════════════
    THEME TOGGLE — sun and moon in one glyph
 
-   The rays retract and the disc is bitten into a crescent, rather than one
-   icon being swapped for another. The shape carries the change, so the button
-   needs no label and there is nothing to translate.
+   The rays retract and rotate away while the crescent swings in, so the two
+   halves read as one movement rather than one icon replacing another. The
+   shape carries the change, so the button needs no label and nothing to
+   translate. Both are stroked, not filled, to match the glyphs on the cards.
    ═══════════════════════════════════════════════════ */
 .theme-toggle {
   display: grid;
@@ -335,10 +336,11 @@ button {
   transform-origin: center;
 }
 
-/* Dark theme shows the sun: press it to get light. */
+/* Dark theme shows the sun: press it to get light. The crescent swings in as
+   the rays retract, so the two read as one movement. */
 .theme-toggle__crescent {
   opacity: 0;
-  transform: scale(0.6);
+  transform: scale(0.5) rotate(60deg);
 }
 
 :root[data-theme="paper"] .theme-toggle__rays {
@@ -352,7 +354,7 @@ button {
 
 :root[data-theme="paper"] .theme-toggle__crescent {
   opacity: 1;
-  transform: scale(1);
+  transform: scale(1) rotate(0deg);
 }
 
 @media (prefers-color-scheme: light) {
@@ -367,7 +369,7 @@ button {
 
   :root:not([data-theme]) .theme-toggle__crescent {
     opacity: 1;
-    transform: scale(1);
+    transform: scale(1) rotate(0deg);
   }
 }
 
