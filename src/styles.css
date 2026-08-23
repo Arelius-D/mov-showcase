@@ -290,6 +290,18 @@ button {
 }
 
 
+.masthead__identity {
+  display: flex;
+  gap: var(--space-md);
+  align-items: flex-start;
+}
+
+.masthead__mark {
+  width: 3.5rem;
+  height: 3.5rem;
+  flex-shrink: 0;
+}
+
 .masthead__kicker {
   margin-block-end: var(--space-xs);
   color: var(--text-muted);

@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">
+  <defs>
+    <filter id="g" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="4" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <!-- terminal -->
+  <rect x="36" y="64" width="440" height="384" rx="24" fill="none" stroke="#7d8590" stroke-width="4"/>
+  <line x1="36" y1="110" x2="476" y2="110" stroke="#7d8590" stroke-width="4"/>
+  <circle cx="72" cy="87" r="7.5" fill="#ff5f56"/>
+  <circle cx="98" cy="87" r="7.5" fill="#ffbd2e"/>
+  <circle cx="124" cy="87" r="7.5" fill="#27c93f"/>
+
+  <!-- prompt, inside the terminal, above the stack -->
+  <text x="80" y="176" font-size="54" font-weight="bold">
+    <tspan fill="#6e7681">&gt;</tspan><tspan fill="#38bdf8"> mov</tspan>
+  </text>
+  <rect x="245" y="164" width="30" height="10" rx="2" fill="#2dd4bf"/>
+
+  <!-- the stack it drives: widest on top, narrowing down -->
+  <g fill="none" stroke-linejoin="round">
+    <polygon points="256,207 388,262 256,317 124,262" stroke="#2dd4bf" stroke-width="9" filter="url(#g)"/>
+    <polygon points="256,274 360,318 256,362 152,318" stroke="#818cf8" stroke-width="8"/>
+    <polygon points="256,340 332,372 256,404 180,372" stroke="#38bdf8" stroke-width="7"/>
+  </g>
+</svg>
