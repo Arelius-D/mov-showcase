@@ -114,7 +114,7 @@ window.MOV.OBJECTS = [
     name: "Azure CLI",
     blurb: "What actually talks to Azure.",
     detail:
-      "mov shells out to `az` instead of reimplementing Azure's API. Everything it does is a command you could have typed, and every one is recorded.",
+      "mov shells out to `az`. Everything it does is a command you could have typed yourself. Every one is recorded.",
   },
   {
     id: "workspace",
@@ -125,7 +125,7 @@ window.MOV.OBJECTS = [
     name: "mov.workspace.json",
     blurb: "Which tenant, which subscription.",
     detail:
-      "Pins the subscription mov may act on. Deploying to the wrong one is not undoable, so it is the default rather than a flag you have to remember.",
+      "Pins the subscription mov may act on. Deploying to the wrong one cannot be undone. So it is the default, not a flag you have to remember.",
     evidence: {
       language: "json",
       text: '{\n  "name": "mov25-azure",\n  "azure": {\n    "tenantId": "183c226e-…",\n    "subscriptionId": "fb5e8372-…"\n  }\n}',
@@ -289,7 +289,7 @@ window.MOV.OBJECTS = [
     name: "rg-novatrix-v34",
     blurb: "One environment, one group.",
     detail:
-      "Everything an environment owns sits in a single resource group, which makes teardown one complete act. The name came from a pattern, not from someone typing it.",
+      "Everything an environment owns sits in one resource group. Teardown is a single act. The name came out of a pattern in naming.json.",
   },
   {
     id: "budget",
@@ -300,7 +300,7 @@ window.MOV.OBJECTS = [
     name: "budget-novatrix-v34",
     blurb: "Alerts before the credit goes.",
     detail:
-      "Thresholds at 50, 80 and 90 percent of actual spend, plus one on the forecast. A free-trial subscription already stops itself when the credit runs out, so these warn rather than brake.",
+      "Thresholds at 50, 80 and 90 percent of actual spend, plus one on the forecast. A free-trial subscription stops itself when the credit runs out. These warn. They do not brake.",
   },
   {
     id: "vnet",
@@ -348,7 +348,7 @@ window.MOV.OBJECTS = [
     name: "pip-novatrix-web",
     blurb: "The address on the internet.",
     detail:
-      "Static, so the machine keeps it while stopped. Rebuild and you get a new one, which is why teardown removes the old host entry from ssh_config rather than leaving it aimed at whoever gets that address next.",
+      "Static, so the machine keeps it while stopped. Rebuild and you get a new address. Teardown removes the old ssh_config entry. Azure recycles addresses.",
   },
   {
     id: "nic",

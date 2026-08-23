@@ -13,6 +13,8 @@ the claim is testable:
   · custom properties are declared and used    — both directions
   · every palette declares the same tokens     — a token added to one theme
                                                   and forgotten in another
+  · the copy states rather than explains       — no reasoning-out-loud tics
+                                                  in anything a visitor reads
   · the map's data is internally consistent    — no arc to a missing object,
                                                   no object in a missing zone
                                                   or group, no empty group,
@@ -143,6 +145,54 @@ def themes(text: str) -> list[str]:
     return problems
 
 
+# Constructions that narrate the reasoning instead of stating the thing. They
+# are this author's tics, not the site's voice, and they came back once already
+# in a commit message announcing their removal. Cheaper to check than to notice.
+TELLS = [
+    ("which is why", "Two sentences. The second does not need to announce that it follows."),
+    ("which means", "Say the thing it means."),
+    ("which makes", "Say what it is."),
+    (" — ", "An em-dash aside is an argument in parentheses. Split it or cut it."),
+    ("; ", "A semicolon joins two thoughts that could stand apart. Let them."),
+    (", so it is", "Reversal. State it forwards."),
+    ("rather than a", "Reversal."),
+    ("not because", "Reversal."),
+]
+
+
+def copy_strings() -> list[tuple[str, str]]:
+    """Every string the visitor reads: zone notes, blurbs, details, and the lede.
+
+    Code comments are exempt. They are written for whoever maintains this and
+    are allowed to explain themselves; the page is not.
+    """
+    found = []
+    text = MAP.read_text(encoding="utf-8")
+    for field in ("note", "blurb", "detail", "name", "short"):
+        pattern = rf'{field}:\s*\n?\s*"((?:[^"\\]|\\.)*)"'
+        for value in re.findall(pattern, text):
+            found.append((field, value))
+
+    page = (ROOT / "index.html").read_text(encoding="utf-8")
+    lede = re.search(r'class="masthead__lede">(.*?)</p>', page, re.DOTALL)
+    if lede:
+        found.append(("lede", " ".join(lede.group(1).split())))
+    return found
+
+
+def voice() -> list[str]:
+    problems = []
+    for field, value in copy_strings():
+        for tell, why in TELLS:
+            if tell in value:
+                problems.append(
+                    f"copy: {field} contains {tell!r}\n"
+                    f"    {why}\n"
+                    f"    {value[:88]}..."
+                )
+    return problems
+
+
 def read_map() -> tuple[set[str], set[str], list[tuple[str, str, str]], set[str], list[tuple[str, str]]]:
     """Pull the shape of the map out of map.js.
 
@@ -211,7 +261,7 @@ def map_problems() -> list[str]:
 def main() -> int:
     css = CSS.read_text(encoding="utf-8")
 
-    problems = offences(css) + custom_properties(css) + themes(css) + map_problems()
+    problems = offences(css) + custom_properties(css) + themes(css) + map_problems() + voice()
 
     if problems:
         print(f"{len(problems)} problem(s):\n")
