@@ -1,6 +1,6 @@
 # brand
 
-Canonical copies. `MOV-CLI/brand/` holds only the three its README renders.
+Canonical copies. `mov/brand/` holds only the three its README renders.
 
 | File | Used by |
 | --- | --- |
@@ -10,7 +10,7 @@ Canonical copies. `MOV-CLI/brand/` holds only the three its README renders.
 | `logo.svg` | the site's masthead. Transparent, works on both themes |
 | `logo.png` | raster, for anywhere SVG is not accepted |
 | `lockup.svg` / `.png` | README headers and the social card |
-| `hero-wrap.svg` / `.png` | the MOV-CLI README |
+| `hero-wrap.svg` / `.png` | the mov README |
 
 The `.svg` files are the masters. Rasters are generated from them, so edit the
 SVG and re-export rather than touching a PNG.

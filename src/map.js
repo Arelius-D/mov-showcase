@@ -233,7 +233,7 @@ window.MOV.OBJECTS = [
     zone: "github",
     group: "upstream",
     kind: "release",
-    name: "MOV-CLI releases",
+    name: "mov releases",
     blurb: "Where updates come from.",
     detail:
       "Each release carries a wheel: the tool and nothing else. No git history, no test suite, no docs. `mov update` fetches the newest and then checks the version actually changed.",

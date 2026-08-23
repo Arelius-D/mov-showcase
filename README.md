@@ -4,7 +4,7 @@
 
 **Live: [mov-cli.duckdns.org](https://mov-cli.duckdns.org)**
 
-An interactive map of [mov](https://github.com/Arelius-D/MOV-CLI). Three zones,
+An interactive map of [mov](https://github.com/Arelius-D/mov). Three zones,
 what sits in each, and what passes between them.
 
 Click anything to read about it. Hover to see what it connects to. Type in the
