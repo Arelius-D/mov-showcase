@@ -1,6 +1,6 @@
 # mov-showcase
 
-<img src="brand/lockup.png" alt="mov, profile driven Azure control" width="620">
+<img src="brand/lockup.png" alt="mov, one profile, one command" width="620">
 
 **Live: [mov-cli.duckdns.org](https://mov-cli.duckdns.org)**
 
