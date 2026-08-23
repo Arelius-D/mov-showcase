@@ -50,6 +50,7 @@
 
   --motion-fast: 0.12s;
   --motion-base: 0.22s;
+  --motion-slow: 0.4s; /* colour crossing a whole theme change */
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
 
   --dim: 0.16; /* opacity of everything unrelated to the hovered object */
@@ -195,6 +196,8 @@ pre {
 body {
   background: var(--bg-base);
   color: var(--text-primary);
+  transition: background var(--motion-slow) var(--ease-out),
+    color var(--motion-slow) var(--ease-out);
   font-family: var(--font-sans);
   font-size: var(--text-base);
   line-height: var(--leading-normal);
@@ -644,7 +647,8 @@ button {
   stroke-linecap: round;
   opacity: var(--arc-rest);
   transition: opacity var(--motion-base) var(--ease-out),
-    stroke-width var(--motion-base) var(--ease-out);
+    stroke-width var(--motion-base) var(--ease-out),
+    stroke var(--motion-slow) var(--ease-out);
 }
 
 /* At rest the map shows structure, not detail. An arc that stays inside one
@@ -696,7 +700,9 @@ button {
   font-family: var(--font-sans);
   font-size: var(--text-2xs);
   opacity: 0;
-  transition: opacity var(--motion-base) var(--ease-out);
+  transition: opacity var(--motion-base) var(--ease-out),
+    fill var(--motion-slow) var(--ease-out),
+    stroke var(--motion-slow) var(--ease-out);
 }
 
 .map.is-focused .arc-label.is-related {
@@ -867,6 +873,24 @@ button {
 
   .map__arcs {
     display: none;
+  }
+}
+
+/* Anything with a hover state transitions fast, because hover has to feel
+   immediate. On a theme change that same speed makes the cards land well before
+   the page behind them, which reads as two changes rather than one. The class
+   is set for the length of the crossing and taken off again.
+
+   Inside no-preference so it cannot outrank the reduced-motion rule below,
+   which it would on specificity alone. */
+@media (prefers-reduced-motion: no-preference) {
+  .is-theming .object,
+  .is-theming .theme-toggle,
+  .is-theming .zoom__step,
+  .is-theming .zoom__level,
+  .is-theming .finder__input,
+  .is-theming .panel__link {
+    transition-duration: var(--motion-slow);
   }
 }
 

@@ -400,8 +400,19 @@ window.MOV = window.MOV || {};
   function theme() {
     var button = document.getElementById("theme-toggle");
 
+    var crossing = null;
+
     function apply(name) {
-      document.documentElement.setAttribute("data-theme", name);
+      /* Everything with a hover state is fast by default. For the length of a
+         theme change it is not, so the whole page arrives together. */
+      var root = document.documentElement;
+      root.classList.add("is-theming");
+      window.clearTimeout(crossing);
+      crossing = window.setTimeout(function () {
+        root.classList.remove("is-theming");
+      }, 450);
+
+      root.setAttribute("data-theme", name);
       try {
         localStorage.setItem(STORED_THEME, name);
       } catch (ignored) {
