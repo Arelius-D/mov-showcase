@@ -103,7 +103,15 @@ window.MOV = window.MOV || {};
   }
 
   function route(a, b, sameZone, index, fromId, toId) {
-    if (sameZone) {
+    /* Bowing out to the side exists for one situation: two objects in the same
+       column, where a straight line between them cuts through everything
+       stacked in between. It used to apply to every arc inside a zone, which
+       was true when a zone was one column and stopped being true when groups
+       started tiling side by side. Two cards next to each other were sent out
+       the left edge and around, the long way, instead of straight across. */
+    var stacked = Math.abs(b.cx - a.cx) < (a.width + b.width) / 4;
+
+    if (sameZone && stacked) {
       var ay = a.cy + slot(a.height, index, fromId);
       var by = b.cy + slot(b.height, index, toId);
       var bow = Math.min(BOW_MAX, Math.max(BOW_MIN, Math.abs(by - ay) * BOW_RATIO));
