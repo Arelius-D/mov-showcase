@@ -266,9 +266,26 @@ window.MOV.OBJECTS = [
     group: "account",
     kind: "cloud",
     name: "Subscription",
-    blurb: "Where the bill lands.",
+    blurb: "The one mov is pinned to.",
     detail:
-      "The one mov.workspace.json pins. Signed in to a different one, mov refuses to act and names the command that fixes it.",
+      "Where resources live and what spend is measured against. The invoice itself is issued a level up. The one mov.workspace.json pins: signed in to a different one, mov refuses to act and names the command that fixes it.",
+  },
+  {
+    id: "billing",
+    zone: "azure",
+    group: "account",
+    kind: "cost",
+    name: "Billing account",
+    blurb: "Who can actually pay.",
+    detail:
+      "The invoice is issued here, above the subscription. Billing roles are a third permission system, separate from Azure RBAC and from Entra directory roles. Owner on the subscription grants nothing over the bill. Global Administrator grants nothing over it either. Only somebody who already holds a billing role can hand one to anybody else, and the API refuses to do it at all on a Microsoft Customer Agreement, so it happens in the portal or not at all.",
+    evidence: {
+      language: "text",
+      text: "mov check
+  OK   billing access: 2 people can pay the bill
+  WARN billing access: one person can pay the bill and no one
+       else can be given the right by any command",
+    },
   },
   {
     id: "entra",
@@ -428,6 +445,8 @@ window.MOV.ARCS = [
   { from: "pip", to: "nic", label: "assigned to", kind: "causes" },
   { from: "nic", to: "vm", label: "attaches to", kind: "causes" },
   { from: "budget", to: "subscription", label: "watches spend on", kind: "causes" },
+  { from: "billing", to: "subscription", label: "issues the invoice for", kind: "causes" },
+  { from: "mov", to: "billing", label: "mov audit reads who can pay", kind: "pulls" },
   { from: "tenant", to: "entra", label: "holds", kind: "causes" },
 
   /* the secret, and where it ends up */
