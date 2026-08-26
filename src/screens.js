@@ -145,6 +145,7 @@ window.MOV = window.MOV || {};
     "Write the profile": "^s",
     Quit: "esc",
     Back: "esc",
+    Help: "?",
   };
 
   function draw(frame, typed) {

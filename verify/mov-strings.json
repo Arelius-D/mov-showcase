@@ -42,7 +42,7 @@
       "source": "mov/src/mov/new/screens.py  _selection_panel, empty"
     },
     {
-      "pattern": "^(Configure|Quit|Name it|Back|Write the profile)$",
+      "pattern": "^(Configure|Quit|Name it|Back|Write the profile|Help)$",
       "source": "mov/src/mov/new/screens.py  BINDINGS descriptions on the four screens"
     },
     {

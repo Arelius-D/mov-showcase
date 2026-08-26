@@ -34,7 +34,7 @@ window.MOV.TUI = {
       results: [],
       picked: [],
       notes: [],
-      footer: ["Configure", "Quit"],
+      footer: ["Configure", "Quit", "Help"],
     },
     {
       screen: "pick",
@@ -48,7 +48,7 @@ window.MOV.TUI = {
       highlight: 0,
       picked: [],
       notes: [],
-      footer: ["Configure", "Quit"],
+      footer: ["Configure", "Quit", "Help"],
     },
     {
       screen: "pick",
@@ -61,7 +61,7 @@ window.MOV.TUI = {
       highlight: 0,
       picked: [{ type: "Microsoft.KeyVault/vaults", badge: "generic" }],
       notes: ["suggests another resource (target unknown) via properties.tenantId -- not added"],
-      footer: ["Configure", "Quit"],
+      footer: ["Configure", "Quit", "Help"],
     },
     {
       screen: "pick",
@@ -71,7 +71,7 @@ window.MOV.TUI = {
       highlight: 0,
       picked: [{ type: "Microsoft.KeyVault/vaults", badge: "generic" }],
       notes: [],
-      footer: ["Configure", "Quit"],
+      footer: ["Configure", "Quit", "Help"],
     },
     {
       screen: "pick",
@@ -91,7 +91,7 @@ window.MOV.TUI = {
         "+ Microsoft.Web/serverfarms required by Microsoft.Web/sites (properties.serverFarmId)",
         "suggests Microsoft.Network/virtualNetworks/subnets via properties.virtualNetworkSubnetId -- not added",
       ],
-      footer: ["Configure", "Quit"],
+      footer: ["Configure", "Quit", "Help"],
     },
     {
       screen: "configure",
@@ -110,7 +110,7 @@ window.MOV.TUI = {
           ],
         },
       ],
-      footer: ["Name it", "Back"],
+      footer: ["Name it", "Back", "Help"],
     },
     {
       screen: "name",
@@ -119,7 +119,7 @@ window.MOV.TUI = {
       value: "selfhosted",
       typing: true,
       preview: [],
-      footer: ["Back"],
+      footer: ["Back", "Help"],
     },
     {
       screen: "name",
@@ -131,7 +131,7 @@ window.MOV.TUI = {
         "Microsoft.Web/sites  ->  sites-novatrix-sites",
         "Microsoft.Web/serverfarms  ->  serverfarms-novatrix-serverfarms",
       ],
-      footer: ["Back"],
+      footer: ["Back", "Help"],
     },
     {
       screen: "review",
@@ -150,7 +150,7 @@ window.MOV.TUI = {
         "}",
       ],
       note: "More entries, tags and overrides belong in the file itself -- it is yours to edit before anything deploys.",
-      footer: ["Write the profile", "Back"],
+      footer: ["Write the profile", "Back", "Help"],
     },
     { screen: "hold" },
   ],
