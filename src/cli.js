@@ -39,9 +39,9 @@ window.MOV.CLI = {
     { kind: "line", tone: "suggested", text: "suggests Microsoft.Network/virtualNetworks/subnets via properties.virtualNetworkSubnetId -- not added" },
 
     { kind: "input", text: "selfhosted", prompt: "name ›" },
-    { kind: "line", text: "Microsoft.KeyVault/vaults  ->  vaults-novatrix-vaults" },
-    { kind: "line", text: "Microsoft.Web/sites  ->  sites-novatrix-sites" },
-    { kind: "line", text: "Microsoft.Web/serverfarms  ->  serverfarms-novatrix-serverfarms" },
+    { kind: "line", text: "Microsoft.KeyVault/vaults  ->  vaults-novatrix-selfhosted" },
+    { kind: "line", text: "Microsoft.Web/sites  ->  sites-novatrix-selfhosted" },
+    { kind: "line", text: "Microsoft.Web/serverfarms  ->  serverfarms-novatrix-selfhosted" },
 
     { kind: "line", tone: "ok", text: "OK   wrote profiles/selfhosted.json" },
     { kind: "line", tone: "muted", text: "stages: preflight, rg, cost, resources" },

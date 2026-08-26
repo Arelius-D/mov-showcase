@@ -100,6 +100,70 @@
     {
       "pattern": "^ {5}mov-\\S+$",
       "source": "mov/src/mov/stages/arm.py  the deployment name printed before create"
+    },
+    {
+      "pattern": "^(Pick|Configure|Name|Review)$",
+      "source": "mov/src/mov/new/screens.py  STEPS: the strip on every screen, and the help page's headings"
+    },
+    {
+      "pattern": "^\\? help$",
+      "source": "mov/src/mov/new/screens.py  _steps: the help key and the word help"
+    },
+    {
+      "pattern": "^four screens, one profile$",
+      "source": "mov/src/mov/new/screens.py  HelpScreen.compose: the tagline"
+    },
+    {
+      "pattern": "^Keys$",
+      "source": "mov/src/mov/new/screens.py  HelpScreen.compose: the heading over the key rows"
+    },
+    {
+      "pattern": "^Close$",
+      "source": "mov/src/mov/new/screens.py  HelpScreen.BINDINGS: the help key closes the page"
+    },
+    {
+      "pattern": "^Search\\ what\\ this\\ subscription\\ offers\\ and\\ choose\\ what\\ the\\ project\\ needs\\.\\ What\\ a\\ pick\\ cannot\\ exist\\ without\\ comes\\ along\\ and\\ says\\ why\\.\\ What\\ it\\ could\\ use\\ is\\ suggested\\ and\\ left\\ to\\ you\\.$",
+      "source": "mov/src/mov/new/screens.py  SCREENS_EXPLAINED: Pick"
+    },
+    {
+      "pattern": "^The\\ questions\\ the\\ picks\\ raised:\\ what\\ each\\ type\\ requires,\\ prefilled\\ from\\ your\\ defaults\\ where\\ mov\\ knows\\ them\\.$",
+      "source": "mov/src/mov/new/screens.py  SCREENS_EXPLAINED: Configure"
+    },
+    {
+      "pattern": "^The\\ project's\\ name\\ becomes\\ the\\ env\\.\\ Every\\ resource\\ name\\ it\\ produces\\ is\\ shown\\ before\\ anything\\ is\\ written\\.$",
+      "source": "mov/src/mov/new/screens.py  SCREENS_EXPLAINED: Name"
+    },
+    {
+      "pattern": "^The\\ profile\\ as\\ it\\ will\\ be\\ written\\.\\ Read\\ it;\\ then\\ write\\ it,\\ or\\ go\\ back\\.$",
+      "source": "mov/src/mov/new/screens.py  SCREENS_EXPLAINED: Review"
+    },
+    {
+      "pattern": "^(tab|\\^n|esc|\\^s|\\?)$",
+      "source": "mov/src/mov/data/config/tui.json  keys.*.shown, and tab, in the help page's key rows"
+    },
+    {
+      "pattern": "^move\\ between\\ the\\ search\\ box\\ and\\ the\\ results\\.\\ Enter\\ picks\\ or\\ unpicks$",
+      "source": "mov/src/mov/new/screens.py  HelpScreen.compose: what the key does"
+    },
+    {
+      "pattern": "^go\\ on\\ to\\ the\\ next\\ screen$",
+      "source": "mov/src/mov/new/screens.py  HelpScreen.compose: what the key does"
+    },
+    {
+      "pattern": "^back\\ one\\ screen\\.\\ On\\ the\\ first,\\ quit$",
+      "source": "mov/src/mov/new/screens.py  HelpScreen.compose: what the key does"
+    },
+    {
+      "pattern": "^on\\ the\\ review\\ screen,\\ write\\ the\\ profile$",
+      "source": "mov/src/mov/new/screens.py  HelpScreen.compose: what the key does"
+    },
+    {
+      "pattern": "^this\\ page,\\ and\\ closes\\ it$",
+      "source": "mov/src/mov/new/screens.py  HelpScreen.compose: what the key does"
+    },
+    {
+      "pattern": "^Nothing\\ is\\ kept\\ between\\ runs\\.\\ Quitting\\ discards\\ the\\ picks\\.\\ The\\ write\\ on\\ the\\ review\\ screen\\ is\\ the\\ only\\ thing\\ that\\ creates\\ a\\ file:\\ <workspace>/profiles/<name>\\.json\\.\\ Nothing\\ deploys\\ until\\ you\\ say\\.$",
+      "source": "mov/src/mov/new/screens.py  HelpScreen.compose: the closing paragraph"
     }
   ]
 }

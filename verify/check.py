@@ -45,7 +45,7 @@ TUI = ROOT / "src" / "tui.js"
 MOV_STRINGS = ROOT / "verify" / "mov-strings.json"
 TONES = {"prompt", "picked", "required", "suggested", "muted", "ok"}
 KINDS = {"prompt", "input", "line", "hold"}
-SCREENS = {"pick", "configure", "name", "review", "hold"}
+SCREENS = {"pick", "configure", "name", "review", "help", "hold"}
 # What the operator typed or mov generated from it: free text, not a format.
 FREE_TEXT_KEYS = {"query", "value", "json", "path"}
 

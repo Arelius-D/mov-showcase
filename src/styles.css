@@ -40,6 +40,7 @@
 
   --leading-tight: 1.25;
   --leading-normal: 1.6;
+  --opacity-under: 0.35; /* what shows through a modal */
 
   --weight-medium: 500;
   --weight-semibold: 600;
@@ -995,9 +996,22 @@ button {
   color: var(--accent);
 }
 
-.terminal {
+/* The stage a card plays on takes the full column, so the card's 100% has
+   something definite to resolve against. Centred on itself, the stage
+   shrank to its content and the terminal changed width with every line it
+   printed. */
+.session__stage {
+  display: grid;
+  justify-items: center;
   inline-size: 100%;
-  max-inline-size: calc(var(--columns, 64) * 1ch + var(--space-lg) * 2);
+}
+
+.terminal {
+  --columns: 64;
+  inline-size: 100%;
+  max-inline-size: calc(var(--columns) * 1ch + var(--space-lg) * 2);
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
   border: var(--hairline) solid var(--border);
   border-radius: var(--radius-md);
   background: var(--bg-evidence);
@@ -1038,7 +1052,6 @@ button {
    page never scrolls sideways for it. */
 .terminal__screen {
   --rows: 16;
-  --columns: 64;
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
@@ -1265,6 +1278,58 @@ button {
 
 .tui__preview {
   color: var(--text-primary);
+}
+
+/* The strip across the top of every screen: four steps, the current one lit. */
+.tui__steps {
+  margin-block-end: var(--space-xs);
+  padding-block-end: var(--space-2xs);
+  border-block-end: var(--hairline) solid var(--border);
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: var(--text-muted);
+}
+
+.tui__step.is-current {
+  color: var(--accent);
+  font-weight: var(--weight-semibold);
+}
+
+/* Help is a modal over the screen that was up. The screen stays, dimmed;
+   the overlay takes most of the app and holds its own lines. */
+.tui__body {
+  position: relative;
+}
+
+.tui.has-help .tui__body > :not(.tui__help) {
+  opacity: var(--opacity-under);
+}
+
+.tui__help {
+  position: absolute;
+  inset: var(--space-sm) var(--space-xl);
+  display: grid;
+  gap: var(--space-2xs);
+  align-content: start;
+  padding: var(--space-sm) var(--space-md);
+  border: var(--hairline) solid var(--accent);
+  border-radius: var(--radius-md);
+  background: var(--bg-panel);
+  font-size: var(--text-xs);
+  overflow: hidden;
+}
+
+.tui__keyrow {
+  display: flex;
+  gap: var(--space-sm);
+}
+
+.tui__shown {
+  min-inline-size: 3ch;
+  color: var(--accent);
+  font-family: inherit;
+  font-weight: var(--weight-semibold);
 }
 
 .tui__json {

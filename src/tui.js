@@ -16,6 +16,7 @@
      configure   the questions the picks raised
      name        the project's name, and every resource name it produces
      review      the profile as it will be written
+     help        the ? overlay, over whatever screen was up
      hold        wait, then start again
    ═══════════════════════════════════════════════════ */
 
@@ -27,6 +28,27 @@ window.MOV.TUI = {
   rows: 22,
   placeholder: "Search 4,694 resource types…",
   empty: "nothing picked yet",
+  steps: ["Pick", "Configure", "Name", "Review"],
+  stepsHint: "? help",
+  help: {
+    title: "mov new",
+    tagline: "four screens, one profile",
+    screens: [
+      ["Pick", "Search what this subscription offers and choose what the project needs. What a pick cannot exist without comes along and says why. What it could use is suggested and left to you."],
+      ["Configure", "The questions the picks raised: what each type requires, prefilled from your defaults where mov knows them."],
+      ["Name", "The project's name becomes the env. Every resource name it produces is shown before anything is written."],
+      ["Review", "The profile as it will be written. Read it, then write it or go back."],
+    ],
+    heading: "Keys",
+    keys: [
+      ["tab", "move between the search box and the results. Enter picks or unpicks"],
+      ["^n", "go on to the next screen"],
+      ["esc", "back one screen. On the first, quit"],
+      ["^s", "on the review screen, write the profile"],
+      ["?", "this page, and closes it"],
+    ],
+    note: "Nothing is kept between runs. Quitting discards the picks. The write on the review screen is the only thing that creates a file: <workspace>/profiles/<name>.json. Nothing deploys until you say.",
+  },
   frames: [
     {
       screen: "pick",
@@ -62,6 +84,10 @@ window.MOV.TUI = {
       picked: [{ type: "Microsoft.KeyVault/vaults", badge: "generic" }],
       notes: ["suggests another resource (target unknown) via properties.tenantId -- not added"],
       footer: ["Configure", "Quit", "Help"],
+    },
+    {
+      screen: "help",
+      footer: ["Back", "Close"],
     },
     {
       screen: "pick",
@@ -127,9 +153,9 @@ window.MOV.TUI = {
       hint: "this becomes the env: letters and digits, e.g. selfhosted",
       value: "selfhosted",
       preview: [
-        "Microsoft.KeyVault/vaults  ->  vaults-novatrix-vaults",
-        "Microsoft.Web/sites  ->  sites-novatrix-sites",
-        "Microsoft.Web/serverfarms  ->  serverfarms-novatrix-serverfarms",
+        "Microsoft.KeyVault/vaults  ->  vaults-novatrix-selfhosted",
+        "Microsoft.Web/sites  ->  sites-novatrix-selfhosted",
+        "Microsoft.Web/serverfarms  ->  serverfarms-novatrix-selfhosted",
       ],
       footer: ["Back", "Help"],
     },

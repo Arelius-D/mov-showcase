@@ -146,16 +146,57 @@ window.MOV = window.MOV || {};
     Quit: "esc",
     Back: "esc",
     Help: "?",
+    Close: "?",
   };
 
-  function draw(frame, typed) {
+  var STEP_OF = { pick: "Pick", configure: "Configure", name: "Name", review: "Review" };
+
+  /* The strip across the top of every screen: the four steps, the current
+     one lit, and how to reach help. */
+  function steps(current) {
+    var strip = element("div", "tui__steps");
+    window.MOV.TUI.steps.forEach(function (step, index) {
+      if (index) strip.appendChild(element("span", "tui__muted", "  ›  "));
+      var label = element("span", step === current ? "tui__step is-current" : "tui__step", (index + 1) + " " + step);
+      strip.appendChild(label);
+    });
+    strip.appendChild(element("span", "tui__muted", "      " + window.MOV.TUI.stepsHint));
+    return strip;
+  }
+
+  function help() {
+    var data = window.MOV.TUI.help;
+    var box = element("div", "tui__help");
+    var head = element("div", "tui__heading");
+    head.appendChild(element("span", null, data.title));
+    head.appendChild(element("span", "tui__muted", "  " + data.tagline));
+    box.appendChild(head);
+    data.screens.forEach(function (pair) {
+      box.appendChild(element("div", "tui__heading", pair[0]));
+      box.appendChild(element("div", "tui__muted", pair[1]));
+    });
+    box.appendChild(element("div", "tui__heading", data.heading));
+    data.keys.forEach(function (pair) {
+      var row = element("div", "tui__keyrow");
+      row.appendChild(element("kbd", "tui__shown", pair[0]));
+      row.appendChild(element("span", null, pair[1]));
+      box.appendChild(row);
+    });
+    box.appendChild(element("div", "tui__muted", data.note));
+    return box;
+  }
+
+  function draw(frame, typed, overlay) {
     body.textContent = "";
     footer.textContent = "";
+    app.classList.toggle("has-help", Boolean(overlay));
+    if (frame.screen in STEP_OF) body.appendChild(steps(STEP_OF[frame.screen]));
     if (frame.screen === "pick") body.appendChild(pick(frame, typed));
     if (frame.screen === "configure") body.appendChild(configure(frame));
     if (frame.screen === "name") body.appendChild(name(frame, typed));
     if (frame.screen === "review") body.appendChild(review(frame));
-    (frame.footer || []).forEach(function (label) {
+    if (overlay) body.appendChild(help());
+    ((overlay || frame).footer || []).forEach(function (label) {
       var key = element("span", "tui__key");
       key.appendChild(element("kbd", null, KEYS[label] || ""));
       key.appendChild(element("span", null, " " + label));
@@ -173,6 +214,16 @@ window.MOV = window.MOV || {};
     if (frame.screen === "hold") {
       wait(HOLD_MS, function () {
         play(0);
+      });
+      return;
+    }
+
+    /* Help is an overlay: the screen before it stays where it was, dimmed. */
+    if (frame.screen === "help") {
+      var under = frames[index - 1];
+      draw(under, (under.screen === "name" ? under.value : under.query) || "", frame);
+      wait(FRAME_MS, function () {
+        play(index + 1);
       });
       return;
     }

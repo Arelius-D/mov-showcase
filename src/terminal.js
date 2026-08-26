@@ -152,7 +152,7 @@ window.MOV = window.MOV || {};
     screen.setAttribute("role", "log");
     screen.setAttribute("aria-live", "off");
     screen.style.setProperty("--rows", String(window.MOV.CLI.rows));
-    screen.style.setProperty("--columns", String(window.MOV.CLI.columns));
+    card.style.setProperty("--columns", String(window.MOV.CLI.columns));
     card.appendChild(screen);
 
     card.tabIndex = 0;
