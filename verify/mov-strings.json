@@ -1,0 +1,53 @@
+{
+  "description": "The output formats the terminal on the `mov new` tab is allowed to show. Every line and prompt in src/tui.js has to match one of these, and verify/check.py fails the build on one that matches none. Each entry names the mov source that prints it, so when mov's wording changes this is the one file to update and the source says where to look. The coupling is by reference: the two repositories cannot see each other's tests, and this file is the honest substitute.",
+  "formats": [
+    {
+      "pattern": "^\\$ mov new$",
+      "source": "the command itself"
+    },
+    {
+      "pattern": "^\\S+  (generic|[a-z]+ block)$",
+      "source": "mov/src/mov/new/screens.py  _selection_panel: type, two spaces, badge"
+    },
+    {
+      "pattern": "^\\+ \\S+ required by \\S+ \\([^)]+\\)$",
+      "source": "mov/src/mov/new/screens.py  PickScreen.on_option_list_option_selected, added with an origin"
+    },
+    {
+      "pattern": "^suggests .+ via \\S+ -- not added$",
+      "source": "mov/src/mov/new/screens.py  PickScreen.on_option_list_option_selected, a suggestion"
+    },
+    {
+      "pattern": "^\\S+  ->  \\S+$",
+      "source": "mov/src/mov/new/screens.py  NameScreen.on_input_submitted"
+    },
+    {
+      "pattern": "^OK   wrote \\S+\\.json$",
+      "source": "mov/src/mov/cli.py  new: log.ok(f\"wrote {written}\")"
+    },
+    {
+      "pattern": "^stages: [a-z]+(, [a-z]+)*$",
+      "source": "mov/src/mov/cli.py  new: the stages line under the write"
+    },
+    {
+      "pattern": "^(Preview|Deploy) it now \\(mov (plan|up) \\S+\\)\\? y$",
+      "source": "mov/src/mov/cli.py  new: the two typer.confirm prompts, answered"
+    },
+    {
+      "pattern": "^\\d+/\\d+ [a-z]+ [A-Z].+$",
+      "source": "mov/src/mov/runner.py  the stage heading: n/total name summary"
+    },
+    {
+      "pattern": "^ {5}would deploy mov-\\S+( into a new resource group)?$",
+      "source": "mov/src/mov/stages/arm.py  the what-if note"
+    },
+    {
+      "pattern": "^ {5}resource group \\S+ created in \\S+$",
+      "source": "mov/src/mov/stages/resource_group.py  the create note"
+    },
+    {
+      "pattern": "^ {5}mov-\\S+$",
+      "source": "mov/src/mov/stages/arm.py  the deployment name printed before create"
+    }
+  ]
+}

@@ -64,6 +64,19 @@
         </div>
       </header>
 
+      <!-- Two views, one page. The map and the session are separate files with
+           separate renderers; tabs.js is the only thing that knows both exist.
+           The active view lives in the URL hash, so #map and #new are links. -->
+      <div class="tabs" role="tablist" aria-label="Views">
+        <button class="tab" type="button" role="tab" id="tab-map" aria-controls="view-map" aria-selected="true">
+          The map
+        </button>
+        <button class="tab" type="button" role="tab" id="tab-new" aria-controls="view-new" aria-selected="false" tabindex="-1">
+          mov new
+        </button>
+      </div>
+
+      <section id="view-map" role="tabpanel" aria-labelledby="tab-map">
       <div class="finder">
         <input
           class="finder__input"
@@ -104,13 +117,34 @@
       </main>
 
       <footer class="legend" id="legend"></footer>
+      </section>
+
+      <section id="view-new" role="tabpanel" aria-labelledby="tab-new" hidden>
+        <div class="session">
+          <p class="session__lede">
+            A profile does not have to start from memory. Search what the
+            subscription actually offers, pick, and watch what each pick brings
+            along and why. Then plan, then deploy, each its own decision.
+          </p>
+          <div id="session"></div>
+          <p class="session__note">
+            Every line above is one mov prints. The build refuses a line that is
+            not, so this session cannot drift from the tool.
+            <a class="session__link" href="#map">See where it lands on the map.</a>
+          </p>
+        </div>
+      </section>
     </div>
 
     <!-- Classic scripts, in dependency order. No modules: ES module imports are
-         blocked over file://, and this page has to open by double-clicking it. -->
+         blocked over file://, and this page has to open by double-clicking it.
+         tabs.js is last so the map has rendered before a view is chosen. -->
     <script src="src/map.js"></script>
+    <script src="src/tui.js"></script>
     <script src="src/render.js"></script>
     <script src="src/arcs.js"></script>
     <script src="src/interact.js"></script>
+    <script src="src/terminal.js"></script>
+    <script src="src/tabs.js"></script>
   </body>
 </html>

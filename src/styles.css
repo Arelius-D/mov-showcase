@@ -920,3 +920,180 @@ button {
     animation-duration: 0.001s;
   }
 }
+
+/* ═══════════════════════════════════════════════════
+   Tabs. Two views, one page. The active one is underlined in the accent and
+   the inactive one is plain text, so the bar reads as a choice rather than
+   as two buttons.
+   ═══════════════════════════════════════════════════ */
+.tabs {
+  display: flex;
+  gap: var(--space-lg);
+  margin-block: var(--space-lg) var(--space-md);
+  border-block-end: var(--hairline) solid var(--border);
+}
+
+.tab {
+  padding: var(--space-xs) 0 var(--space-sm);
+  border: 0;
+  border-block-end: var(--hairline) solid transparent;
+  margin-block-end: calc(var(--hairline) * -1);
+  background: none;
+  color: var(--text-muted);
+  font: inherit;
+  font-size: var(--text-base);
+  font-weight: var(--weight-medium);
+  cursor: pointer;
+  transition: color var(--motion-fast) var(--ease-out);
+}
+
+.tab:hover {
+  color: var(--text-primary);
+}
+
+.tab[aria-selected="true"] {
+  color: var(--text-primary);
+  border-block-end-color: var(--accent);
+}
+
+.tab:focus-visible {
+  outline: var(--hairline) solid var(--focus-ring);
+  outline-offset: var(--space-2xs);
+  border-radius: var(--radius-sm);
+}
+
+/* Zoom belongs to the map. On the other view it would zoom nothing. */
+.page[data-view="new"] .zoom {
+  display: none;
+}
+
+/* ═══════════════════════════════════════════════════
+   The session. One small terminal, centred, and two short paragraphs.
+   ═══════════════════════════════════════════════════ */
+.session {
+  display: grid;
+  gap: var(--space-lg);
+  justify-items: center;
+  margin-block: var(--space-md) var(--space-2xl);
+}
+
+.session__lede,
+.session__note {
+  max-inline-size: 40rem;
+  color: var(--text-secondary);
+  font-size: var(--text-base);
+  line-height: var(--leading-normal);
+  text-align: center;
+}
+
+.session__note {
+  color: var(--text-muted);
+  font-size: var(--text-sm);
+}
+
+.session__link {
+  color: var(--accent);
+}
+
+.terminal {
+  inline-size: 100%;
+  max-inline-size: calc(var(--columns, 64) * 1ch + var(--space-lg) * 2);
+  border: var(--hairline) solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--bg-evidence);
+  box-shadow: var(--shadow-panel);
+  overflow: hidden;
+}
+
+.terminal:focus-visible {
+  outline: var(--hairline) solid var(--focus-ring);
+  outline-offset: var(--space-2xs);
+}
+
+.terminal__bar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  padding: var(--space-xs) var(--space-md);
+  border-block-end: var(--hairline) solid var(--border);
+  background: var(--bg-panel);
+}
+
+.terminal__dot {
+  inline-size: var(--space-xs);
+  block-size: var(--space-xs);
+  border-radius: var(--radius-pill);
+  background: var(--border-strong);
+}
+
+.terminal__title {
+  margin-inline-start: var(--space-xs);
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+}
+
+/* Fixed to `rows` lines, so the card never grows and older output scrolls
+   off the top the way a terminal's does. The screen holds its own lines: the
+   page never scrolls sideways for it. */
+.terminal__screen {
+  --rows: 16;
+  --columns: 64;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  block-size: calc(var(--rows) * var(--text-sm) * var(--leading-normal) + var(--space-md) * 2);
+  margin: 0;
+  padding: var(--space-md) var(--space-lg);
+  overflow: hidden;
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  line-height: var(--leading-normal);
+  white-space: pre;
+}
+
+.terminal__line {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.terminal__line[data-tone="prompt"],
+.terminal__line[data-tone="picked"] {
+  color: var(--accent);
+}
+
+.terminal__line[data-tone="required"] {
+  color: var(--arc-pulls);
+}
+
+.terminal__line[data-tone="suggested"],
+.terminal__line[data-tone="muted"] {
+  color: var(--text-muted);
+}
+
+.terminal__line[data-tone="ok"] {
+  color: var(--arc-causes);
+}
+
+.terminal__line.has-cursor::after {
+  content: "";
+  display: inline-block;
+  inline-size: 0.6ch;
+  block-size: 1em;
+  margin-inline-start: 0.2ch;
+  vertical-align: text-bottom;
+  background: currentColor;
+  animation: terminal-blink 1s steps(2, start) infinite;
+}
+
+.terminal.is-paused .terminal__line.has-cursor::after {
+  animation: none;
+}
+
+@keyframes terminal-blink {
+  to {
+    visibility: hidden;
+  }
+}

@@ -34,6 +34,10 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 CSS = ROOT / "src" / "styles.css"
 MAP = ROOT / "src" / "map.js"
+TUI = ROOT / "src" / "tui.js"
+MOV_STRINGS = ROOT / "verify" / "mov-strings.json"
+TONES = {"prompt", "picked", "required", "suggested", "muted", "ok"}
+KINDS = {"prompt", "input", "line", "hold"}
 
 # Colours that are neither oklch() nor a token. Named colours are included
 # because "red" is exactly the kind of thing that gets typed at 2am and then
@@ -177,6 +181,13 @@ def copy_strings() -> list[tuple[str, str]]:
     lede = re.search(r'class="masthead__lede">(.*?)</p>', page, re.DOTALL)
     if lede:
         found.append(("lede", " ".join(lede.group(1).split())))
+    for name in ("session__lede", "session__note"):
+        block = re.search(rf'class="{name}">(.*?)</p>', page, re.DOTALL)
+        if block:
+            found.append((name, " ".join(re.sub(r"<[^>]+>", "", block.group(1)).split())))
+    for label in re.findall(r'role="tab"[^>]*>\s*(.*?)\s*</button>', page, re.DOTALL):
+        found.append(("tab", " ".join(label.split())))
+    found.extend(tui_strings())
     return found
 
 
@@ -268,11 +279,85 @@ def parses() -> list[str]:
 
     node = shutil.which("node")
     if node is None:
-        return ["map.js: node not on PATH, so it was not parsed"]
-    result = subprocess.run([node, "--check", str(MAP)], capture_output=True, text=True)
-    if result.returncode == 0:
-        return []
-    return [f"map.js does not parse:\n    {result.stderr.strip().splitlines()[0]}"]
+        return ["node is not on PATH, so map.js and tui.js were not parsed"]
+    problems = []
+    for script in (MAP, TUI):
+        result = subprocess.run([node, "--check", str(script)], capture_output=True, text=True)
+        if result.returncode != 0:
+            problems.append(f"{script.name} does not parse:\n    {result.stderr.strip().splitlines()[0]}")
+    return problems
+
+
+def read_tui() -> dict:
+    """The session, as data. tui.js is one object literal assigned to
+    window.MOV.TUI; node evaluates it and prints it, so this reads the real
+    thing rather than a regex's idea of it."""
+    import json
+    import shutil
+    import subprocess
+
+    node = shutil.which("node")
+    if node is None:
+        return {}
+    # tui.js assigns to a global `window`; give it one by loading it as text.
+    script = (
+        "const fs=require('fs');const window={};"
+        f"new Function('window', fs.readFileSync({json.dumps(str(TUI))},'utf8'))(window);"
+        "process.stdout.write(JSON.stringify(window.MOV.TUI));"
+    )
+    result = subprocess.run([node, "-e", script], capture_output=True, text=True)
+    if result.returncode != 0:
+        return {}
+    return json.loads(result.stdout)
+
+
+def tui_strings() -> list[tuple[str, str]]:
+    """Every string the session shows, for the voice check."""
+    session = read_tui()
+    found = [("tui title", session.get("title", ""))]
+    for beat in session.get("beats", []):
+        if beat.get("text"):
+            found.append((f"tui {beat['kind']}", beat["text"]))
+    return found
+
+
+def tui_problems() -> list[str]:
+    """The session has the right shape, and says only what mov says."""
+    import json
+
+    session = read_tui()
+    if not session:
+        return ["tui.js: could not read window.MOV.TUI -- has the shape changed?"]
+
+    problems = []
+    for key in ("rows", "columns"):
+        if not isinstance(session.get(key), int):
+            problems.append(f"tui.js: {key} must be an integer")
+    beats = session.get("beats") or []
+    if not beats:
+        problems.append("tui.js: no beats")
+
+    formats = json.loads(MOV_STRINGS.read_text(encoding="utf-8"))["formats"]
+    patterns = [(re.compile(entry["pattern"]), entry["source"]) for entry in formats]
+
+    for index, beat in enumerate(beats):
+        kind = beat.get("kind")
+        if kind not in KINDS:
+            problems.append(f"tui.js: beat {index} has kind {kind!r}; known: {', '.join(sorted(KINDS))}")
+            continue
+        tone = beat.get("tone")
+        if tone is not None and tone not in TONES:
+            problems.append(f"tui.js: beat {index} has tone {tone!r}; known: {', '.join(sorted(TONES))}")
+        if kind in ("line", "prompt"):
+            text = beat.get("text", "")
+            if not any(pattern.search(text) for pattern, _ in patterns):
+                problems.append(
+                    f"tui.js: beat {index} is not something mov prints:\n"
+                    f"    {text!r}\n"
+                    f"    add the format to verify/mov-strings.json with the mov source that emits it, "
+                    f"or fix the line"
+                )
+    return problems
 
 
 def main() -> int:
@@ -281,7 +366,10 @@ def main() -> int:
     # A map that does not parse renders nothing; nothing else is worth reporting.
     problems = parses()
     if not problems:
-        problems = offences(css) + custom_properties(css) + themes(css) + map_problems() + voice()
+        problems = (
+            offences(css) + custom_properties(css) + themes(css)
+            + map_problems() + tui_problems() + voice()
+        )
 
     if problems:
         print(f"{len(problems)} problem(s):\n")
@@ -290,8 +378,10 @@ def main() -> int:
         return 1
 
     zones, groups, objects, _, arcs = read_map()
+    beats = len(read_tui().get("beats", []))
     print(
         f"OK  {len(zones)} zones, {len(groups)} groups, {len(objects)} objects, {len(arcs)} arcs; "
+        f"{beats} session beats, every line one mov prints; "
         f"{len(css.splitlines())} lines of CSS within the rules"
     )
     return 0

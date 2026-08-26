@@ -10,6 +10,13 @@ what sits in each, and what passes between them.
 Click anything to read about it. Hover to see what it connects to. Type in the
 filter to narrow the map.
 
+The second tab, `mov new`, is a small terminal playing one session of the
+profile picker: search what the subscription offers, pick, watch what each pick
+brings along and why, name it, plan, deploy. It is a script, not a recording.
+Every line in it is one mov prints, in mov's spelling, and the checker refuses a
+line that matches nothing in `verify/mov-strings.json` -- so the session cannot
+drift from the tool without the build saying so. `#map` and `#new` are links.
+
 ## Running it
 
 Open `index.html`.
@@ -22,12 +29,16 @@ blocked over `file://`.
 
 ```
 index.html        markup
-src/map.js        zones, groups, objects, arcs. All page content.
-src/render.js     data to DOM
+src/map.js        zones, groups, objects, arcs. All of the map's content.
+src/tui.js        the mov new session. All of the terminal's content.
+src/render.js     map data to DOM
 src/arcs.js       arc geometry
 src/interact.js   hover, selection, panel, theme, zoom, filter
+src/terminal.js   plays the session: typing, scrolling, the loop
+src/tabs.js       the two views, hash-routed
 src/styles.css    tokens, reset, layout, components
 verify/check.py   house rules
+verify/mov-strings.json   the output formats the session may show
 ```
 
 Everything on the page comes from `map.js`. Adding an object is one entry in
@@ -59,6 +70,8 @@ python verify/check.py
 | Tokens | Declared and used, both directions. Same set in every palette. |
 | Copy | No reasoning-out-loud constructions in anything a visitor reads. |
 | Map data | No arc to a missing object. No object in a missing zone or group. No empty group. No object without arcs. |
+| Scripts | `map.js` and `tui.js` parse. A broken string in either blanks its view while the masthead renders fine. |
+| Session | Every line matches a format in `verify/mov-strings.json`, each with the mov source that prints it. |
 
 Checked by hand: keyboard navigation, both themes plus the system default,
 narrow viewports, `prefers-reduced-motion`.
