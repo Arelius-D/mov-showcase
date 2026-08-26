@@ -100,10 +100,25 @@ window.MOV.OBJECTS = [
     name: "mov",
     blurb: "The tool.",
     detail:
-      "Reads your JSON, works out every name and parameter, drives the Azure CLI. It knows nothing about Azure on its own: no region, size, image or API version appears in its source, and a test fails the build if one does.",
+      "Reads your JSON, works out every name and parameter, drives the Azure CLI. It knows nothing about Azure on its own: no region, size, image or API version appears in its source, and a test fails the build if one does. The JSON can start from a full-screen picker over the live catalogue instead of from memory.",
     evidence: {
       language: "text",
-      text: "mov plan v34     what would change\nmov up v34       make it so\nmov down v34     delete the lot",
+      text: "mov new          pick from the catalogue, get a profile\nmov plan v34     what would change\nmov up v34       make it so\nmov down v34     delete the lot",
+    },
+  },
+  {
+    id: "catalog",
+    zone: "machine",
+    group: "tools",
+    kind: "file",
+    short: "Catalogue",
+    name: "state/catalog/providers.json",
+    blurb: "What this subscription can build.",
+    detail:
+      "Every resource type the subscription offers, read from Azure and kept with its age on it: 317 namespaces, 4,694 types on the one this page was built from. Microsoft's published schemas add what each type needs and what it brings along. mov ships no list of its own, so there is nothing here to go stale in code.",
+    evidence: {
+      language: "text",
+      text: "mov catalog show Microsoft.Web/sites\n  brings along:\n    Microsoft.Web/serverfarms   properties.serverFarmId (curated)\n    another resource (unknown)  customDomainVerificationId (suggestion)",
     },
   },
   {
@@ -422,6 +437,8 @@ window.MOV.ARCS = [
   { from: "shell", to: "mov", label: "runs", kind: "causes" },
   { from: "mov", to: "az", label: "drives", kind: "causes" },
   { from: "az", to: "rg", label: "creates", kind: "causes" },
+  { from: "subscription", to: "catalog", label: "az provider list", kind: "reports" },
+  { from: "catalog", to: "profile", label: "mov new writes", kind: "causes" },
   { from: "workspace", to: "subscription", label: "pins", kind: "causes" },
 
   /* names, from patterns */
