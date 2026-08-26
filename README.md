@@ -10,12 +10,18 @@ what sits in each, and what passes between them.
 Click anything to read about it. Hover to see what it connects to. Type in the
 filter to narrow the map.
 
-The second tab, `mov new`, is a small terminal playing one session of the
-profile picker: search what the subscription offers, pick, watch what each pick
-brings along and why, name it, plan, deploy. It is a script, not a recording.
-Every line in it is one mov prints, in mov's spelling, and the checker refuses a
-line that matches nothing in `verify/mov-strings.json` -- so the session cannot
-drift from the tool without the build saying so. `#map` and `#new` are links.
+Two more tabs. **CLI** is a small terminal playing one session end to end: a
+profile written, planned and deployed, each step its own decision. **TUI** is
+the picker itself, mov's full-screen application, drawn one screen at a time:
+search what the subscription offers, pick, watch what each pick brings along and
+why, answer what the picks require, name the project, read the file before it
+is written.
+
+Both are scripts, not recordings. Every line the CLI prints and every label,
+note and key binding the TUI shows is one of mov's, in mov's spelling, and the
+checker refuses a string that matches nothing in `verify/mov-strings.json` -- so
+neither can drift from the tool without the build saying so. `#map`, `#cli`
+and `#tui` are links.
 
 ## Running it
 
@@ -30,12 +36,14 @@ blocked over `file://`.
 ```
 index.html        markup
 src/map.js        zones, groups, objects, arcs. All of the map's content.
-src/tui.js        the mov new session. All of the terminal's content.
+src/cli.js        the CLI session. All of that tab's content.
+src/tui.js        the TUI screens, frame by frame. All of that tab's content.
 src/render.js     map data to DOM
 src/arcs.js       arc geometry
 src/interact.js   hover, selection, panel, theme, zoom, filter
-src/terminal.js   plays the session: typing, scrolling, the loop
-src/tabs.js       the two views, hash-routed
+src/terminal.js   plays the CLI session: typing, scrolling, the loop
+src/screens.js    draws the TUI frames: panes, footer, typing
+src/tabs.js       the three views, hash-routed
 src/styles.css    tokens, reset, layout, components
 verify/check.py   house rules
 verify/mov-strings.json   the output formats the session may show

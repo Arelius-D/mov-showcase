@@ -1097,3 +1097,179 @@ button {
     visibility: hidden;
   }
 }
+
+/* Zoom belongs to the map. The other views have nothing to zoom. */
+.page[data-view="cli"] .zoom,
+.page[data-view="tui"] .zoom {
+  display: none;
+}
+
+/* ═══════════════════════════════════════════════════
+   The TUI. mov's picker is a full-screen application: a header, panes, and
+   a footer of key bindings. Drawn here in the page's own tokens, at a fixed
+   size, so a frame never moves the page.
+   ═══════════════════════════════════════════════════ */
+.tui {
+  --columns: 80;
+  --rows: 22;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  inline-size: 100%;
+  max-inline-size: calc(var(--columns) * 1ch + var(--space-lg) * 2);
+  block-size: calc(var(--rows) * var(--text-sm) * var(--leading-normal) + var(--space-lg) * 2);
+  border: var(--hairline) solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--bg-evidence);
+  box-shadow: var(--shadow-panel);
+  overflow: hidden;
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  line-height: var(--leading-normal);
+}
+
+.tui:focus-visible {
+  outline: var(--hairline) solid var(--focus-ring);
+  outline-offset: var(--space-2xs);
+}
+
+.tui__header {
+  padding: var(--space-2xs) var(--space-md);
+  background: var(--accent);
+  color: var(--bg-base);
+  font-weight: var(--weight-semibold);
+  text-align: center;
+}
+
+.tui__body {
+  min-block-size: 0;
+  padding: var(--space-sm) var(--space-md);
+  overflow: hidden;
+}
+
+.tui__footer {
+  display: flex;
+  gap: var(--space-lg);
+  padding: var(--space-2xs) var(--space-md);
+  background: var(--bg-panel);
+  color: var(--text-muted);
+  font-size: var(--text-xs);
+}
+
+.tui__key kbd {
+  color: var(--accent);
+  font-family: inherit;
+  font-weight: var(--weight-semibold);
+}
+
+.tui__split {
+  display: grid;
+  grid-template-columns: 3fr 2fr;
+  gap: var(--space-md);
+  block-size: 100%;
+}
+
+.tui__right {
+  padding-inline-start: var(--space-md);
+  border-inline-start: var(--hairline) solid var(--border);
+}
+
+.tui__input {
+  display: flex;
+  align-items: baseline;
+  padding: var(--space-2xs) var(--space-xs);
+  border: var(--hairline) solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  margin-block-end: var(--space-xs);
+  background: var(--bg-object);
+  color: var(--text-primary);
+  white-space: pre;
+}
+
+.tui__placeholder,
+.tui__muted,
+.tui__origin {
+  color: var(--text-muted);
+}
+
+.tui__origin {
+  padding-inline-start: var(--space-md);
+}
+
+.tui__caret {
+  display: inline-block;
+  inline-size: 0.6ch;
+  block-size: 1em;
+  margin-inline-start: 0.1ch;
+  vertical-align: text-bottom;
+  background: var(--accent);
+  animation: terminal-blink 1s steps(2, start) infinite;
+}
+
+.tui.is-paused .tui__caret {
+  animation: none;
+}
+
+.tui__row {
+  padding: 0 var(--space-xs);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tui__row.is-highlighted {
+  background: var(--accent-quiet);
+  color: var(--text-primary);
+}
+
+.tui__pick {
+  display: flex;
+  gap: var(--space-xs);
+  align-items: baseline;
+  color: var(--text-primary);
+  font-weight: var(--weight-semibold);
+}
+
+.tui__badge {
+  color: var(--accent);
+  font-weight: var(--weight-medium);
+}
+
+.tui__notes {
+  margin-block-start: var(--space-sm);
+}
+
+.tui__note[data-tone="required"] {
+  color: var(--arc-pulls);
+}
+
+.tui__note[data-tone="suggested"] {
+  color: var(--text-muted);
+}
+
+.tui__form {
+  display: grid;
+  gap: var(--space-2xs);
+  align-content: start;
+}
+
+.tui__heading {
+  margin-block: var(--space-xs) var(--space-2xs);
+  color: var(--text-primary);
+  font-weight: var(--weight-semibold);
+}
+
+.tui__required {
+  color: var(--arc-removes);
+}
+
+.tui__preview {
+  color: var(--text-primary);
+}
+
+.tui__json {
+  margin: 0;
+  overflow: hidden;
+  color: var(--text-primary);
+  white-space: pre;
+}

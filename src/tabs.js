@@ -1,12 +1,13 @@
 /* ═══════════════════════════════════════════════════
-   mov-showcase — two views, one page
+   mov-showcase — three views, one page
 
-   The map and the session are separate files with separate renderers, and
-   this is the only thing that knows both exist. The active view lives in the
-   URL hash, so a link can open either directly and nothing needs storage.
+   The map, the CLI session and the TUI screens are separate files with
+   separate renderers, and this is the only thing that knows they all exist.
+   The active view lives in the URL hash, so a link can open any of them and
+   nothing needs storage.
 
    Standard tablist behaviour: Left, Right, Home and End move between tabs and
-   activate as they go; the inactive tab is out of the tab order so one Tab
+   activate as they go; the inactive tabs are out of the tab order so one Tab
    press leaves the bar.
 
    Switching to the map re-measures its arcs, because a panel that was hidden
@@ -18,7 +19,7 @@ window.MOV = window.MOV || {};
 (function () {
   "use strict";
 
-  var VIEWS = ["map", "new"];
+  var VIEWS = ["map", "cli", "tui"];
   var DEFAULT = "map";
 
   var page, tabs, panels;
@@ -48,8 +49,11 @@ window.MOV = window.MOV || {};
     if (name === "map" && typeof window.MOV.arcs === "function") {
       window.MOV.arcs();
     }
-    if (name === "new" && typeof window.MOV.terminal === "function") {
+    if (name === "cli" && typeof window.MOV.terminal === "function") {
       window.MOV.terminal(document.getElementById("session"));
+    }
+    if (name === "tui" && typeof window.MOV.screens === "function") {
+      window.MOV.screens(document.getElementById("screens"));
     }
   }
 

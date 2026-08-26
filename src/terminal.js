@@ -1,12 +1,12 @@
 /* ═══════════════════════════════════════════════════
-   mov-showcase — plays the session in tui.js
+   mov-showcase — plays the session in cli.js
 
-   A renderer and nothing more: every string comes from window.MOV.TUI. It
+   A renderer and nothing more: every string comes from window.MOV.CLI. It
    types the inputs, prints the lines, keeps only the last `rows` of them so
    the card never grows, holds at the end, and loops.
 
    It does not start until the tab it lives in is first shown, and it does not
-   run at all if tui.js failed to load -- a broken session file must not take
+   run at all if cli.js failed to load -- a broken session file must not take
    the map down with it.
 
    Someone who asked for less motion gets the finished frame at once: the same
@@ -44,7 +44,7 @@ window.MOV = window.MOV || {};
   }
 
   function trim() {
-    var rows = window.MOV.TUI.rows;
+    var rows = window.MOV.CLI.rows;
     while (screen.children.length > rows) {
       screen.removeChild(screen.firstChild);
     }
@@ -77,7 +77,7 @@ window.MOV = window.MOV || {};
   }
 
   function play(index) {
-    var beats = window.MOV.TUI.beats;
+    var beats = window.MOV.CLI.beats;
     if (index >= beats.length) index = 0;
     var beat = beats[index];
 
@@ -127,7 +127,7 @@ window.MOV = window.MOV || {};
 
   /* Everything, at once, no motion. Same strings, same colours. */
   function still() {
-    var beats = window.MOV.TUI.beats;
+    var beats = window.MOV.CLI.beats;
     screen.textContent = "";
     beats.forEach(function (beat) {
       if (beat.kind === "hold") return;
@@ -145,14 +145,14 @@ window.MOV = window.MOV || {};
     bar.appendChild(element("span", "terminal__dot"));
     bar.appendChild(element("span", "terminal__dot"));
     bar.appendChild(element("span", "terminal__dot"));
-    bar.appendChild(element("span", "terminal__title", window.MOV.TUI.title));
+    bar.appendChild(element("span", "terminal__title", window.MOV.CLI.title));
     card.appendChild(bar);
 
     screen = element("pre", "terminal__screen");
     screen.setAttribute("role", "log");
     screen.setAttribute("aria-live", "off");
-    screen.style.setProperty("--rows", String(window.MOV.TUI.rows));
-    screen.style.setProperty("--columns", String(window.MOV.TUI.columns));
+    screen.style.setProperty("--rows", String(window.MOV.CLI.rows));
+    screen.style.setProperty("--columns", String(window.MOV.CLI.columns));
     card.appendChild(screen);
 
     card.tabIndex = 0;
@@ -183,7 +183,7 @@ window.MOV = window.MOV || {};
   /* Called by tabs.js the first time the session tab is shown. Safe to call
      again: a second call does nothing. */
   window.MOV.terminal = function (into) {
-    if (started || !window.MOV.TUI || !into) return;
+    if (started || !window.MOV.CLI || !into) return;
     started = true;
     build(into);
     if (reducedMotion()) {

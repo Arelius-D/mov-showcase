@@ -1,13 +1,29 @@
 {
-  "description": "The output formats the terminal on the `mov new` tab is allowed to show. Every line and prompt in src/tui.js has to match one of these, and verify/check.py fails the build on one that matches none. Each entry names the mov source that prints it, so when mov's wording changes this is the one file to update and the source says where to look. The coupling is by reference: the two repositories cannot see each other's tests, and this file is the honest substitute.",
+  "description": "The strings the CLI and TUI tabs are allowed to show. Every line and prompt in src/cli.js, and every label, note, result and key binding in src/tui.js, has to match one of these; verify/check.py fails the build on one that matches none. Each entry names the mov source that prints it, so when mov's wording changes this is the one file to update and the source says where to look. The coupling is by reference: the two repositories cannot see each other's tests, and this file is the honest substitute. What the operator types and what mov generates from it are free text and are not held to this.",
   "formats": [
     {
       "pattern": "^\\$ mov new$",
       "source": "the command itself"
     },
     {
+      "pattern": "^mov new$",
+      "source": "mov/src/mov/new/app.py  NewProfileApp.TITLE"
+    },
+    {
+      "pattern": "^[A-Z][A-Za-z]+\\.[A-Za-z]+(/[A-Za-z]+)+$",
+      "source": "an ARM resource type, as the catalogue lists it"
+    },
+    {
       "pattern": "^\\S+  (generic|[a-z]+ block)$",
       "source": "mov/src/mov/new/screens.py  _selection_panel: type, two spaces, badge"
+    },
+    {
+      "pattern": "^(generic|[a-z]+ block)$",
+      "source": "mov/src/mov/new/screens.py  _selection_panel: the badge alone"
+    },
+    {
+      "pattern": "^required by \\S+ \\([^)]+\\)$",
+      "source": "mov/src/mov/new/flow.py  Flow._select: the origin under a pick"
     },
     {
       "pattern": "^\\+ \\S+ required by \\S+ \\([^)]+\\)$",
@@ -18,8 +34,40 @@
       "source": "mov/src/mov/new/screens.py  PickScreen.on_option_list_option_selected, a suggestion"
     },
     {
+      "pattern": "^Search 4,694 resource types…$",
+      "source": "mov/src/mov/new/screens.py  PickScreen.compose: the Input placeholder"
+    },
+    {
+      "pattern": "^nothing picked yet$",
+      "source": "mov/src/mov/new/screens.py  _selection_panel, empty"
+    },
+    {
+      "pattern": "^(Configure|Quit|Name it|Back|Write the profile)$",
+      "source": "mov/src/mov/new/screens.py  BINDINGS descriptions on the four screens"
+    },
+    {
+      "pattern": "^[a-zA-Z]+$",
+      "source": "mov/src/mov/new/forms.py  a question's title is the schema property name"
+    },
+    {
+      "pattern": "^\\S+ requires \\w+\\.$",
+      "source": "mov/src/mov/new/flow.py  questions_for: the note on a required envelope member"
+    },
+    {
+      "pattern": "^Name the project$",
+      "source": "mov/src/mov/new/screens.py  NameScreen.compose"
+    },
+    {
+      "pattern": "^this becomes the env: letters and digits, e\\.g\\. selfhosted$",
+      "source": "mov/src/mov/new/screens.py  NameScreen.compose, the hint"
+    },
+    {
       "pattern": "^\\S+  ->  \\S+$",
       "source": "mov/src/mov/new/screens.py  NameScreen.on_input_submitted"
+    },
+    {
+      "pattern": "^More entries, tags and overrides belong in the file itself -- it is yours to edit before anything deploys\\.$",
+      "source": "mov/src/mov/new/screens.py  ReviewScreen.compose"
     },
     {
       "pattern": "^OK   wrote \\S+\\.json$",

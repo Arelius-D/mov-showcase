@@ -19,6 +19,12 @@ the claim is testable:
                                                   no object in a missing zone
                                                   or group, no empty group,
                                                   no object nothing connects to
+  · the three scripts parse                    — a broken string in one blanks
+                                                  its view while the masthead
+                                                  renders fine
+  · the sessions say only what mov says        — every CLI line and every TUI
+                                                  label matches a format in
+                                                  verify/mov-strings.json
 
 Plain Python, no dependencies. Run it from anywhere:
 
@@ -34,10 +40,14 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 CSS = ROOT / "src" / "styles.css"
 MAP = ROOT / "src" / "map.js"
+CLI = ROOT / "src" / "cli.js"
 TUI = ROOT / "src" / "tui.js"
 MOV_STRINGS = ROOT / "verify" / "mov-strings.json"
 TONES = {"prompt", "picked", "required", "suggested", "muted", "ok"}
 KINDS = {"prompt", "input", "line", "hold"}
+SCREENS = {"pick", "configure", "name", "review", "hold"}
+# What the operator typed or mov generated from it: free text, not a format.
+FREE_TEXT_KEYS = {"query", "value", "json", "path"}
 
 # Colours that are neither oklch() nor a token. Named colours are included
 # because "red" is exactly the kind of thing that gets typed at 2am and then
@@ -182,9 +192,8 @@ def copy_strings() -> list[tuple[str, str]]:
     if lede:
         found.append(("lede", " ".join(lede.group(1).split())))
     for name in ("session__lede", "session__note"):
-        block = re.search(rf'class="{name}">(.*?)</p>', page, re.DOTALL)
-        if block:
-            found.append((name, " ".join(re.sub(r"<[^>]+>", "", block.group(1)).split())))
+        for block in re.findall(rf'class="{name}">(.*?)</p>', page, re.DOTALL):
+            found.append((name, " ".join(re.sub(r"<[^>]+>", "", block).split())))
     for label in re.findall(r'role="tab"[^>]*>\s*(.*?)\s*</button>', page, re.DOTALL):
         found.append(("tab", " ".join(label.split())))
     found.extend(tui_strings())
@@ -281,16 +290,16 @@ def parses() -> list[str]:
     if node is None:
         return ["node is not on PATH, so map.js and tui.js were not parsed"]
     problems = []
-    for script in (MAP, TUI):
+    for script in (MAP, CLI, TUI):
         result = subprocess.run([node, "--check", str(script)], capture_output=True, text=True)
         if result.returncode != 0:
             problems.append(f"{script.name} does not parse:\n    {result.stderr.strip().splitlines()[0]}")
     return problems
 
 
-def read_tui() -> dict:
-    """The session, as data. tui.js is one object literal assigned to
-    window.MOV.TUI; node evaluates it and prints it, so this reads the real
+def read_data(script: Path, name: str) -> dict:
+    """A data file, as data. Each is one object literal assigned to
+    window.MOV.<name>; node evaluates it and prints it, so this reads the real
     thing rather than a regex's idea of it."""
     import json
     import shutil
@@ -299,32 +308,97 @@ def read_tui() -> dict:
     node = shutil.which("node")
     if node is None:
         return {}
-    # tui.js assigns to a global `window`; give it one by loading it as text.
-    script = (
+    source = (
         "const fs=require('fs');const window={};"
-        f"new Function('window', fs.readFileSync({json.dumps(str(TUI))},'utf8'))(window);"
-        "process.stdout.write(JSON.stringify(window.MOV.TUI));"
+        f"new Function('window', fs.readFileSync({json.dumps(str(script))},'utf8'))(window);"
+        f"process.stdout.write(JSON.stringify(window.MOV.{name}));"
     )
-    result = subprocess.run([node, "-e", script], capture_output=True, text=True)
+    result = subprocess.run([node, "-e", source], capture_output=True, text=True)
     if result.returncode != 0:
         return {}
     return json.loads(result.stdout)
 
 
-def tui_strings() -> list[tuple[str, str]]:
-    """Every string the session shows, for the voice check."""
-    session = read_tui()
-    found = [("tui title", session.get("title", ""))]
-    for beat in session.get("beats", []):
-        if beat.get("text"):
-            found.append((f"tui {beat['kind']}", beat["text"]))
+def read_cli() -> dict:
+    return read_data(CLI, "CLI")
+
+
+def read_tui() -> dict:
+    return read_data(TUI, "TUI")
+
+
+def strings_in(node, key: str = "") -> list[tuple[str, str]]:
+    """Every string leaf, with the key it hangs off."""
+    found: list[tuple[str, str]] = []
+    if isinstance(node, str):
+        found.append((key, node))
+    elif isinstance(node, list):
+        for item in node:
+            found.extend(strings_in(item, key))
+    elif isinstance(node, dict):
+        for child_key, value in node.items():
+            found.extend(strings_in(value, child_key))
     return found
 
 
-def tui_problems() -> list[str]:
-    """The session has the right shape, and says only what mov says."""
+def tui_strings() -> list[tuple[str, str]]:
+    """Every string either session shows, for the voice check."""
+    found = []
+    for beat in read_cli().get("beats", []):
+        if beat.get("text"):
+            found.append((f"cli {beat['kind']}", beat["text"]))
+    for key, text in strings_in(read_tui()):
+        if key not in FREE_TEXT_KEYS:
+            found.append((f"tui {key}", text))
+    return found
+
+
+def _formats() -> list:
     import json
 
+    entries = json.loads(MOV_STRINGS.read_text(encoding="utf-8"))["formats"]
+    return [(re.compile(entry["pattern"]), entry["source"]) for entry in entries]
+
+
+def _unknown(text: str, patterns: list) -> bool:
+    return not any(pattern.search(text) for pattern, _ in patterns)
+
+
+def cli_problems() -> list[str]:
+    """The CLI session has the right shape, and prints only what mov prints."""
+    session = read_cli()
+    if not session:
+        return ["cli.js: could not read window.MOV.CLI -- has the shape changed?"]
+
+    problems = []
+    for key in ("rows", "columns"):
+        if not isinstance(session.get(key), int):
+            problems.append(f"cli.js: {key} must be an integer")
+    beats = session.get("beats") or []
+    if not beats:
+        problems.append("cli.js: no beats")
+
+    patterns = _formats()
+    for index, beat in enumerate(beats):
+        kind = beat.get("kind")
+        if kind not in KINDS:
+            problems.append(f"cli.js: beat {index} has kind {kind!r}; known: {', '.join(sorted(KINDS))}")
+            continue
+        tone = beat.get("tone")
+        if tone is not None and tone not in TONES:
+            problems.append(f"cli.js: beat {index} has tone {tone!r}; known: {', '.join(sorted(TONES))}")
+        if kind in ("line", "prompt") and _unknown(beat.get("text", ""), patterns):
+            problems.append(
+                f"cli.js: beat {index} is not something mov prints:\n"
+                f"    {beat.get('text')!r}\n"
+                f"    add the format to verify/mov-strings.json with the mov source that emits it, "
+                f"or fix the line"
+            )
+    return problems
+
+
+def tui_problems() -> list[str]:
+    """The TUI frames have the right shape, and every label is one of mov's."""
     session = read_tui()
     if not session:
         return ["tui.js: could not read window.MOV.TUI -- has the shape changed?"]
@@ -333,30 +407,30 @@ def tui_problems() -> list[str]:
     for key in ("rows", "columns"):
         if not isinstance(session.get(key), int):
             problems.append(f"tui.js: {key} must be an integer")
-    beats = session.get("beats") or []
-    if not beats:
-        problems.append("tui.js: no beats")
+    frames = session.get("frames") or []
+    if not frames:
+        problems.append("tui.js: no frames")
 
-    formats = json.loads(MOV_STRINGS.read_text(encoding="utf-8"))["formats"]
-    patterns = [(re.compile(entry["pattern"]), entry["source"]) for entry in formats]
-
-    for index, beat in enumerate(beats):
-        kind = beat.get("kind")
-        if kind not in KINDS:
-            problems.append(f"tui.js: beat {index} has kind {kind!r}; known: {', '.join(sorted(KINDS))}")
+    patterns = _formats()
+    for index, frame in enumerate(frames):
+        screen = frame.get("screen")
+        if screen not in SCREENS:
+            problems.append(f"tui.js: frame {index} has screen {screen!r}; known: {', '.join(sorted(SCREENS))}")
             continue
-        tone = beat.get("tone")
-        if tone is not None and tone not in TONES:
-            problems.append(f"tui.js: beat {index} has tone {tone!r}; known: {', '.join(sorted(TONES))}")
-        if kind in ("line", "prompt"):
-            text = beat.get("text", "")
-            if not any(pattern.search(text) for pattern, _ in patterns):
+        for key, text in strings_in(frame):
+            if key in FREE_TEXT_KEYS or key == "screen":
+                continue
+            if _unknown(text, patterns):
                 problems.append(
-                    f"tui.js: beat {index} is not something mov prints:\n"
+                    f"tui.js: frame {index} {key} is not something mov shows:\n"
                     f"    {text!r}\n"
                     f"    add the format to verify/mov-strings.json with the mov source that emits it, "
-                    f"or fix the line"
+                    f"or fix the string"
                 )
+    for key in ("placeholder", "empty", "title"):
+        text = session.get(key, "")
+        if _unknown(text, patterns):
+            problems.append(f"tui.js: {key} {text!r} is not something mov shows")
     return problems
 
 
@@ -368,7 +442,7 @@ def main() -> int:
     if not problems:
         problems = (
             offences(css) + custom_properties(css) + themes(css)
-            + map_problems() + tui_problems() + voice()
+            + map_problems() + cli_problems() + tui_problems() + voice()
         )
 
     if problems:
@@ -378,10 +452,11 @@ def main() -> int:
         return 1
 
     zones, groups, objects, _, arcs = read_map()
-    beats = len(read_tui().get("beats", []))
+    beats = len(read_cli().get("beats", []))
+    frames = len(read_tui().get("frames", []))
     print(
         f"OK  {len(zones)} zones, {len(groups)} groups, {len(objects)} objects, {len(arcs)} arcs; "
-        f"{beats} session beats, every line one mov prints; "
+        f"{beats} CLI beats and {frames} TUI frames, every string one of mov's; "
         f"{len(css.splitlines())} lines of CSS within the rules"
     )
     return 0

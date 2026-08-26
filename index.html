@@ -69,10 +69,13 @@
            The active view lives in the URL hash, so #map and #new are links. -->
       <div class="tabs" role="tablist" aria-label="Views">
         <button class="tab" type="button" role="tab" id="tab-map" aria-controls="view-map" aria-selected="true">
-          The map
+          Map
         </button>
-        <button class="tab" type="button" role="tab" id="tab-new" aria-controls="view-new" aria-selected="false" tabindex="-1">
-          mov new
+        <button class="tab" type="button" role="tab" id="tab-cli" aria-controls="view-cli" aria-selected="false" tabindex="-1">
+          CLI
+        </button>
+        <button class="tab" type="button" role="tab" id="tab-tui" aria-controls="view-tui" aria-selected="false" tabindex="-1">
+          TUI
         </button>
       </div>
 
@@ -119,18 +122,32 @@
       <footer class="legend" id="legend"></footer>
       </section>
 
-      <section id="view-new" role="tabpanel" aria-labelledby="tab-new" hidden>
+      <section id="view-cli" role="tabpanel" aria-labelledby="tab-cli" hidden>
         <div class="session">
           <p class="session__lede">
-            A profile does not have to start from memory. Search what the
-            subscription actually offers, pick, and watch what each pick brings
-            along and why. Then plan, then deploy, each its own decision.
+            The command line, end to end. A profile is written, planned and
+            deployed, and each step is its own decision.
           </p>
           <div id="session"></div>
           <p class="session__note">
             Every line above is one mov prints. The build refuses a line that is
             not, so this session cannot drift from the tool.
-            <a class="session__link" href="#map">See where it lands on the map.</a>
+            <a class="session__link" href="#tui">The screens that wrote the profile.</a>
+          </p>
+        </div>
+      </section>
+
+      <section id="view-tui" role="tabpanel" aria-labelledby="tab-tui" hidden>
+        <div class="session">
+          <p class="session__lede">
+            The picker. Search what the subscription actually offers, pick, and
+            watch what each pick brings along and why. Answer what the picks
+            require, name the project, read the file before it is written.
+          </p>
+          <div id="screens"></div>
+          <p class="session__note">
+            Every label and key binding is the one in mov's own screens.
+            <a class="session__link" href="#cli">What happens after the write.</a>
           </p>
         </div>
       </section>
@@ -140,11 +157,13 @@
          blocked over file://, and this page has to open by double-clicking it.
          tabs.js is last so the map has rendered before a view is chosen. -->
     <script src="src/map.js"></script>
+    <script src="src/cli.js"></script>
     <script src="src/tui.js"></script>
     <script src="src/render.js"></script>
     <script src="src/arcs.js"></script>
     <script src="src/interact.js"></script>
     <script src="src/terminal.js"></script>
+    <script src="src/screens.js"></script>
     <script src="src/tabs.js"></script>
   </body>
 </html>
