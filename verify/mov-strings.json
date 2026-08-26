@@ -26,6 +26,10 @@
       "source": "mov/src/mov/new/flow.py  Flow._select: the origin under a pick"
     },
     {
+      "pattern": "^parent of \\S+$",
+      "source": "mov/src/mov/new/flow.py  _origin: a parent type that came along with its child"
+    },
+    {
       "pattern": "^\\+ \\S+ required by \\S+ \\([^)]+\\)$",
       "source": "mov/src/mov/new/screens.py  PickScreen.on_option_list_option_selected, added with an origin"
     },
