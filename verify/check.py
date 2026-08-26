@@ -258,10 +258,30 @@ def map_problems() -> list[str]:
     return problems
 
 
+def parses() -> list[str]:
+    """map.js is a script, not data: a string that a heredoc split across lines
+    is a syntax error, and a syntax error in this one file blanks the whole
+    map while the masthead above it renders fine. Regex over strings never
+    noticed. node does."""
+    import shutil
+    import subprocess
+
+    node = shutil.which("node")
+    if node is None:
+        return ["map.js: node not on PATH, so it was not parsed"]
+    result = subprocess.run([node, "--check", str(MAP)], capture_output=True, text=True)
+    if result.returncode == 0:
+        return []
+    return [f"map.js does not parse:\n    {result.stderr.strip().splitlines()[0]}"]
+
+
 def main() -> int:
     css = CSS.read_text(encoding="utf-8")
 
-    problems = offences(css) + custom_properties(css) + themes(css) + map_problems() + voice()
+    # A map that does not parse renders nothing; nothing else is worth reporting.
+    problems = parses()
+    if not problems:
+        problems = offences(css) + custom_properties(css) + themes(css) + map_problems() + voice()
 
     if problems:
         print(f"{len(problems)} problem(s):\n")

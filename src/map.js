@@ -296,10 +296,7 @@ window.MOV.OBJECTS = [
       "The invoice is issued here, above the subscription. Billing roles are a third permission system, separate from Azure RBAC and from Entra directory roles. Owner on the subscription grants nothing over the bill. Global Administrator grants nothing over it either. Only somebody who already holds a billing role can hand one to anybody else, and the API refuses to do it at all on a Microsoft Customer Agreement, so it happens in the portal or not at all.",
     evidence: {
       language: "text",
-      text: "mov check
-  OK   billing access: 2 people can pay the bill
-  WARN billing access: one person can pay the bill and no one
-       else can be given the right by any command",
+      text: "mov check\n  OK   billing access: 2 people can pay the bill\n  WARN billing access: one person can pay the bill and no one\n       else can be given the right by any command",
     },
   },
   {
