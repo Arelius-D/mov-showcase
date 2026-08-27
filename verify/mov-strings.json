@@ -176,6 +176,14 @@
     {
       "pattern": "^on\\ Configure,\\ another\\ entry\\ for\\ the\\ list\\ the\\ cursor\\ is\\ in$",
       "source": "mov/src/mov/new/screens.py  HelpScreen.compose: what ^a does"
+    },
+    {
+      "pattern": "^Workspace$",
+      "source": "mov/src/mov/new/screens.py  SCREENS_EXPLAINED: the screen shown first when more than one workspace is registered"
+    },
+    {
+      "pattern": "^First,\\ when\\ more\\ than\\ one\\ workspace\\ is\\ registered\\ on\\ this\\ machine:\\ which\\ tenant\\ and\\ subscription\\ this\\ run\\ points\\ at\\.\\ Enter\\ on\\ another\\ switches\\ to\\ it,\\ and\\ bare\\ commands\\ use\\ it\\ from\\ then\\ on\\.\\ Every\\ screen\\ carries\\ the\\ pin\\ on\\ its\\ first\\ line\\.$",
+      "source": "mov/src/mov/new/screens.py  SCREENS_EXPLAINED: Workspace"
     }
   ]
 }

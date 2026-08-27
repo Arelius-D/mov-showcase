@@ -34,6 +34,7 @@ window.MOV.TUI = {
     title: "mov new",
     tagline: "four screens, one profile",
     screens: [
+      ["Workspace", "First, when more than one workspace is registered on this machine: which tenant and subscription this run points at. Enter on another switches to it, and bare commands use it from then on. Every screen carries the pin on its first line."],
       ["Pick", "Search what this subscription offers and choose what the project needs. What a pick cannot exist without comes along and says why. What it could use is suggested and left to you."],
       ["Configure", "The questions the picks raised: what each type requires, prefilled from your defaults where mov knows them."],
       ["Name", "The project's name becomes the env. Every resource name it produces is shown before anything is written."],
