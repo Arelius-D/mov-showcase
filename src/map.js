@@ -283,7 +283,7 @@ window.MOV.OBJECTS = [
     name: "Subscription",
     blurb: "The one mov is pinned to.",
     detail:
-      "Where resources live and what spend is measured against. The invoice itself is issued a level up. The one mov.workspace.json pins: signed in to a different one, mov refuses to act and names the command that fixes it.",
+      "Where resources live and what spend is measured against. The invoice itself is issued a level up. The one mov.workspace.json pins. Every command says which it is and points az at it before its first call. Another workspace is another pin.",
   },
   {
     id: "billing",
