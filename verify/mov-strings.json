@@ -138,7 +138,7 @@
       "source": "mov/src/mov/new/screens.py  SCREENS_EXPLAINED: Review"
     },
     {
-      "pattern": "^(tab|\\^n|esc|\\^s|\\?)$",
+      "pattern": "^(tab|\\^n|\\^o|\\^a|esc|\\^s|\\?)$",
       "source": "mov/src/mov/data/config/tui.json  keys.*.shown, and tab, in the help page's key rows"
     },
     {
@@ -164,6 +164,18 @@
     {
       "pattern": "^Nothing\\ is\\ kept\\ between\\ runs\\.\\ Quitting\\ discards\\ the\\ picks\\.\\ The\\ write\\ on\\ the\\ review\\ screen\\ is\\ the\\ only\\ thing\\ that\\ creates\\ a\\ file:\\ <workspace>/profiles/<name>\\.json\\.\\ Nothing\\ deploys\\ until\\ you\\ say\\.$",
       "source": "mov/src/mov/new/screens.py  HelpScreen.compose: the closing paragraph"
+    },
+    {
+      "pattern": "^(Optional fields|Another entry)$",
+      "source": "mov/src/mov/new/screens.py  ConfigureScreen.BINDINGS descriptions"
+    },
+    {
+      "pattern": "^on\\ Configure,\\ show\\ every\\ field\\ or\\ only\\ the\\ required\\ ones$",
+      "source": "mov/src/mov/new/screens.py  HelpScreen.compose: what ^o does"
+    },
+    {
+      "pattern": "^on\\ Configure,\\ another\\ entry\\ for\\ the\\ list\\ the\\ cursor\\ is\\ in$",
+      "source": "mov/src/mov/new/screens.py  HelpScreen.compose: what ^a does"
     }
   ]
 }

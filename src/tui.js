@@ -44,6 +44,8 @@ window.MOV.TUI = {
       ["tab", "move between the search box and the results. Enter picks or unpicks"],
       ["^n", "go on to the next screen"],
       ["esc", "back one screen. On the first, quit"],
+      ["^o", "on Configure, show every field or only the required ones"],
+      ["^a", "on Configure, another entry for the list the cursor is in"],
       ["^s", "on the review screen, write the profile"],
       ["?", "this page, and closes it"],
     ],
@@ -136,7 +138,7 @@ window.MOV.TUI = {
           ],
         },
       ],
-      footer: ["Name it", "Back", "Help"],
+      footer: ["Name it", "Optional fields", "Another entry", "Back", "Help"],
     },
     {
       screen: "name",

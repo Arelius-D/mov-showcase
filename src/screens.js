@@ -143,6 +143,8 @@ window.MOV = window.MOV || {};
     Configure: "^n",
     "Name it": "^n",
     "Write the profile": "^s",
+    "Optional fields": "^o",
+    "Another entry": "^a",
     Quit: "esc",
     Back: "esc",
     Help: "?",
