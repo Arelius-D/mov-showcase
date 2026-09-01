@@ -882,13 +882,6 @@ button {
     grid-column: auto;
   }
 
-  .usage__grid {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
-  .usage__panel {
-    grid-column: auto;
-  }
 
   .panel {
     position: static;
@@ -1512,4 +1505,17 @@ button {
   line-height: var(--leading-tight);
   white-space: pre;
   overflow-x: auto;
+}
+
+/* Twelve columns of anything are too narrow to read here, and the same width
+   the map stops tiling at. Beside the rules it overrides rather than up with
+   the map's, which come earlier in the file and would lose to them. */
+@media (width < 60rem) {
+  .usage__grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .usage__panel {
+    grid-column: auto;
+  }
 }
