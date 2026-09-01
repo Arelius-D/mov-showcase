@@ -1339,3 +1339,163 @@ button {
   color: var(--text-primary);
   white-space: pre;
 }
+
+/* ═══════════════════════════════════════════════════
+   USAGE — the command surface, and one help page at a time
+   ═══════════════════════════════════════════════════ */
+
+.usage {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+  position: relative;
+}
+
+.usage__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr));
+  gap: var(--space-md);
+  transition: filter var(--motion-base) var(--ease-out),
+    opacity var(--motion-base) var(--ease-out);
+}
+
+/* The grid steps back while a help page is open, so there is one thing to
+   read. Blur rather than a curtain: the shape of what you came from stays. */
+.usage.is-reading .usage__grid {
+  filter: blur(0.1875rem);
+  opacity: 0.4;
+}
+
+.usage__panel {
+  background: var(--bg-group);
+  border: 0.0625rem solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-md);
+}
+
+.usage__panel-title {
+  margin: 0 0 var(--space-sm);
+  font-family: var(--font-sans);
+  font-size: var(--text-2xs);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.usage__commands {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2xs);
+}
+
+.usage__command {
+  display: grid;
+  gap: 0.125rem;
+  width: 100%;
+  padding: var(--space-sm);
+  text-align: left;
+  background: var(--bg-object);
+  border: 0.0625rem solid var(--border);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: background var(--motion-fast) var(--ease-out),
+    border-color var(--motion-fast) var(--ease-out);
+}
+
+.usage__command:hover,
+.usage__command:focus-visible {
+  background: var(--bg-object-hover);
+  border-color: var(--border-strong);
+}
+
+.usage__name {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  color: var(--text-primary);
+}
+
+.usage__summary {
+  font-family: var(--font-sans);
+  font-size: var(--text-xs);
+  color: var(--text-secondary);
+}
+
+/* What is under a group, so the grid answers "is there a subcommand for this"
+   without opening anything. */
+.usage__subcommands {
+  font-family: var(--font-mono);
+  font-size: var(--text-2xs);
+  color: var(--text-muted);
+}
+
+/* `hidden` is display:none in the browser's own stylesheet, and any rule here
+   that sets display beats it. Said again, next to the rule that broke it. */
+.usage__overlay[hidden] {
+  display: none;
+}
+
+.usage__overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: var(--space-md);
+  overflow: auto;
+}
+
+.usage__sheet {
+  width: min(60rem, 100%);
+  background: var(--bg-panel);
+  border: 0.0625rem solid var(--border-strong);
+  border-radius: var(--radius-lg);
+  padding: var(--space-md);
+}
+
+.usage__sheet-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-md);
+  margin-bottom: var(--space-sm);
+}
+
+.usage__sheet-title {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: var(--text-base);
+  color: var(--text-primary);
+}
+
+.usage__close {
+  padding: var(--space-2xs) var(--space-sm);
+  font-family: var(--font-sans);
+  font-size: var(--text-xs);
+  color: var(--text-secondary);
+  background: var(--bg-object);
+  border: 0.0625rem solid var(--border);
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+}
+
+.usage__close:hover,
+.usage__close:focus-visible {
+  color: var(--text-primary);
+  border-color: var(--border-strong);
+}
+
+/* mov's own output, box-drawing and all. It scrolls sideways rather than
+   wrapping: rewrapping a help page is rewriting it. */
+.usage__help {
+  margin: 0;
+  padding: var(--space-md);
+  background: var(--bg-evidence);
+  border-radius: var(--radius-md);
+  font-family: var(--font-mono);
+  font-size: var(--text-2xs);
+  line-height: 1.5;
+  color: var(--text-primary);
+  white-space: pre;
+  overflow-x: auto;
+}

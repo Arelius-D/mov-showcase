@@ -1,8 +1,9 @@
 /* ═══════════════════════════════════════════════════
-   mov-showcase — three views, one page
+   mov-showcase — four views, one page
 
-   The map, the CLI session and the TUI screens are separate files with
-   separate renderers, and this is the only thing that knows they all exist.
+   The map, the CLI session, the TUI screens and the command surface are
+   separate files with separate renderers, and this is the only thing that
+   knows they all exist.
    The active view lives in the URL hash, so a link can open any of them and
    nothing needs storage.
 
@@ -19,7 +20,7 @@ window.MOV = window.MOV || {};
 (function () {
   "use strict";
 
-  var VIEWS = ["map", "cli", "tui"];
+  var VIEWS = ["map", "cli", "tui", "usage"];
   var DEFAULT = "map";
 
   var page, tabs, panels;
@@ -54,6 +55,12 @@ window.MOV = window.MOV || {};
     }
     if (name === "tui" && typeof window.MOV.screens === "function") {
       window.MOV.screens(document.getElementById("screens"));
+    }
+    /* Built once. The grid is static, and rebuilding it on every visit would
+       throw away an open help page. */
+    if (name === "usage" && typeof window.MOV.usage === "function") {
+      window.MOV.usage();
+      window.MOV.usage = null;
     }
   }
 

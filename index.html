@@ -77,6 +77,9 @@
         <button class="tab" type="button" role="tab" id="tab-tui" aria-controls="view-tui" aria-selected="false" tabindex="-1">
           TUI
         </button>
+        <button class="tab" type="button" role="tab" id="tab-usage" aria-controls="view-usage" aria-selected="false" tabindex="-1">
+          Usage
+        </button>
       </div>
 
       <section id="view-map" role="tabpanel" aria-labelledby="tab-map">
@@ -151,6 +154,24 @@
           </p>
         </div>
       </section>
+
+      <section id="view-usage" role="tabpanel" aria-labelledby="tab-usage" hidden>
+        <div class="usage">
+          <p class="session__lede">
+            Everything there is to type, in the panels mov groups them into.
+            Open any one for its own help. Every word of it is the tool's own
+            output, written straight from `mov -h`.
+          </p>
+
+          <div class="usage__grid" id="usage-grid"></div>
+
+          <!-- The help sits over the grid. Eighty columns of fixed-width text
+               beside a grid would shrink one of them to nothing. -->
+          <div class="usage__overlay" id="usage-overlay" hidden>
+            <div class="usage__sheet" id="usage-sheet" role="dialog" aria-modal="true"></div>
+          </div>
+        </div>
+      </section>
     </div>
 
     <!-- Classic scripts, in dependency order. No modules: ES module imports are
@@ -159,11 +180,13 @@
     <script src="src/map.js"></script>
     <script src="src/cli.js"></script>
     <script src="src/tui.js"></script>
+    <script src="src/help.js"></script>
     <script src="src/render.js"></script>
     <script src="src/arcs.js"></script>
     <script src="src/interact.js"></script>
     <script src="src/terminal.js"></script>
     <script src="src/screens.js"></script>
+    <script src="src/usage.js"></script>
     <script src="src/tabs.js"></script>
   </body>
 </html>

@@ -1,0 +1,148 @@
+#!/usr/bin/env python3
+"""Write src/help.js from mov's own help, so the Usage tab cannot drift.
+
+Every other view in this repository is held to mov's wording by
+verify/mov-strings.json. The Usage tab is held to it by construction: nobody
+types its text, this asks the tool and writes down the answer.
+
+Run it after a mov release that changes the command surface:
+
+    python verify/help-from-mov.py [path-to-mov]
+
+The workspace header mov prints first -- which workspace, which tenant, which
+subscription -- is stripped. It names a real tenant and a real path, and this
+file is public.
+"""
+
+from __future__ import annotations
+
+import json
+import os
+import re
+import shutil
+import subprocess
+import sys
+from pathlib import Path
+
+WIDTH = "84"
+HERE = Path(__file__).resolve().parent
+OUT = HERE.parent / "src" / "help.js"
+
+# The panels mov groups its commands into, and what belongs to each. Taken
+# from `mov -h`; the generator checks it still matches and refuses if it does
+# not, so a command added to mov cannot be quietly missing here.
+PANELS = [
+    ("Setting up", ["setup", "init", "workspace", "subscription", "use", "check", "update", "uninstall"]),
+    ("Profiles", ["new", "catalog", "profile", "names", "bootstrap"]),
+    ("Environments", ["plan", "up", "status", "ssh", "stop", "start", "rebuild", "down"]),
+    ("Reading Azure", ["audit", "directory", "billing"]),
+    ("Exporting", ["docs", "templates"]),
+]
+
+# Commands that are groups: their own help lists what is under them.
+GROUPS = {"workspace", "subscription", "catalog", "profile", "directory", "billing", "templates"}
+
+
+def run(mov: str, *args: str) -> str:
+    """One help page, as text, with the workspace header removed."""
+    environment = {**os.environ, "COLUMNS": WIDTH, "TERM": "dumb", "NO_COLOR": "1"}
+    done = subprocess.run(
+        [mov, *args, "-h"], capture_output=True, text=True, encoding="utf-8",
+        errors="replace", env=environment,
+    )
+    text = done.stdout or done.stderr
+
+    # Every help page begins at `Usage:`. What comes before it is the header
+    # mov prints -- which workspace, which tenant, which subscription, which
+    # path -- naming a real tenant and a real directory, wrapped across as many
+    # lines as the width needs. Cutting to `Usage:` removes all of it however
+    # it wrapped, which a line-by-line filter did not.
+    lines = [line.rstrip() for line in text.splitlines()]
+    start = next((i for i, line in enumerate(lines) if line.strip().startswith("Usage:")), 0)
+    kept = lines[start:]
+
+    while kept and not kept[0].strip():
+        kept.pop(0)
+    while kept and not kept[-1].strip():
+        kept.pop()
+    return "\n".join(kept)
+
+
+def summary(page: str) -> str:
+    """The sentence under Usage:, which is what a chip shows.
+
+    Whole, not its first line. mov wraps its help to the terminal width, so the
+    opening sentence arrives in pieces and the chips read as cut off mid-word.
+    """
+    lines = [line.strip() for line in page.splitlines()]
+    for index, line in enumerate(lines):
+        if not line.startswith("Usage:"):
+            continue
+        collected: list[str] = []
+        for follower in lines[index + 1:]:
+            if follower.startswith("╭") or follower.startswith("┌"):
+                break
+            if not follower:
+                if collected:
+                    break
+                continue
+            collected.append(follower)
+        return " ".join(collected)
+    return ""
+
+
+def main() -> int:
+    mov = sys.argv[1] if len(sys.argv) > 1 else shutil.which("mov")
+    if not mov:
+        print("mov is not on PATH; pass its path as an argument", file=sys.stderr)
+        return 1
+
+    root = run(mov)
+    listed = set(re.findall(r"^│ (\w[\w-]*)\s{2,}", root, re.M))
+    declared = {name for _, names in PANELS for name in names}
+    missing = listed - declared - {"help", "version"}
+    if missing:
+        print(f"mov lists commands this generator does not: {', '.join(sorted(missing))}", file=sys.stderr)
+        return 1
+
+    commands = []
+    for panel, names in PANELS:
+        for name in names:
+            page = run(mov, name)
+            entry = {"name": name, "panel": panel, "summary": summary(page), "help": page}
+            if name in GROUPS:
+                entry["subcommands"] = sorted(set(re.findall(r"^│ (\w[\w-]*)\s{2,}", page, re.M)))
+            commands.append(entry)
+
+    payload = {
+        "version": subprocess.run([mov, "--version"], capture_output=True, text=True).stdout.strip(),
+        "root": root,
+        "panels": [panel for panel, _ in PANELS],
+        "commands": commands,
+    }
+
+    body = json.dumps(payload, indent=2, ensure_ascii=False)
+    OUT.write_text(
+        "/* ═══════════════════════════════════════════════════\n"
+        "   mov-showcase — the command surface the Usage tab shows\n"
+        "\n"
+        "   Generated by verify/help-from-mov.py from `mov -h` and `mov <command> -h`.\n"
+        "   Nobody types this file. The other views are held to mov's wording by\n"
+        "   verify/mov-strings.json; this one is held to it by construction.\n"
+        "\n"
+        "   Regenerate after a release that changes the command surface:\n"
+        "     python verify/help-from-mov.py\n"
+        "   ═══════════════════════════════════════════════════ */\n"
+        "\n"
+        "window.MOV = window.MOV || {};\n"
+        "\n"
+        f"window.MOV.HELP = {body};\n",
+        encoding="utf-8",
+        newline="\n",
+    )
+    print(f"{OUT.relative_to(HERE.parent)}: {len(commands)} commands, mov {payload['version']}")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
