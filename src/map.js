@@ -138,12 +138,12 @@ window.MOV.OBJECTS = [
     kind: "file",
     short: "Workspace file",
     name: "mov.workspace.json",
-    blurb: "Which tenant, which subscription.",
+    blurb: "One tenant, and the subscriptions in it.",
     detail:
-      "Pins the subscription mov may act on. Deploying to the wrong one cannot be undone. So it is the default, not a flag you have to remember.",
+      "A workspace is one tenant, because identity and people are tenant-wide. The subscriptions in it are declared here and one of them is the pin, which every command acts on unless told otherwise. Deploying to the wrong one cannot be undone. The pin is the default for that reason, never a flag you must remember.",
     evidence: {
       language: "json",
-      text: '{\n  "name": "mov25-azure",\n  "azure": {\n    "tenantId": "183c226e-…",\n    "subscriptionId": "fb5e8372-…"\n  }\n}',
+      text: '{\n  "name": "mov25-azure",\n  "azure": {\n    "tenantId": "183c226e-…",\n    "subscriptions": [\n      { "id": "fb5e8372-…", "alias": "prod" }\n    ]\n  }\n}',
     },
   },
   {
@@ -283,7 +283,7 @@ window.MOV.OBJECTS = [
     name: "Subscription",
     blurb: "The one mov is pinned to.",
     detail:
-      "Where resources live and what spend is measured against. The invoice itself is issued a level up. The one mov.workspace.json pins. Every command says which it is and points az at it before its first call. Another workspace is another pin.",
+      "Where resources live and what spend is measured against. The invoice itself is issued a level up. The one mov.workspace.json pins. Every command says which it is and points az at it before its first call. A tenant can hold several, each keeping its own deployments and its own catalogue. Another tenant is another workspace.",
   },
   {
     id: "billing",
@@ -293,10 +293,10 @@ window.MOV.OBJECTS = [
     name: "Billing account",
     blurb: "Who can actually pay.",
     detail:
-      "The invoice is issued here, above the subscription. Billing roles are a third permission system, separate from Azure RBAC and from Entra directory roles. Owner on the subscription grants nothing over the bill. Global Administrator grants nothing over it either. Only somebody who already holds a billing role can hand one to anybody else, and the API refuses to do it at all on a Microsoft Customer Agreement, so it happens in the portal or not at all.",
+      "The invoice is issued here, above the subscription. Billing roles are a third permission system, separate from Azure RBAC and from Entra directory roles. Owner on the subscription grants nothing over the bill. Global Administrator grants nothing over it either. Only somebody who already holds a billing role can hand one to anybody else, so it cannot be bootstrapped -- but it can be granted by command. mov declares who may see and pay in billing.json and applies it, and asks Azure what each identity may actually do rather than trusting a description of the role.",
     evidence: {
       language: "text",
-      text: "mov check\n  OK   billing access: 2 people can pay the bill\n  WARN billing access: one person can pay the bill and no one\n       else can be given the right by any command",
+      text: "mov billing matrix\n  spn-novatrix-norole   (nothing)                   none   Forbidden\n  spn-novatrix-reader   Billing account reader        18   yes\n  spn-novatrix-owner    Billing account owner         43   yes",
     },
   },
   {
