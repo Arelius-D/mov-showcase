@@ -261,13 +261,19 @@ window.MOV = window.MOV || {};
          lying across the diagram with a line behind it. Short hops between two
          objects in the same group are the common case: the connection is
          obvious from the two things it joins, and the panel names it in words
-         anyway. Measured rather than guessed at from the endpoints, because the
-         curve is longer than the straight line between them.
+         anyway.
+
+         Measured across the curve's width, not along its length. The words run
+         horizontally, so horizontal room is the only room that counts. Two
+         cards stacked in one column are joined by an arc that is long and
+         almost perfectly vertical: measured along the line it looks roomy, and
+         the label was put where the curve bows out past the cards, sitting in
+         the gutter beside the group with nothing under it.
 
          The class comes off before measuring: hidden text measures zero, which
          would un-hide it on the next pass and flap. */
       label.classList.remove("is-cramped");
-      if (label.getComputedTextLength() + LABEL_ROOM > path.getTotalLength()) {
+      if (label.getComputedTextLength() + LABEL_ROOM > path.getBBox().width) {
         label.classList.add("is-cramped");
       }
     });
