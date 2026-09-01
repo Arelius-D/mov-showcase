@@ -9,9 +9,8 @@
    the tool itself — see verify/help-from-mov.py. Nothing here writes copy.
 
    The help page opens over the grid rather than beside it. A help page is
-   eighty columns of fixed-width text and the grid is not, so putting them
-   side by side would shrink one of them to nothing on the width most people
-   read this at.
+   eighty-four columns of fixed-width text and the grid is not, so side by side
+   would shrink one of them to nothing on the width most people read this at.
    ═══════════════════════════════════════════════════ */
 
 window.MOV = window.MOV || {};
@@ -45,11 +44,28 @@ window.MOV = window.MOV || {};
     return button;
   }
 
+  /* How wide each panel sits on the twelve-column grid. A fact about the
+     content, the way a zone's span is a fact about the content in map.js:
+     Setting up and Environments hold eight commands each, Reading Azure holds
+     three and Exporting two, so the two small ones share the second row
+     instead of being stretched to the width of the large ones.
+
+     Declared here rather than in help.js, which is generated: this is a
+     decision about the page, and nothing mov prints has an opinion on it. */
+  var SPAN = {
+    "Setting up": 4,
+    Profiles: 4,
+    Environments: 4,
+    "Reading Azure": 6,
+    Exporting: 6,
+  };
+
   function build() {
     var data = window.MOV.HELP;
 
     data.panels.forEach(function (panel) {
       var section = element("section", "usage__panel");
+      if (SPAN[panel]) section.style.setProperty("--span", SPAN[panel]);
       section.appendChild(element("h3", "usage__panel-title", panel));
 
       var list = element("div", "usage__commands");
@@ -134,7 +150,9 @@ window.MOV = window.MOV || {};
   }
 
   window.MOV.usage = function () {
-    view = document.getElementById("view-usage");
+    /* The `.usage` block, not the tab panel around it: the dim rule reads
+       `.usage.is-reading`, and the class was going on the section. */
+    view = document.querySelector("#view-usage .usage");
     grid = document.getElementById("usage-grid");
     overlay = document.getElementById("usage-overlay");
     sheet = document.getElementById("usage-sheet");

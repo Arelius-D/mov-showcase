@@ -19,7 +19,7 @@ the claim is testable:
                                                   no object in a missing zone
                                                   or group, no empty group,
                                                   no object nothing connects to
-  · the three scripts parse                    — a broken string in one blanks
+  · the four data scripts parse                — a broken string in one blanks
                                                   its view while the masthead
                                                   renders fine
   · the sessions say only what mov says        — every CLI line and every TUI
@@ -42,6 +42,7 @@ CSS = ROOT / "src" / "styles.css"
 MAP = ROOT / "src" / "map.js"
 CLI = ROOT / "src" / "cli.js"
 TUI = ROOT / "src" / "tui.js"
+HELP = ROOT / "src" / "help.js"
 MOV_STRINGS = ROOT / "verify" / "mov-strings.json"
 TONES = {"prompt", "picked", "required", "suggested", "muted", "ok"}
 KINDS = {"prompt", "input", "line", "hold"}
@@ -288,9 +289,9 @@ def parses() -> list[str]:
 
     node = shutil.which("node")
     if node is None:
-        return ["node is not on PATH, so map.js and tui.js were not parsed"]
+        return ["node is not on PATH, so the data scripts were not parsed"]
     problems = []
-    for script in (MAP, CLI, TUI):
+    for script in (MAP, CLI, TUI, HELP):
         result = subprocess.run([node, "--check", str(script)], capture_output=True, text=True)
         if result.returncode != 0:
             problems.append(f"{script.name} does not parse:\n    {result.stderr.strip().splitlines()[0]}")

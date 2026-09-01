@@ -38,19 +38,28 @@ index.html        markup
 src/map.js        zones, groups, objects, arcs. All of the map's content.
 src/cli.js        the CLI session. All of that tab's content.
 src/tui.js        the TUI screens, frame by frame. All of that tab's content.
+src/help.js       every command and its help. Generated; see verify/help-from-mov.py.
 src/render.js     map data to DOM
 src/arcs.js       arc geometry
 src/interact.js   hover, selection, panel, theme, zoom, filter
 src/terminal.js   plays the CLI session: typing, scrolling, the loop
 src/screens.js    draws the TUI frames: panes, footer, typing
-src/tabs.js       the three views, hash-routed
+src/usage.js      draws the command surface, and one help page over it
+src/tabs.js       the four views, hash-routed
 src/styles.css    tokens, reset, layout, components
 verify/check.py   house rules
 verify/mov-strings.json   the output formats the session may show
+verify/help-from-mov.py   writes src/help.js from `mov -h`
 ```
 
-Everything on the page comes from `map.js`. Adding an object is one entry in
+Everything on the map comes from `map.js`. Adding an object is one entry in
 one array.
+
+The Usage tab comes from mov itself. `verify/help-from-mov.py` runs `mov -h`
+and `mov <command> -h` and writes `src/help.js`, so that tab cannot drift from
+the tool the way hand-copied text does. Run it after a release that changes the
+command surface; it refuses if mov lists a command it does not know about, and
+it strips the workspace header, which names a real tenant and a real path.
 
 Arc paths are computed from where objects land, not from fixed coordinates. The
 map survives a resize, a late font, or a new object. Each arc routes along

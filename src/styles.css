@@ -882,6 +882,14 @@ button {
     grid-column: auto;
   }
 
+  .usage__grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .usage__panel {
+    grid-column: auto;
+  }
+
   .panel {
     position: static;
   }
@@ -979,7 +987,8 @@ button {
 }
 
 .session__lede,
-.session__note {
+.session__note,
+.usage__lede {
   max-inline-size: 40rem;
   color: var(--text-secondary);
   font-size: var(--text-base);
@@ -1345,59 +1354,62 @@ button {
    ═══════════════════════════════════════════════════ */
 
 .usage {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-lg);
   position: relative;
+  display: grid;
+  gap: var(--space-lg);
 }
 
+/* The same twelve columns the map's zones sit on, for the same reason: how
+   much room a panel wants is a fact about what is in it. Setting up holds
+   eight commands and Exporting holds two, so columns of one width padded one
+   panel with air and pushed the other onto a row of its own. Each panel
+   carries its span from usage.js. */
 .usage__grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr));
-  gap: var(--space-md);
-  transition: filter var(--motion-base) var(--ease-out),
-    opacity var(--motion-base) var(--ease-out);
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: var(--space-lg);
+  align-items: start;
+  transition: opacity var(--motion-base) var(--ease-out);
 }
 
-/* The grid steps back while a help page is open, so there is one thing to
-   read. Blur rather than a curtain: the shape of what you came from stays. */
+/* What shows through a modal, the same amount as the TUI's help page. */
 .usage.is-reading .usage__grid {
-  filter: blur(0.1875rem);
-  opacity: 0.4;
+  opacity: var(--opacity-under);
 }
 
 .usage__panel {
-  background: var(--bg-group);
-  border: 0.0625rem solid var(--border);
-  border-radius: var(--radius-lg);
+  --span: 12;
+  grid-column: span var(--span);
   padding: var(--space-md);
+  background: var(--bg-group);
+  border: var(--hairline) solid var(--border);
+  border-radius: var(--radius-lg);
 }
 
 .usage__panel-title {
-  margin: 0 0 var(--space-sm);
-  font-family: var(--font-sans);
+  margin-block-end: var(--space-xs);
+  color: var(--text-muted);
   font-size: var(--text-2xs);
-  font-weight: 600;
+  font-weight: var(--weight-medium);
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--text-muted);
 }
 
 .usage__commands {
-  display: flex;
-  flex-direction: column;
+  display: grid;
   gap: var(--space-2xs);
+  align-content: start;
 }
 
 .usage__command {
   display: grid;
-  gap: 0.125rem;
-  width: 100%;
-  padding: var(--space-sm);
-  text-align: left;
+  gap: var(--space-2xs);
+  padding: var(--space-sm) var(--space-md);
   background: var(--bg-object);
-  border: 0.0625rem solid var(--border);
+  border: var(--hairline) solid var(--border);
   border-radius: var(--radius-md);
+  box-shadow: var(--shadow-object);
+  text-align: start;
   cursor: pointer;
   transition: background var(--motion-fast) var(--ease-out),
     border-color var(--motion-fast) var(--ease-out);
@@ -1410,27 +1422,27 @@ button {
 }
 
 .usage__name {
+  color: var(--text-primary);
   font-family: var(--font-mono);
   font-size: var(--text-sm);
-  color: var(--text-primary);
 }
 
 .usage__summary {
-  font-family: var(--font-sans);
-  font-size: var(--text-xs);
   color: var(--text-secondary);
+  font-size: var(--text-xs);
+  line-height: var(--leading-normal);
 }
 
 /* What is under a group, so the grid answers "is there a subcommand for this"
    without opening anything. */
 .usage__subcommands {
+  color: var(--text-muted);
   font-family: var(--font-mono);
   font-size: var(--text-2xs);
-  color: var(--text-muted);
 }
 
 /* `hidden` is display:none in the browser's own stylesheet, and any rule here
-   that sets display beats it. Said again, next to the rule that broke it. */
+   that sets display beats it. Said again, beside the rule that broke it. */
 .usage__overlay[hidden] {
   display: none;
 }
@@ -1438,64 +1450,66 @@ button {
 .usage__overlay {
   position: absolute;
   inset: 0;
-  display: flex;
-  align-items: flex-start;
-  justify-content: center;
-  padding: var(--space-md);
+  display: grid;
+  justify-items: center;
+  align-content: start;
   overflow: auto;
 }
 
+/* Sized by what is in it. The help is fixed-width text, so a width chosen here
+   would be a guess at the width mov already chose. */
 .usage__sheet {
-  width: min(60rem, 100%);
-  background: var(--bg-panel);
-  border: 0.0625rem solid var(--border-strong);
-  border-radius: var(--radius-lg);
+  inline-size: fit-content;
+  max-inline-size: 100%;
   padding: var(--space-md);
+  background: var(--bg-panel);
+  border: var(--hairline) solid var(--accent);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-panel);
 }
 
 .usage__sheet-head {
   display: flex;
+  gap: var(--space-md);
   align-items: baseline;
   justify-content: space-between;
-  gap: var(--space-md);
-  margin-bottom: var(--space-sm);
+  margin-block-end: var(--space-sm);
 }
 
 .usage__sheet-title {
-  margin: 0;
+  color: var(--text-primary);
   font-family: var(--font-mono);
   font-size: var(--text-base);
-  color: var(--text-primary);
+  font-weight: var(--weight-semibold);
 }
 
 .usage__close {
   padding: var(--space-2xs) var(--space-sm);
-  font-family: var(--font-sans);
-  font-size: var(--text-xs);
-  color: var(--text-secondary);
   background: var(--bg-object);
-  border: 0.0625rem solid var(--border);
+  border: var(--hairline) solid var(--border);
   border-radius: var(--radius-pill);
+  color: var(--text-secondary);
+  font-size: var(--text-xs);
   cursor: pointer;
 }
 
 .usage__close:hover,
 .usage__close:focus-visible {
-  color: var(--text-primary);
   border-color: var(--border-strong);
+  color: var(--text-primary);
 }
 
 /* mov's own output, box-drawing and all. It scrolls sideways rather than
-   wrapping: rewrapping a help page is rewriting it. */
+   wrapping, because rewrapping a help page is rewriting it. */
 .usage__help {
   margin: 0;
   padding: var(--space-md);
   background: var(--bg-evidence);
   border-radius: var(--radius-md);
+  color: var(--text-primary);
   font-family: var(--font-mono);
   font-size: var(--text-2xs);
-  line-height: 1.5;
-  color: var(--text-primary);
+  line-height: var(--leading-tight);
   white-space: pre;
   overflow-x: auto;
 }
