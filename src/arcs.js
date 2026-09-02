@@ -241,7 +241,13 @@ window.MOV = window.MOV || {};
       var b = box(arc.to, stage);
       var path = layer.querySelector('path[data-arc="' + index + '"]');
       var label = layer.querySelector('text[data-arc="' + index + '"]');
-      if (!a || !b || !path) return;
+      if (!a || !b || !path) {
+        /* Nothing to measure against, so the label has no line to sit on. It
+           keeps whatever x and y it last had -- 0,0 when it has never been
+           placed -- and hovering either end would reveal it in the corner. */
+        if (label) label.classList.add("is-cramped");
+        return;
+      }
 
       var geometry = route(
         a,
@@ -279,31 +285,49 @@ window.MOV = window.MOV || {};
     });
   }
 
+  var drawn = false;
+
+  /* Called on every visit to the map, because a view that was hidden measured
+     every object at nothing and has to be measured again when it is shown.
+     Only the measuring repeats: build() appends, so calling it twice left a
+     second full set of paths and labels in the layer. place() looks each one
+     up with querySelector, which answers with the first, so the duplicates
+     were never positioned -- they sat at 0,0 with the layer's own opacity of
+     zero, invisible until a hover marked every element carrying that arc's
+     index and lit them up in the corner of the map. Two visits, two copies,
+     and the pile grew with every trip through the tabs. */
   window.MOV.arcs = function () {
     var layer = document.getElementById("arcs");
     var stage = document.getElementById("stage");
+    if (!layer || !stage) return;
 
-    build(layer);
+    if (!drawn) {
+      build(layer);
+      drawn = true;
+
+      /* Re-measure whenever the map changes size for any reason: a window
+         resize, a font arriving, the panel growing as someone reads. Observing
+         the element covers all three; listening for `resize` covers only one.
+         Registered here with the build, so returning to the map does not add
+         another observer on top of the one already watching. */
+      if (typeof ResizeObserver === "function") {
+        new ResizeObserver(function () {
+          place(layer, stage);
+        }).observe(stage);
+      } else {
+        window.addEventListener("resize", function () {
+          place(layer, stage);
+        });
+      }
+
+      /* Web fonts change every measurement when they land. */
+      if (document.fonts && document.fonts.ready) {
+        document.fonts.ready.then(function () {
+          place(layer, stage);
+        });
+      }
+    }
+
     place(layer, stage);
-
-    /* Re-measure whenever the map changes size for any reason: a window
-       resize, a font arriving, the panel growing as someone reads. Observing
-       the element covers all three; listening for `resize` covers only one. */
-    if (typeof ResizeObserver === "function") {
-      new ResizeObserver(function () {
-        place(layer, stage);
-      }).observe(stage);
-    } else {
-      window.addEventListener("resize", function () {
-        place(layer, stage);
-      });
-    }
-
-    /* Web fonts change every measurement when they land. */
-    if (document.fonts && document.fonts.ready) {
-      document.fonts.ready.then(function () {
-        place(layer, stage);
-      });
-    }
   };
 })();
