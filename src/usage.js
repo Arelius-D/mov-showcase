@@ -18,7 +18,7 @@ window.MOV = window.MOV || {};
 (function () {
   "use strict";
 
-  var view, grid, overlay, sheet, opener;
+  var view, grid, overlay, sheet, opener, finder, counter;
 
   function element(tag, className, text) {
     var node = document.createElement(tag);
@@ -116,6 +116,76 @@ window.MOV = window.MOV || {};
     opener = null;
   }
 
+  /* Searched over everything the command answers to, its help text included,
+     so `subscription` finds the commands that mention one and not only the
+     command called that. Every word has to appear somewhere, in any order: a
+     phrase match meant `delete group` found nothing while both words were on
+     the same page. The map filters the same way, and dims rather than hides
+     for the same reason -- what did not match is still worth seeing beside
+     what did. */
+  function haystack(command) {
+    return [
+      command.name,
+      command.summary,
+      command.help,
+      (command.subcommands || []).join(" "),
+    ]
+      .join(" ")
+      .toLowerCase();
+  }
+
+  function filter(term) {
+    var query = term.trim().toLowerCase();
+    view.classList.toggle("is-filtered", Boolean(query));
+
+    if (!query) {
+      grid.querySelectorAll(".usage__command, .usage__panel").forEach(function (node) {
+        node.classList.remove("is-match", "is-empty");
+      });
+      counter.textContent = "";
+      return;
+    }
+
+    var words = query.split(/\s+/);
+    var hits = 0;
+    window.MOV.HELP.commands.forEach(function (command) {
+      var node = grid.querySelector('[data-command="' + command.name + '"]');
+      if (!node) return;
+      var text = haystack(command);
+      var hit = words.every(function (word) {
+        return text.indexOf(word) !== -1;
+      });
+      node.classList.toggle("is-match", hit);
+      if (hit) hits += 1;
+    });
+
+    /* A panel with nothing in it is a heading over an empty box. */
+    grid.querySelectorAll(".usage__panel").forEach(function (panel) {
+      panel.classList.toggle("is-empty", !panel.querySelector(".usage__command.is-match"));
+    });
+
+    counter.textContent = hits + (hits === 1 ? " command" : " commands");
+  }
+
+  function search() {
+    finder = document.getElementById("usage-search");
+    counter = document.getElementById("usage-search-count");
+    if (!finder || !counter) return;
+
+    finder.addEventListener("input", function () {
+      filter(finder.value);
+    });
+
+    /* Escape clears the field before it reaches the document listener, which
+       would otherwise only ever close the help page. */
+    finder.addEventListener("keydown", function (event) {
+      if (event.key !== "Escape" || !finder.value) return;
+      event.stopPropagation();
+      finder.value = "";
+      filter("");
+    });
+  }
+
   function wire() {
     grid.addEventListener("click", function (event) {
       var button = event.target.closest(".usage__command");
@@ -160,5 +230,6 @@ window.MOV = window.MOV || {};
 
     build();
     wire();
+    search();
   };
 })();

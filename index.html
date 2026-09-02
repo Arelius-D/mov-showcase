@@ -41,17 +41,6 @@
           </div>
         </div>
         <div class="controls">
-          <div class="zoom" role="group" aria-label="Map zoom">
-            <button class="zoom__step" type="button" id="zoom-out" aria-label="Zoom out">
-              &minus;
-            </button>
-            <button class="zoom__level" type="button" id="zoom-reset" aria-live="polite">
-              100%
-            </button>
-            <button class="zoom__step" type="button" id="zoom-in" aria-label="Zoom in">
-              +
-            </button>
-          </div>
           <button class="theme-toggle" type="button" id="theme-toggle" aria-label="Switch theme">
             <svg class="theme-toggle__glyph" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true" focusable="false">
               <circle class="theme-toggle__disc" cx="12" cy="12" r="5" />
@@ -83,16 +72,33 @@
       </div>
 
       <section id="view-map" role="tabpanel" aria-labelledby="tab-map">
-      <div class="finder">
-        <input
-          class="finder__input"
-          id="search"
-          type="search"
-          placeholder="Filter the map"
-          aria-label="Filter the map"
-          autocomplete="off"
-        />
-        <span class="finder__count" id="search-count" aria-live="polite"></span>
+      <!-- What acts on this view sits in it. Zoom is the map's own: the stage
+           is laid out at the inverse of the scale and drawn at it, which is a
+           trick a diagram can do and a page cannot. -->
+      <div class="viewbar">
+        <div class="finder">
+          <input
+            class="finder__input"
+            id="search"
+            type="search"
+            placeholder="Filter the map"
+            aria-label="Filter the map"
+            autocomplete="off"
+          />
+          <span class="finder__count" id="search-count" aria-live="polite"></span>
+        </div>
+
+        <div class="zoom" role="group" aria-label="Map zoom">
+          <button class="zoom__step" type="button" id="zoom-out" aria-label="Zoom out">
+            &minus;
+          </button>
+          <button class="zoom__level" type="button" id="zoom-reset" aria-live="polite">
+            100%
+          </button>
+          <button class="zoom__step" type="button" id="zoom-in" aria-label="Zoom in">
+            +
+          </button>
+        </div>
       </div>
 
       <main class="workbench">
@@ -162,6 +168,20 @@
             Open any one for its own help. Every word of it is the tool's own
             output, written straight from `mov -h`.
           </p>
+
+          <div class="viewbar">
+            <div class="finder">
+              <input
+                class="finder__input"
+                id="usage-search"
+                type="search"
+                placeholder="Filter the commands"
+                aria-label="Filter the commands"
+                autocomplete="off"
+              />
+              <span class="finder__count" id="usage-search-count" aria-live="polite"></span>
+            </div>
+          </div>
 
           <div class="usage__grid" id="usage-grid"></div>
 

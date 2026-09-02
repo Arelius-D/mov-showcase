@@ -387,13 +387,27 @@ button {
 }
 
 /* ═══════════════════════════════════════════════════
-   FINDER — type to narrow the map
+   VIEWBAR — what acts on the view you are looking at
+
+   A control belongs to whatever it changes. The theme is the page's, so it
+   stays in the masthead; zoom is the map's and the search is each view's own,
+   so both sit in the view they act on. Zoom used to sit beside the theme,
+   where it read as a page control, did nothing on three tabs out of four, and
+   said so only in a label nobody reads.
    ═══════════════════════════════════════════════════ */
+.viewbar {
+  display: flex;
+  gap: var(--space-md);
+  align-items: center;
+  justify-content: space-between;
+  margin-block-end: var(--space-lg);
+}
+
 .finder {
   display: flex;
+  flex: 1 1 auto;
   gap: var(--space-sm);
   align-items: center;
-  margin-block-end: var(--space-lg);
 }
 
 .finder__input {
@@ -964,11 +978,6 @@ button {
   border-radius: var(--radius-sm);
 }
 
-/* Zoom belongs to the map. On the other view it would zoom nothing. */
-.page[data-view="new"] .zoom {
-  display: none;
-}
-
 /* ═══════════════════════════════════════════════════
    The session. One small terminal, centred, and two short paragraphs.
    ═══════════════════════════════════════════════════ */
@@ -1111,12 +1120,6 @@ button {
   to {
     visibility: hidden;
   }
-}
-
-/* Zoom belongs to the map. The other views have nothing to zoom. */
-.page[data-view="cli"] .zoom,
-.page[data-view="tui"] .zoom {
-  display: none;
 }
 
 /* ═══════════════════════════════════════════════════
@@ -1432,6 +1435,25 @@ button {
   color: var(--text-muted);
   font-family: var(--font-mono);
   font-size: var(--text-2xs);
+}
+
+/* A match keeps its colour and everything else recedes, exactly as on the map:
+   one idea of "not relevant now" for the whole page.
+
+   Each thing dims once. A panel with no match dims whole, and the cards inside
+   it are left alone -- dimming both multiplied the two together and took the
+   text to a shade off the background. */
+.usage.is-filtered .usage__panel:not(.is-empty) .usage__command {
+  opacity: var(--dim);
+}
+
+.usage.is-filtered .usage__command.is-match {
+  border-color: var(--accent);
+  opacity: 1;
+}
+
+.usage.is-filtered .usage__panel.is-empty {
+  opacity: var(--dim);
 }
 
 /* `hidden` is display:none in the browser's own stylesheet, and any rule here
