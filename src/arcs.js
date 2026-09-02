@@ -264,22 +264,36 @@ window.MOV = window.MOV || {};
       label.setAttribute("y", middle.y - LABEL_LIFT);
 
       /* A label longer than the arc it belongs to is not a label, it is a word
-         lying across the diagram with a line behind it. Short hops between two
-         objects in the same group are the common case: the connection is
-         obvious from the two things it joins, and the panel names it in words
-         anyway.
+         lying across the diagram with a line behind it. Measured along the
+         curve, which is longer than the straight line between the endpoints.
 
-         Measured across the curve's width, not along its length. The words run
-         horizontally, so horizontal room is the only room that counts. Two
-         cards stacked in one column are joined by an arc that is long and
-         almost perfectly vertical: measured along the line it looks roomy, and
-         the label was put where the curve bows out past the cards, sitting in
-         the gutter beside the group with nothing under it.
+         Measured across the curve's width instead for a while, on the theory
+         that a horizontal word needs horizontal room. It reads well and it was
+         wrong: it took the label off every short vertical hop, and `runs` on
+         the arc from the shell to mov is one of those. The labels appearing
+         where they did not belong was never this measurement -- it was a
+         second, unplaced copy of every arc, which is fixed where it was made.
 
          The class comes off before measuring: hidden text measures zero, which
          would un-hide it on the next pass and flap. */
       label.classList.remove("is-cramped");
-      if (label.getComputedTextLength() + LABEL_ROOM > path.getBBox().width) {
+      if (label.getComputedTextLength() + LABEL_ROOM > path.getTotalLength()) {
+        label.classList.add("is-cramped");
+        return;
+      }
+
+      /* A label is centred on the curve's midpoint, and two cards stacked in
+         one column are joined by an arc that bows out past their left edge.
+         The bow is small, so a short word rides it and stays inside the zone.
+         A phrase does not: half of "every command, as a transcript" reaches
+         past the card, past the zone, and into the margin beside it, which is
+         where words were turning up with nothing under them.
+
+         Measured after placing rather than guessed at beforehand: what
+         matters is where the words ended up, and only the ones that ended up
+         off the map are dropped. */
+      var extent = label.getBBox();
+      if (extent.x < 0 || extent.y < 0) {
         label.classList.add("is-cramped");
       }
     });
