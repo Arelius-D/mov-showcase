@@ -37,7 +37,8 @@ window.MOV = window.MOV || {};
   var BOW_RATIO = 0.2;
   var BOW_MAX = 26;
   var LABEL_LIFT = 4; /* sit the label just off the line, not on it */
-  var LABEL_ROOM = 14; /* the arc has to be longer than the words by this much */
+  var LABEL_ROOM = 14; /* a label needs this much more room than the words */
+  var LABEL_EDGE = 6; /* and never closer than this to the edge of the map */
 
   /* Every arc used to leave from its object's exact centre, so all eight of the
      VM's arcs started at one point and lay on top of each other — worst when
@@ -243,9 +244,10 @@ window.MOV = window.MOV || {};
       var label = layer.querySelector('text[data-arc="' + index + '"]');
       if (!a || !b || !path) {
         /* Nothing to measure against, so the label has no line to sit on. It
-           keeps whatever x and y it last had -- 0,0 when it has never been
-           placed -- and hovering either end would reveal it in the corner. */
-        if (label) label.classList.add("is-cramped");
+           would keep whatever x and y it last had -- 0,0 when it has never
+           been placed -- and hovering either end would reveal it in the
+           corner, which is what a pile of unplaced copies used to do. */
+        if (label) label.setAttribute("visibility", "hidden");
         return;
       }
 
@@ -259,9 +261,28 @@ window.MOV = window.MOV || {};
       );
       path.setAttribute("d", d(geometry));
 
+      /* Every arc says what it is. Labels are invisible until something is
+         hovered, and then only the hovered object's own are shown, so there is
+         no pile to avoid -- a connection you are pointing at should be named.
+
+         Clamped into the stage rather than hidden when it does not fit. Two
+         cards stacked in one column are joined by an arc that bows out past
+         their left edge, and a phrase centred on that bow reached into the
+         margin beside the map. It now stops at the edge and leans on its line
+         instead of leaving the page. The halo behind the glyphs is what keeps
+         it readable wherever it lands. */
+      label.removeAttribute("visibility");
+
       var middle = midpoint(geometry);
-      label.setAttribute("x", middle.x);
-      label.setAttribute("y", middle.y - LABEL_LIFT);
+      var half = label.getComputedTextLength() / 2;
+      var room = stage.offsetWidth;
+
+      var x = middle.x;
+      if (half * 2 + LABEL_ROOM < room) {
+        x = Math.min(Math.max(middle.x, half + LABEL_EDGE), room - half - LABEL_EDGE);
+      }
+      label.setAttribute("x", x);
+      label.setAttribute("y", Math.max(middle.y - LABEL_LIFT, LABEL_EDGE));
 
       /* A label longer than the arc it belongs to is not a label, it is a word
          lying across the diagram with a line behind it. Measured along the
@@ -276,26 +297,7 @@ window.MOV = window.MOV || {};
 
          The class comes off before measuring: hidden text measures zero, which
          would un-hide it on the next pass and flap. */
-      label.classList.remove("is-cramped");
-      if (label.getComputedTextLength() + LABEL_ROOM > path.getTotalLength()) {
-        label.classList.add("is-cramped");
-        return;
-      }
 
-      /* A label is centred on the curve's midpoint, and two cards stacked in
-         one column are joined by an arc that bows out past their left edge.
-         The bow is small, so a short word rides it and stays inside the zone.
-         A phrase does not: half of "every command, as a transcript" reaches
-         past the card, past the zone, and into the margin beside it, which is
-         where words were turning up with nothing under them.
-
-         Measured after placing rather than guessed at beforehand: what
-         matters is where the words ended up, and only the ones that ended up
-         off the map are dropped. */
-      var extent = label.getBBox();
-      if (extent.x < 0 || extent.y < 0) {
-        label.classList.add("is-cramped");
-      }
     });
   }
 

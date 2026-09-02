@@ -50,6 +50,7 @@ src/styles.css    tokens, reset, layout, components
 verify/check.py   house rules
 verify/mov-strings.json   the output formats the session may show
 verify/help-from-mov.py   writes src/help.js from `mov -h`
+verify/labels.py  drives the page: every arc labelled, on its line, inside the map
 ```
 
 Everything on the map comes from `map.js`. Adding an object is one entry in
@@ -77,6 +78,7 @@ it.
 
 ```
 python verify/check.py
+python verify/labels.py
 ```
 
 | Rule | |

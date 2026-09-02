@@ -738,12 +738,6 @@ button {
   opacity: 1;
 }
 
-/* Wider than the arc it names. display rather than opacity, so it beats the
-   rule above without either of them having to shout. */
-.arc-label.is-cramped {
-  display: none;
-}
-
 /* ═══════════════════════════════════════════════════
    DETAIL PANEL
    ═══════════════════════════════════════════════════ */
