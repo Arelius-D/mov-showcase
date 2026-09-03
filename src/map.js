@@ -200,7 +200,7 @@ window.MOV.OBJECTS = [
     name: "keys/",
     blurb: "One key per environment.",
     detail:
-      "Generated at deploy, alongside a workspace-local ssh_config. Teardown deletes it: an old key is a way into the next build. Your ~/.ssh is never touched.",
+      "Generated at deploy, alongside a workspace-local ssh_config. Teardown deletes it: an old key is a way into the next build. Your ~/.ssh is never touched. The config also says how each machine is reached. A VM declared via another VM hops through it, and a VM declared via a bastion is reached by az with this key.",
     evidence: {
       language: "text",
       text: "keys/\n  mov-v34          the private key, this environment only\n  mov-v34.pub      what Azure put on the machine\n  ssh_config       so `mov ssh v34` needs no global config",
@@ -362,7 +362,7 @@ window.MOV.OBJECTS = [
     name: "nsg-novatrix-web",
     blurb: "Which ports, and to whom.",
     detail:
-      "Three rules from the profile: 80 and 443 to the world, 22 from whatever admin.sshSource names. mov warns on every run while that source is still the whole internet.",
+      "Three rules from the profile: 80 and 443 to the world, 22 from whatever admin.sshSource names. mov warns on every run while that source is still the whole internet. A hop or a bastion takes 22 off the internet entirely: the source becomes the management subnet or the bastion subnet.",
     evidence: {
       language: "json",
       text: '{ "name": "http",  "priority": 100, "ports": ["80"] }\n{ "name": "https", "priority": 110, "ports": ["443"] }\n{ "name": "ssh",   "priority": 120, "ports": ["22"],\n  "source": "${admin.sshSource}" }',
@@ -414,7 +414,7 @@ window.MOV.OBJECTS = [
     name: "vm-novatrix-web",
     blurb: "Ubuntu 24.04, and the point of all this.",
     detail:
-      "Created with your public key on it and cloud-init instructions to fetch its own content. Stopping deallocates the compute so it stops costing, and keeps the disk so starting again is quick.",
+      "Created with your public key on it and cloud-init instructions to fetch its own content. Stopping deallocates the compute so it stops costing, and keeps the disk so starting again is quick. A VM with app set to false gets packages and updates and serves nothing, which is what a hop is.",
     evidence: {
       language: "text",
       text: "OK   web: http://20.240.236.41/ -> 200 in 37s",
