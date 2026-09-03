@@ -283,7 +283,7 @@ window.MOV.OBJECTS = [
     name: "Subscription",
     blurb: "The one mov is pinned to.",
     detail:
-      "Where resources live and what spend is measured against. The invoice itself is issued a level up. The one mov.workspace.json pins. Every command says which it is and points az at it before its first call. A tenant can hold several, each keeping its own deployments and its own catalogue. Another tenant is another workspace.",
+      "Where resources live and what spend is measured against. The invoice itself is issued a level up. The one mov.workspace.json pins. Every command says which it is and points az at it before its first call. A tenant can hold several, each keeping its own deployments and its own catalogue. Another tenant is another workspace. What it carries on its own, whichever environment is up or none, is declared in subscription.json: its budget. mov subscription up puts that budget there, and mov down never touches it.",
   },
   {
     id: "billing",
@@ -329,7 +329,7 @@ window.MOV.OBJECTS = [
     name: "budget-novatrix-v34",
     blurb: "Alerts before the credit goes.",
     detail:
-      "Thresholds at 50, 80 and 90 percent of actual spend, plus one on the forecast. A free-trial subscription stops itself when the credit runs out. These warn. They do not brake.",
+      "Thresholds at 50, 80 and 90 percent of actual spend, plus one on the forecast. A free-trial subscription stops itself when the credit runs out. These warn. They do not brake. This one belongs to the environment and goes with it. The subscription keeps its own, declared in subscription.json, and that one stays.",
   },
   {
     id: "vnet",
