@@ -283,7 +283,7 @@ window.MOV.OBJECTS = [
     name: "Subscription",
     blurb: "The one mov is pinned to.",
     detail:
-      "Where resources live and what spend is measured against. The invoice itself is issued a level up. The one mov.workspace.json pins. Every command says which it is and points az at it before its first call. A tenant can hold several, each keeping its own deployments and its own catalogue. Another tenant is another workspace. What it carries on its own, whichever environment is up or none, is declared in subscription.json: its budget. mov subscription up puts that budget there, and mov down never touches it.",
+      "Where resources live and what spend is measured against. The invoice itself is issued a level up. The one mov.workspace.json pins. Every command says which it is and points az at it before its first call. A tenant can hold several, each keeping its own deployments and its own catalogue. Another tenant is another workspace. What it carries on its own, whichever environment is up or none, is declared in subscription.json: its budget. mov subscription up puts that budget there, and mov down never touches it. What the offer allows, and how many cores and public addresses are left in the region, is what mov subscription show says: a free trial gets four and three, and no increases.",
   },
   {
     id: "billing",
