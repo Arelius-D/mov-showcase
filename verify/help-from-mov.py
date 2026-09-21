@@ -33,14 +33,14 @@ OUT = HERE.parent / "src" / "help.js"
 # not, so a command added to mov cannot be quietly missing here.
 PANELS = [
     ("Setting up", ["setup", "init", "workspace", "subscription", "use", "check", "update", "uninstall"]),
-    ("Profiles", ["new", "catalog", "profile", "names", "bootstrap"]),
+    ("Profiles", ["new", "catalog", "profile", "names", "secrets", "bootstrap"]),
     ("Environments", ["plan", "up", "status", "ssh", "stop", "start", "rebuild", "down"]),
     ("Reading Azure", ["audit", "directory", "billing"]),
     ("Exporting", ["docs", "templates"]),
 ]
 
 # Commands that are groups: their own help lists what is under them.
-GROUPS = {"workspace", "subscription", "catalog", "profile", "directory", "billing", "templates"}
+GROUPS = {"workspace", "subscription", "catalog", "profile", "secrets", "directory", "billing", "templates"}
 
 
 def run(mov: str, *args: str) -> str:
