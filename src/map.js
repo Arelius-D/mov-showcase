@@ -362,7 +362,7 @@ window.MOV.OBJECTS = [
     name: "nsg-novatrix-web",
     blurb: "Which ports, and to whom.",
     detail:
-      "Three rules from the profile: 80 and 443 to the world, 22 from whatever admin.sshSource names. mov warns on every run while that source is still the whole internet. A hop or a bastion takes 22 off the internet entirely: the source becomes the management subnet or the bastion subnet.",
+      "Three rules from the profile: 80 and 443 to the world, 22 from whatever admin.sshSource names, and @caller there means wherever mov is run from, asked afresh at every up. mov warns on every run while that source is still the whole internet. A hop or a bastion takes 22 off the internet entirely: the source becomes the management subnet or the bastion subnet.",
     evidence: {
       language: "json",
       text: '{ "name": "http",  "priority": 100, "ports": ["80"] }\n{ "name": "https", "priority": 110, "ports": ["443"] }\n{ "name": "ssh",   "priority": 120, "ports": ["22"],\n  "source": "${admin.sshSource}" }',
@@ -460,7 +460,7 @@ window.MOV.ARCS = [
   { from: "nic", to: "vm", label: "attaches to", kind: "causes" },
   { from: "budget", to: "subscription", label: "watches spend on", kind: "causes" },
   { from: "billing", to: "subscription", label: "issues the invoice for", kind: "causes" },
-  { from: "mov", to: "billing", label: "mov audit reads who can pay", kind: "pulls" },
+  { from: "mov", to: "billing", label: "mov audit --full reads who can pay", kind: "pulls" },
   { from: "tenant", to: "entra", label: "holds", kind: "causes" },
 
   /* the secret, and where it ends up */
