@@ -132,6 +132,16 @@ window.MOV.OBJECTS = [
       "mov shells out to `az`. Everything it does is a command you could have typed yourself. Every one is recorded.",
   },
   {
+    id: "cf",
+    zone: "machine",
+    group: "tools",
+    kind: "tool",
+    name: "Cloudflare CLI",
+    blurb: "What talks to Cloudflare.",
+    detail:
+      "For a profile that reaches for Cloudflare, mov shells out to `cf`, Cloudflare's own CLI, the way it does to `az`: records, a tunnel for a machine with no open port, an Access sign-in door with Entra ID behind it. Sign in once with `cf auth login`. A request body goes through a file, so no secret is on a command line. mov down deletes what the run made, by id, and nothing else in the zone.",
+  },
+  {
     id: "workspace",
     zone: "machine",
     group: "declared",
@@ -433,6 +443,7 @@ window.MOV.ARCS = [
   /* the machine, driving */
   { from: "shell", to: "mov", label: "runs", kind: "causes" },
   { from: "mov", to: "az", label: "drives", kind: "causes" },
+  { from: "mov", to: "cf", label: "drives, for Cloudflare", kind: "causes" },
   { from: "az", to: "rg", label: "creates", kind: "causes" },
   { from: "subscription", to: "catalog", label: "az provider list", kind: "reports" },
   { from: "catalog", to: "profile", label: "mov new writes", kind: "causes" },
