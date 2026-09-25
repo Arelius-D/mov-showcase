@@ -148,9 +148,9 @@ window.MOV.OBJECTS = [
     kind: "file",
     short: "Workspace file",
     name: "mov.workspace.json",
-    blurb: "One tenant, and the subscriptions in it.",
+    blurb: "The subscriptions it manages, in any tenant.",
     detail:
-      "A workspace is one tenant, because identity and people are tenant-wide. The subscriptions in it are declared here and one of them is the pin, which every command acts on unless told otherwise. Deploying to the wrong one cannot be undone. The pin is the default for that reason, never a flag you must remember.",
+      "The recipe book, not the kitchen. The subscriptions it manages are declared here, each with the tenant it lives in, and one of them is the pin, which every command acts on unless told otherwise. The subscription acted on decides the tenant, its people and its app registrations included. Deploying to the wrong one cannot be undone. The pin is the default for that reason, never a flag you must remember.",
     evidence: {
       language: "json",
       text: '{\n  "name": "mov25-azure",\n  "azure": {\n    "tenantId": "183c226e-…",\n    "subscriptions": [\n      { "id": "fb5e8372-…", "alias": "prod" }\n    ]\n  }\n}',
@@ -293,7 +293,7 @@ window.MOV.OBJECTS = [
     name: "Subscription",
     blurb: "The one mov is pinned to.",
     detail:
-      "Where resources live and what spend is measured against. The invoice itself is issued a level up. The one mov.workspace.json pins. Every command says which it is and points az at it before its first call. A tenant can hold several, each keeping its own deployments and its own catalogue. Another tenant is another workspace. What it carries on its own, whichever environment is up or none, is declared in subscription.json: its budget. mov subscription up puts that budget there, and mov down never touches it. What the offer allows, and how many cores and public addresses are left in the region, is what mov subscription show says: a free trial gets four and three, and no increases.",
+      "Where resources live and what spend is measured against. The invoice itself is issued a level up. The one mov.workspace.json pins. Every command says which it is and points az at it before its first call. Each keeps its own deployments and its own catalogue, and one in another tenant is declared in the same workspace with its tenantId. What it carries on its own, whichever environment is up or none, is declared in subscription.json: its budget. mov subscription up puts that budget there, and mov down never touches it. What the offer allows, and how many cores and public addresses are left in the region, is what mov subscription show says: a free trial gets four and three, and no increases.",
   },
   {
     id: "billing",
