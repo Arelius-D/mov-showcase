@@ -153,7 +153,7 @@ window.MOV.OBJECTS = [
       "The recipe book, not the kitchen. The subscriptions it manages are declared here, each with the tenant it lives in, and one of them is the pin, which every command acts on unless told otherwise. The subscription acted on decides the tenant, its people and its app registrations included. Deploying to the wrong one cannot be undone. The pin is the default for that reason, never a flag you must remember.",
     evidence: {
       language: "json",
-      text: '{\n  "name": "mov25-azure",\n  "azure": {\n    "tenantId": "183c226e-…",\n    "subscriptions": [\n      { "id": "fb5e8372-…", "alias": "prod" }\n    ]\n  }\n}',
+      text: '{\n  "name": "mov25-azure",\n  "azure": {\n    "tenantId": "183c226e-…",\n    "subscriptions": [\n      { "id": "fb5e8372-…", "name": "MOV25 - Azure subscription",\n        "paths": { "billing": "billing.json" } },\n      { "id": "409a5c62-…", "name": "MOV25 - v39-v41",\n        "tenantId": "65b3c448-…",\n        "paths": { "directory": "directory-mov25.json" } }\n    ],\n    "defaultSubscription": "409a5c62-…"\n  }\n}',
     },
   },
   {
