@@ -134,7 +134,7 @@
       "source": "mov/src/mov/new/screens.py  SCREENS_EXPLAINED: Name"
     },
     {
-      "pattern": "^The\\ profile\\ as\\ it\\ will\\ be\\ written\\.\\ Read\\ it;\\ then\\ write\\ it,\\ or\\ go\\ back\\.$",
+      "pattern": "^The\\ profile\\ as\\ it\\ will\\ be\\ written\\.\\ Read\\ it,\\ then\\ write\\ it\\ or\\ go\\ back\\.$",
       "source": "mov/src/mov/new/screens.py  SCREENS_EXPLAINED: Review"
     },
     {
