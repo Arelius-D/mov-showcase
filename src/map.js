@@ -21,7 +21,7 @@
 window.MOV = window.MOV || {};
 
 /* ─── ZONES ─────────────────────────────────────────
-   Three places a deployment lives, laid out as islands rather than columns.
+   Four places a deployment lives, laid out as islands rather than columns.
    `span` is how many twelfths of the map an island takes: they hold different
    amounts, so they are different sizes. Three equal pillars is what a grid
    gives you when nobody decides, and it is not a decision.
@@ -44,9 +44,16 @@ window.MOV.ZONES = [
   {
     id: "azure",
     letter: "C",
-    span: 12,
+    span: 9,
     name: "Azure",
     note: "Where it becomes real. The only zone that bills you.",
+  },
+  {
+    id: "cloudflare",
+    letter: "D",
+    span: 3,
+    name: "Cloudflare",
+    note: "Names, a tunnel and a sign-in door, when a profile asks for them.",
   },
 ];
 
@@ -64,12 +71,18 @@ window.MOV.GROUPS = [
   { id: "produced", zone: "machine", name: "What mov writes back" },
 
   { id: "yours", zone: "github", name: "Your code" },
+  { id: "built", zone: "github", name: "What Actions builds" },
   { id: "upstream", zone: "github", name: "Where mov comes from" },
 
   { id: "account", zone: "azure", name: "Account" },
   { id: "environment", zone: "azure", name: "Environment" },
   { id: "network", zone: "azure", name: "Network" },
   { id: "machine-c", zone: "azure", name: "The machine" },
+  { id: "apps", zone: "azure", name: "Container Apps" },
+  { id: "access", zone: "azure", name: "Identity and roles" },
+  { id: "anytype", zone: "azure", name: "Any other type" },
+
+  { id: "edge", zone: "cloudflare", name: "In front of it" },
 ];
 
 /* ─── OBJECTS ───────────────────────────────────────
@@ -153,7 +166,7 @@ window.MOV.OBJECTS = [
       "The recipe book, not the kitchen. The subscriptions it manages are declared here, each with the tenant it lives in, and one of them is the pin, which every command acts on unless told otherwise. The subscription acted on decides the tenant, its people and its app registrations included. Deploying to the wrong one cannot be undone. The pin is the default for that reason, never a flag you must remember.",
     evidence: {
       language: "json",
-      text: '{\n  "name": "mov25-azure",\n  "azure": {\n    "tenantId": "183c226e-…",\n    "subscriptions": [\n      { "id": "fb5e8372-…", "name": "MOV25 - Azure subscription",\n        "paths": { "billing": "billing.json" } },\n      { "id": "409a5c62-…", "name": "MOV25 - v39-v41",\n        "tenantId": "65b3c448-…",\n        "paths": { "directory": "directory-mov25.json" } }\n    ],\n    "defaultSubscription": "409a5c62-…"\n  }\n}',
+      text: '{\n  "name": "acme-azure",\n  "azure": {\n    "tenantId": "00000000-…",\n    "subscriptions": [\n      { "id": "00000000-…", "name": "ACME - Azure subscription",\n        "paths": { "billing": "billing.json" } },\n      { "id": "00000000-…", "name": "Acme - dev",\n        "tenantId": "00000000-…",\n        "paths": { "directory": "directory-acme.json" } }\n    ],\n    "defaultSubscription": "00000000-…"\n  }\n}',
     },
   },
   {
@@ -254,6 +267,28 @@ window.MOV.OBJECTS = [
     },
   },
   {
+    id: "actions",
+    zone: "github",
+    group: "built",
+    kind: "script",
+    short: "Actions",
+    name: "GitHub Actions",
+    blurb: "Builds the image on a push.",
+    detail:
+      "A workflow in your repository builds the app's container image on every push that changes it and publishes it tagged with the commit. mov builds nothing: the profile names the image and the app pulls it.",
+  },
+  {
+    id: "image",
+    zone: "github",
+    group: "built",
+    kind: "release",
+    short: "Container image",
+    name: "ghcr.io/dev/acme-form:sha-5ea8ac3",
+    blurb: "What the app runs.",
+    detail:
+      "Published on ghcr.io and public, so the environment pulls it with no registry credential. A new tag in the profile is a new revision of the app on the next up.",
+  },
+  {
     id: "releases",
     zone: "github",
     group: "upstream",
@@ -306,7 +341,7 @@ window.MOV.OBJECTS = [
       "The invoice is issued here, above the subscription. Billing roles are a third permission system, separate from Azure RBAC and from Entra directory roles. Owner on the subscription grants nothing over the bill. Global Administrator grants nothing over it either. Only somebody who already holds a billing role can hand one to anybody else, so it cannot be bootstrapped -- but it can be granted by command. mov declares who may see and pay in billing.json and applies it, and asks Azure what each identity may actually do rather than trusting a description of the role.",
     evidence: {
       language: "text",
-      text: "mov billing matrix\n  spn-novatrix-norole   (nothing)                   none   Forbidden\n  spn-novatrix-reader   Billing account reader        18   yes\n  spn-novatrix-owner    Billing account owner         43   yes",
+      text: "mov billing matrix\n  spn-acme-norole   (nothing)                   none   Forbidden\n  spn-acme-reader   Billing account reader        18   yes\n  spn-acme-owner    Billing account owner         43   yes",
     },
   },
   {
@@ -325,7 +360,7 @@ window.MOV.OBJECTS = [
     group: "environment",
     kind: "group",
     short: "Resource group",
-    name: "rg-novatrix-v34",
+    name: "rg-acme-v34",
     blurb: "One environment, one group.",
     detail:
       "Everything an environment owns sits in one resource group. Teardown is a single act. The name came out of a pattern in naming.json.",
@@ -336,7 +371,7 @@ window.MOV.OBJECTS = [
     group: "environment",
     kind: "cost",
     short: "Budget",
-    name: "budget-novatrix-v34",
+    name: "budget-acme-v34",
     blurb: "Alerts before the credit goes.",
     detail:
       "Thresholds at 50, 80 and 90 percent of actual spend, plus one on the forecast. A free-trial subscription stops itself when the credit runs out. These warn. They do not brake. This one belongs to the environment and goes with it. The subscription keeps its own, declared in subscription.json, and that one stays.",
@@ -347,7 +382,7 @@ window.MOV.OBJECTS = [
     group: "network",
     kind: "network",
     short: "Virtual network",
-    name: "vnet-novatrix",
+    name: "vnet-acme",
     blurb: "The private address space.",
     detail:
       "10.34.0.0/16, straight from the profile. Nothing in Azure chose this range and nothing in mov's code knows it.",
@@ -358,7 +393,7 @@ window.MOV.OBJECTS = [
     group: "network",
     kind: "network",
     short: "Subnet",
-    name: "snet-novatrix-web",
+    name: "snet-acme-web",
     blurb: "The slice the machine sits in.",
     detail:
       "10.34.1.0/24. A profile can declare several, each with its own firewall and its own answer to whether anything outside may reach it.",
@@ -369,7 +404,7 @@ window.MOV.OBJECTS = [
     group: "network",
     kind: "shield",
     short: "Security group",
-    name: "nsg-novatrix-web",
+    name: "nsg-acme-web",
     blurb: "Which ports, and to whom.",
     detail:
       "Three rules from the profile: 80 and 443 to the world, 22 from whatever admin.sshSource names, and @caller there means wherever mov is run from, asked afresh at every up. mov warns on every run while that source is still the whole internet. A hop or a bastion takes 22 off the internet entirely: the source becomes the management subnet or the bastion subnet.",
@@ -384,7 +419,7 @@ window.MOV.OBJECTS = [
     group: "machine-c",
     kind: "network",
     short: "Public IP",
-    name: "pip-novatrix-web",
+    name: "pip-acme-web",
     blurb: "The address on the internet.",
     detail:
       "Static, so the machine keeps it while stopped. Rebuild and you get a new address. Teardown removes the old ssh_config entry. Azure recycles addresses.",
@@ -395,7 +430,7 @@ window.MOV.OBJECTS = [
     group: "machine-c",
     kind: "network",
     short: "Network interface",
-    name: "nic-novatrix-web",
+    name: "nic-acme-web",
     blurb: "Joins the machine to the network.",
     detail:
       "Puts the VM in the subnet and gives it the public address. Rarely interesting until it is the thing that failed.",
@@ -421,13 +456,146 @@ window.MOV.OBJECTS = [
     group: "machine-c",
     kind: "server",
     short: "Virtual machine",
-    name: "vm-novatrix-web",
+    name: "vm-acme-web",
     blurb: "Ubuntu 24.04, and the point of all this.",
     detail:
       "Created with your public key on it and cloud-init instructions to fetch its own content. Stopping deallocates the compute so it stops costing, and keeps the disk so starting again is quick. A VM with app set to false gets packages and updates and serves nothing, which is what a hop is.",
     evidence: {
       language: "text",
       text: "OK   web: http://20.240.236.41/ -> 200 in 37s",
+    },
+  },
+  {
+    id: "cae",
+    zone: "azure",
+    group: "apps",
+    kind: "group",
+    short: "Container Apps environment",
+    name: "env-acme-v40",
+    blurb: "Where the apps run.",
+    detail:
+      "Given a subnet of its own and the apps the profile lists. Azure caps environments per region and per subscription, so preflight reads the slot, then puts the environment's own shape to Azure before anything is made: zone redundant or not, its workload profiles, its network. A region that refuses it is answered with the regions that take it, to pick at the terminal.",
+    evidence: {
+      language: "text",
+      text: "OK   app environments: needs 1, 1 of 1 free in swedencentral\n· managedEnvironments env-acme-v40: succeeded after 3m 55s",
+    },
+  },
+  {
+    id: "capp",
+    zone: "azure",
+    group: "apps",
+    kind: "server",
+    short: "Container App",
+    name: "form-acme-v40",
+    blurb: "Its own name, down to zero.",
+    detail:
+      "Runs the image as the identity the profile names, scaled by its rules down to no replica at all. Its own name is bound to a certificate Azure issues and renews: the record at Cloudflare first, then the certificate, then the binding, each waited for.",
+    evidence: {
+      language: "text",
+      text: "OK   certificate issued for acme-form.example.org\nOK   bound acme-form.example.org to its certificate\nOK   form: https://acme-form.example.org/health -> 200 in 1s",
+    },
+  },
+  {
+    id: "identity",
+    zone: "azure",
+    group: "access",
+    kind: "key",
+    short: "Managed identity",
+    name: "id-acme-notify",
+    blurb: "A workload's own sign-in.",
+    detail:
+      "What an app or a machine signs in as, with no secret anywhere. It can hold Microsoft Graph permissions of its own, granted and read back once it stands, and an app registration can trust it instead of holding a secret.",
+  },
+  {
+    id: "role",
+    zone: "azure",
+    group: "access",
+    kind: "shield",
+    short: "Role assignment",
+    name: "Communication and Email Service Owner",
+    blurb: "On exactly what it touches.",
+    detail:
+      "A principal, a role and a scope: the group, the storage account, one container, table or queue in it, or one resource of the resources block. Each is named the way ARM names it, so mov knows its own from the rest. One the profile no longer declares is listed, and `--prune-roles` removes it once the new ones stand.",
+    evidence: {
+      language: "text",
+      text: "· roleAssignments 9e9981eb-76b9-5ae3-8fee-5834ca4728de: succeeded after 5s",
+    },
+  },
+  {
+    id: "appreg",
+    zone: "azure",
+    group: "access",
+    kind: "key",
+    short: "App registration",
+    name: "app-acme-v40-signin",
+    blurb: "A sign-in, consented.",
+    detail:
+      "Registered with the Microsoft Graph permissions a sign-in needs and admin consent, read back. Its client secret is stored once and not rotated by the next up. Or it holds none, and trusts a managed identity instead.",
+    evidence: {
+      language: "text",
+      text: "OK   registered app-acme-v40-signin\nOK   app-acme-v40-signin: new registration, new secret stored as OAUTH_CLIENT_SECRET",
+    },
+  },
+  {
+    id: "generic",
+    zone: "azure",
+    group: "anytype",
+    kind: "cloud",
+    short: "Any Azure type",
+    name: "acs-acme-v40",
+    blurb: "From the resources block.",
+    detail:
+      "Whatever the catalogue lists that no block covers deploys through the resources block, in Azure's own shape: one generated template, wired by @resourceId and @output, its outputs recorded as for any stage. Communication Services here. Private endpoints, DNS zones and a Function app go the same way.",
+    evidence: {
+      language: "text",
+      text: "· communicationServices acs-acme-v40: succeeded after 1m 14s",
+    },
+  },
+
+  /* ── Zone D — Cloudflare ── */
+  {
+    id: "record",
+    zone: "cloudflare",
+    group: "edge",
+    kind: "network",
+    short: "DNS records",
+    name: "acme-form.example.org",
+    blurb: "The app's own name.",
+    detail:
+      "A CNAME to the address Azure gave the app, and the TXT Azure asks for to prove the name is yours. mov writes only names under its prefix, and mov down deletes what the run made, by id.",
+    evidence: {
+      language: "text",
+      text: "record set: acme-form.example.org CNAME form-acme-v40.reddesert-cd6176e1.swedencentral.azurecontainerapps.io",
+    },
+  },
+  {
+    id: "tunnel",
+    zone: "cloudflare",
+    group: "edge",
+    kind: "network",
+    short: "Tunnel",
+    name: "acme-v40",
+    blurb: "A machine with no open port.",
+    detail:
+      "The machine dials out to Cloudflare and nothing dials in: its security group keeps every port closed. The tunnel's token is a secret the run makes and delivers to the host.",
+    evidence: {
+      language: "text",
+      text: "OK   tunnel acme-v40 made\nOK   acme-tickets.example.org -> tunnel acme-v40",
+    },
+  },
+  {
+    id: "door",
+    zone: "cloudflare",
+    group: "edge",
+    kind: "shield",
+    short: "Sign-in door",
+    name: "mov-v40-signin",
+    blurb: "Entra ID before the page.",
+    detail:
+      "Cloudflare Access in front of the tunnel's name. Nobody reaches the page without signing in through the app registration, whose secret the door holds.",
+    evidence: {
+      language: "text",
+      text: "OK   sign-in in front of acme-tickets.example.org: mov-v40-signin",
     },
   },
 ];
@@ -477,6 +645,30 @@ window.MOV.ARCS = [
   /* the secret, and where it ends up */
   { from: "keys", to: "vm", label: "authorised key", kind: "causes" },
 
+  /* apps, their image and their name */
+  { from: "app-repo", to: "actions", label: "a push runs", kind: "causes" },
+  { from: "actions", to: "image", label: "builds and publishes", kind: "causes" },
+  { from: "capp", to: "image", label: "pulls", kind: "pulls" },
+  { from: "subnet", to: "cae", label: "delegated to", kind: "causes" },
+  { from: "cae", to: "capp", label: "runs", kind: "causes" },
+  { from: "profile", to: "capp", label: "image, scale, domain", kind: "causes" },
+  { from: "cf", to: "record", label: "writes", kind: "causes" },
+  { from: "record", to: "capp", label: "points at", kind: "causes" },
+
+  /* who signs in as what, and may do what */
+  { from: "capp", to: "identity", label: "runs as", kind: "causes" },
+  { from: "role", to: "identity", label: "granted to", kind: "causes" },
+  { from: "role", to: "generic", label: "scoped to", kind: "causes" },
+  { from: "tenant", to: "appreg", label: "registers", kind: "causes" },
+  { from: "appreg", to: "identity", label: "can trust instead of a secret", kind: "causes" },
+
+  /* any type, and the machine behind a door */
+  { from: "catalog", to: "generic", label: "type and version", kind: "causes" },
+  { from: "cf", to: "tunnel", label: "makes", kind: "causes" },
+  { from: "tunnel", to: "vm", label: "reaches, no port open", kind: "causes" },
+  { from: "door", to: "tunnel", label: "guards", kind: "causes" },
+  { from: "door", to: "appreg", label: "signs in through", kind: "causes" },
+
   /* the ones people do not expect */
   { from: "cloud-init", to: "app-repo", label: "clones on boot", kind: "pulls" },
   { from: "cloud-init", to: "bootstrap", label: "runs as root", kind: "pulls" },
@@ -494,4 +686,5 @@ window.MOV.ARCS = [
   { from: "mov", to: "rg", label: "mov down deletes", kind: "removes" },
   { from: "mov", to: "budget", label: "and the budget with it", kind: "removes" },
   { from: "mov", to: "keys", label: "and the key", kind: "removes" },
+  { from: "mov", to: "appreg", label: "and the registration", kind: "removes" },
 ];

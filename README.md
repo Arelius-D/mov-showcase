@@ -4,7 +4,7 @@
 
 **Live: [mov-cli.duckdns.org](https://mov-cli.duckdns.org)**
 
-An interactive map of [mov](https://github.com/Arelius-D/mov). Three zones,
+An interactive map of [mov](https://github.com/Arelius-D/mov). Four zones,
 what sits in each, and what passes between them.
 
 Click anything to read about it. Hover to see what it connects to. Type in the
@@ -71,7 +71,7 @@ Zoom scales one element. The stage is laid out at the inverse of the scale and
 drawn at it, so the rendered width never changes and nothing overflows.
 
 The filter matches two ways: substring over every field, and subsequence over
-names, so `vnw` finds `vnet-novatrix-web`. A match brings its connections with
+names, so `vnw` finds `vnet-acme-web`. A match brings its connections with
 it.
 
 ## Checks
@@ -98,7 +98,7 @@ narrow viewports, `prefers-reduced-motion`.
 ## Accuracy
 
 Every value shown is one `mov` produced against a live subscription:
-`rg-novatrix-v34`, `Standard_B2ts_v2`, `swedencentral`, a real HTTP probe. The
+`rg-acme-v34`, `Standard_B2ts_v2`, `swedencentral`, a real HTTP probe. The
 budget alert address is the one exception, replaced because this page is public.
 
 ## Licence

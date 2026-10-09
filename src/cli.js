@@ -39,9 +39,9 @@ window.MOV.CLI = {
     { kind: "line", tone: "suggested", text: "suggests Microsoft.Network/virtualNetworks/subnets via properties.virtualNetworkSubnetId -- not added" },
 
     { kind: "input", text: "selfhosted", prompt: "name ›" },
-    { kind: "line", text: "Microsoft.KeyVault/vaults  ->  vaults-novatrix-selfhosted" },
-    { kind: "line", text: "Microsoft.Web/sites  ->  sites-novatrix-selfhosted" },
-    { kind: "line", text: "Microsoft.Web/serverfarms  ->  serverfarms-novatrix-selfhosted" },
+    { kind: "line", text: "Microsoft.KeyVault/vaults  ->  vaults-acme-selfhosted" },
+    { kind: "line", text: "Microsoft.Web/sites  ->  sites-acme-selfhosted" },
+    { kind: "line", text: "Microsoft.Web/serverfarms  ->  serverfarms-acme-selfhosted" },
 
     { kind: "line", tone: "ok", text: "OK   wrote profiles/selfhosted.json" },
     { kind: "line", tone: "muted", text: "stages: preflight, rg, cost, resources" },
@@ -52,7 +52,7 @@ window.MOV.CLI = {
 
     { kind: "prompt", text: "Deploy it now (mov up selfhosted)? y" },
     { kind: "line", text: "2/4 rg Create the resource group" },
-    { kind: "line", text: "     resource group rg-novatrix-selfhosted created in swedencentral" },
+    { kind: "line", text: "     resource group rg-acme-selfhosted created in swedencentral" },
     { kind: "line", text: "3/4 resources Additional resources from the catalogue" },
     { kind: "line", tone: "muted", text: "     mov-selfhosted-resources-1467474a" },
 

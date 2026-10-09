@@ -129,7 +129,7 @@ window.MOV.TUI = {
           type: "Microsoft.KeyVault/vaults",
           fields: [
             { label: "sku", required: true, note: "Microsoft.KeyVault/vaults requires sku.", value: '{"family": "A", "name": "standard"}' },
-            { label: "tenantId", required: true, note: "Microsoft.KeyVault/vaults requires tenantId.", value: "183c226e-1463-4978-8672-ac9c4a38d90b" },
+            { label: "tenantId", required: true, note: "Microsoft.KeyVault/vaults requires tenantId.", value: "00000000-0000-0000-0000-000000000000" },
           ],
         },
         {
@@ -156,9 +156,9 @@ window.MOV.TUI = {
       hint: "this becomes the env: letters and digits, e.g. selfhosted",
       value: "selfhosted",
       preview: [
-        "Microsoft.KeyVault/vaults  ->  vaults-novatrix-selfhosted",
-        "Microsoft.Web/sites  ->  sites-novatrix-selfhosted",
-        "Microsoft.Web/serverfarms  ->  serverfarms-novatrix-selfhosted",
+        "Microsoft.KeyVault/vaults  ->  vaults-acme-selfhosted",
+        "Microsoft.Web/sites  ->  sites-acme-selfhosted",
+        "Microsoft.Web/serverfarms  ->  serverfarms-acme-selfhosted",
       ],
       footer: ["Back", "Help"],
     },

@@ -293,7 +293,7 @@ window.MOV = window.MOV || {};
      Substring, over every field a visitor can read: someone hunting for "the
      one that clones the repo" is searching the detail, not the name.
 
-     Subsequence, over the name alone: "vnw" should find vnet-novatrix-web.
+     Subsequence, over the name alone: "vnw" should find vnet-acme-web.
      Run loose over the whole text it matches everything, which is how the
      first attempt returned 23 of 25 objects for a three-letter query. A name
      is short enough for the letters to mean something.
