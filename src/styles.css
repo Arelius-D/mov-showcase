@@ -290,6 +290,40 @@ button {
   color: var(--accent);
 }
 
+/* The cloud the page shows: the zoom control's shape and tokens, two links,
+   the current one lit as a hovered step is. */
+.cloud {
+  display: flex;
+  align-items: center;
+  border: var(--hairline) solid var(--border);
+  border-radius: var(--radius-pill);
+  overflow: hidden;
+}
+
+.cloud__choice {
+  padding: var(--space-2xs) var(--space-sm);
+  color: var(--text-secondary);
+  font-size: var(--text-xs);
+  text-decoration: none;
+  transition: background var(--motion-fast) var(--ease-out),
+    color var(--motion-fast) var(--ease-out);
+}
+
+.cloud__choice + .cloud__choice {
+  border-inline-start: var(--hairline) solid var(--border);
+}
+
+.cloud__choice:hover,
+.cloud__choice.is-current {
+  background: var(--accent-quiet);
+  color: var(--accent);
+}
+
+.cloud__choice:focus-visible {
+  outline: var(--hairline) solid var(--focus-ring);
+  outline-offset: calc(var(--hairline) * -2);
+}
+
 
 .masthead__identity {
   display: flex;

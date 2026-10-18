@@ -3,10 +3,10 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>mov — a CLI harness for Azure</title>
+    <title>mov — a CLI harness for Azure and AWS</title>
     <meta
       name="description"
-      content="An interactive map of a profile-driven Azure CLI: a JSON file on your machine, a repository on GitHub, and infrastructure in Azure — and every arc between them."
+      content="An interactive map of a profile-driven CLI for Azure and AWS: a JSON file on your machine, a repository on GitHub, and infrastructure in the cloud — and every arc between them."
     />
     <link rel="stylesheet" href="src/styles.css" />
     <link rel="icon" href="brand/favicon.svg" type="image/svg+xml" />
@@ -15,10 +15,10 @@
 
     <!-- Local files, so the page still makes no request off this host and still
          opens over file://. -->
-    <meta property="og:title" content="mov — a CLI harness for Azure" />
+    <meta property="og:title" content="mov — a CLI harness for Azure and AWS" />
     <meta
       property="og:description"
-      content="An environment is one JSON file. mov drives az, gh, git, ssh and cf underneath. Four zones, and everything that passes between them."
+      content="An environment is one JSON file. mov drives az, aws, gh, git, ssh and cf underneath. Every zone, and everything that passes between them."
     />
     <meta property="og:image" content="brand/lockup.png" />
     <meta name="twitter:card" content="summary_large_image" />
@@ -32,15 +32,21 @@
           <img class="masthead__mark" src="brand/logo.svg" alt="" width="56" height="56" />
           <div>
             <h1 class="masthead__title">mov</h1>
-            <p class="masthead__kicker">a CLI harness for Azure</p>
+            <p class="masthead__kicker">a CLI harness for Azure and AWS</p>
             <p class="masthead__lede">
-              An environment is one JSON file. mov reads it and drives az, gh,
-              git, ssh and cf underneath, so the work stays in the profile. Four
-              places, and everything that passes between them.
+              An environment is one JSON file. mov reads it and drives az, aws,
+              gh, git, ssh and cf underneath, so the work stays in the profile.
+              Every place, and everything that passes between them.
             </p>
           </div>
         </div>
         <div class="controls">
+          <!-- Links, not buttons: each cloud is its own load of the page. The
+               map is built once per load, and cloud.js picks which one. -->
+          <nav class="cloud" aria-label="Cloud">
+            <a class="cloud__choice" data-cloud="azure" href="./">Azure</a>
+            <a class="cloud__choice" data-cloud="aws" href="./?cloud=aws">AWS</a>
+          </nav>
           <button class="theme-toggle" type="button" id="theme-toggle" aria-label="Switch theme">
             <svg class="theme-toggle__glyph" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true" focusable="false">
               <circle class="theme-toggle__disc" cx="12" cy="12" r="5" />
@@ -149,8 +155,8 @@
       <section id="view-tui" role="tabpanel" aria-labelledby="tab-tui" hidden>
         <div class="session">
           <p class="session__lede">
-            The picker. Search what the subscription actually offers, pick, and
-            watch what each pick brings along and why. Answer what the picks
+            The picker. Search what your subscription or account actually
+            offers, pick, and watch what each pick brings along and why. Answer what the picks
             require, name the project, read the file before it is written.
           </p>
           <div class="session__stage" id="screens"></div>
@@ -198,8 +204,12 @@
          blocked over file://, and this page has to open by double-clicking it.
          tabs.js is last so the map has rendered before a view is chosen. -->
     <script src="src/map.js"></script>
+    <script src="src/map-aws.js"></script>
     <script src="src/cli.js"></script>
+    <script src="src/cli-aws.js"></script>
     <script src="src/tui.js"></script>
+    <script src="src/tui-aws.js"></script>
+    <script src="src/cloud.js"></script>
     <script src="src/help.js"></script>
     <script src="src/render.js"></script>
     <script src="src/arcs.js"></script>

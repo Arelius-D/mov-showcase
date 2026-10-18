@@ -119,8 +119,11 @@ def chrome() -> str | None:
     return shutil.which("google-chrome") or shutil.which("chromium") or shutil.which("chrome")
 
 
-def measure(browser: str, width: int) -> list[dict]:
-    """One run of the page at one width, as a list of records."""
+CLOUDS = ["", "?cloud=aws"]  # the page as it opens, and its AWS view
+
+
+def measure(browser: str, width: int, cloud: str = "") -> list[dict]:
+    """One run of the page at one width, for one cloud, as a list of records."""
     with tempfile.TemporaryDirectory() as work:
         page = Path(work) / "probe.html"
         page.write_text(INDEX.read_text(encoding="utf-8").replace("</body>", PROBE, 1), encoding="utf-8")
@@ -129,7 +132,7 @@ def measure(browser: str, width: int) -> list[dict]:
 
         done = subprocess.run(
             [browser, "--headless=new", "--disable-gpu", f"--window-size={width},1100",
-             "--virtual-time-budget=9000", "--dump-dom", page.as_uri()],
+             "--virtual-time-budget=9000", "--dump-dom", page.as_uri() + cloud],
             capture_output=True, text=True, encoding="utf-8", errors="replace",
         )
 
@@ -148,21 +151,22 @@ def main() -> int:
         return 0
 
     problems: list[str] = []
-    for width in WIDTHS:
-        records = measure(browser, width)
+    for cloud, width in [(cloud, width) for cloud in CLOUDS for width in WIDTHS]:
+        records = measure(browser, width, cloud)
+        at = f"{cloud or 'azure'} {width}px"
         if not records:
-            problems.append(f"{width}px: the page produced no report at all")
+            problems.append(f"{at}: the page produced no report at all")
             continue
 
         counts = records[0]
         if counts["labels"] != counts["arcs"] or counts["paths"] != counts["arcs"]:
             problems.append(
-                f"{width}px: {counts['arcs']} arcs drew {counts['paths']} paths and "
+                f"{at}: {counts['arcs']} arcs drew {counts['paths']} paths and "
                 f"{counts['labels']} labels -- the layer is being built more than once"
             )
 
         for row in records[1:]:
-            where = f"{width}px  {row['from']}->{row['to']}  [{row['label']}]"
+            where = f"{at}  {row['from']}->{row['to']}  [{row['label']}]"
             if row["hidden"]:
                 problems.append(f"{where}: no label on the line")
                 continue
@@ -178,7 +182,8 @@ def main() -> int:
             print(f"  {problem}")
         return 1
 
-    print(f"OK  every arc labelled, on its line and inside the map, at {', '.join(str(w) for w in WIDTHS)}px")
+    print(f"OK  every arc labelled, on its line and inside the map, Azure and AWS, at "
+          f"{', '.join(str(w) for w in WIDTHS)}px")
     return 0
 
 

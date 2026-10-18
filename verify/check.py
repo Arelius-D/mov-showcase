@@ -42,6 +42,14 @@ CSS = ROOT / "src" / "styles.css"
 MAP = ROOT / "src" / "map.js"
 CLI = ROOT / "src" / "cli.js"
 TUI = ROOT / "src" / "tui.js"
+MAP_AWS = ROOT / "src" / "map-aws.js"
+CLI_AWS = ROOT / "src" / "cli-aws.js"
+TUI_AWS = ROOT / "src" / "tui-aws.js"
+CLOUD = ROOT / "src" / "cloud.js"
+# Each cloud's map, session and screens, held to the same rules.
+MAPS = (MAP, MAP_AWS)
+SESSIONS = ((CLI, "CLI"), (CLI_AWS, "CLI_AWS"))
+SCREEN_SETS = ((TUI, "TUI"), (TUI_AWS, "TUI_AWS"))
 HELP = ROOT / "src" / "help.js"
 MOV_STRINGS = ROOT / "verify" / "mov-strings.json"
 TONES = {"prompt", "picked", "required", "suggested", "muted", "ok"}
@@ -182,11 +190,12 @@ def copy_strings() -> list[tuple[str, str]]:
     are allowed to explain themselves; the page is not.
     """
     found = []
-    text = MAP.read_text(encoding="utf-8")
-    for field in ("note", "blurb", "detail", "name", "short"):
-        pattern = rf'{field}:\s*\n?\s*"((?:[^"\\]|\\.)*)"'
-        for value in re.findall(pattern, text):
-            found.append((field, value))
+    for path in MAPS:
+        text = path.read_text(encoding="utf-8")
+        for field in ("note", "blurb", "detail", "name", "short"):
+            pattern = rf'{field}:\s*\n?\s*"((?:[^"\\]|\\.)*)"'
+            for value in re.findall(pattern, text):
+                found.append((field, value))
 
     page = (ROOT / "index.html").read_text(encoding="utf-8")
     lede = re.search(r'class="masthead__lede">(.*?)</p>', page, re.DOTALL)
@@ -214,13 +223,13 @@ def voice() -> list[str]:
     return problems
 
 
-def read_map() -> tuple[set[str], set[str], list[tuple[str, str, str]], set[str], list[tuple[str, str]]]:
-    """Pull the shape of the map out of map.js.
+def read_map(path: Path = MAP) -> tuple[set[str], set[str], list[tuple[str, str, str]], set[str], list[tuple[str, str]]]:
+    """Pull the shape of a map out of its file.
 
     A regex rather than a JS parser: the file is data written in JS syntax, and
     the alternative is a dependency to read five kinds of string.
     """
-    text = MAP.read_text(encoding="utf-8")
+    text = path.read_text(encoding="utf-8")
 
     zones = set(re.findall(r'id:\s*"([^"]+)",\s*\n\s*letter:', text))
     groups = set(re.findall(r'id:\s*"([^"]+)",\s*zone:\s*"[^"]+",\s*name:', text))
@@ -233,46 +242,47 @@ def read_map() -> tuple[set[str], set[str], list[tuple[str, str, str]], set[str]
     return zones, groups, objects, object_ids, arcs
 
 
-def map_problems() -> list[str]:
-    zones, groups, objects, object_ids, arcs = read_map()
+def map_problems(path: Path = MAP) -> list[str]:
+    zones, groups, objects, object_ids, arcs = read_map(path)
     problems: list[str] = []
+    name = path.name
 
     if not zones or not groups or not objects or not arcs:
-        return ["map.js: could not read zones, groups, objects or arcs — has the shape changed?"]
+        return [f"{name}: could not read zones, groups, objects or arcs — has the shape changed?"]
 
     for identifier, zone, group in objects:
         if zone not in zones:
-            problems.append(f"map.js: object {identifier!r} is in zone {zone!r}, which is not declared")
+            problems.append(f"{name}: object {identifier!r} is in zone {zone!r}, which is not declared")
         if group not in groups:
-            problems.append(f"map.js: object {identifier!r} is in group {group!r}, which is not declared")
+            problems.append(f"{name}: object {identifier!r} is in group {group!r}, which is not declared")
 
     grouped = {group for _, _, group in objects}
     for empty in sorted(groups - grouped):
-        problems.append(f"map.js: group {empty!r} has no objects, so it renders as a bare heading")
+        problems.append(f"{name}: group {empty!r} has no objects, so it renders as a bare heading")
 
     seen: set[str] = set()
     for identifier, _, _ in objects:
         if identifier in seen:
-            problems.append(f"map.js: object id {identifier!r} is used twice")
+            problems.append(f"{name}: object id {identifier!r} is used twice")
         seen.add(identifier)
 
     drawn: set[tuple[str, str]] = set()
     for pair in arcs:
         if pair in drawn:
-            problems.append(f"map.js: arc {pair[0]}->{pair[1]} is declared twice")
+            problems.append(f"{name}: arc {pair[0]}->{pair[1]} is declared twice")
         drawn.add(pair)
 
     connected: set[str] = set()
     for source, target in arcs:
         for end in (source, target):
             if end not in object_ids:
-                problems.append(f"map.js: arc {source}->{target} names {end!r}, which is not an object")
+                problems.append(f"{name}: arc {source}->{target} names {end!r}, which is not an object")
         connected.add(source)
         connected.add(target)
 
     for identifier in sorted(object_ids - connected):
         problems.append(
-            f"map.js: object {identifier!r} has no arc. "
+            f"{name}: object {identifier!r} has no arc. "
             "An island on a map about relationships is a content bug."
         )
 
@@ -291,7 +301,7 @@ def parses() -> list[str]:
     if node is None:
         return ["node is not on PATH, so the data scripts were not parsed"]
     problems = []
-    for script in (MAP, CLI, TUI, HELP):
+    for script in (*MAPS, CLI, CLI_AWS, TUI, TUI_AWS, HELP, CLOUD):
         result = subprocess.run([node, "--check", str(script)], capture_output=True, text=True)
         if result.returncode != 0:
             problems.append(f"{script.name} does not parse:\n    {result.stderr.strip().splitlines()[0]}")
@@ -320,12 +330,12 @@ def read_data(script: Path, name: str) -> dict:
     return json.loads(result.stdout)
 
 
-def read_cli() -> dict:
-    return read_data(CLI, "CLI")
+def read_cli(script: Path = CLI, name: str = "CLI") -> dict:
+    return read_data(script, name)
 
 
-def read_tui() -> dict:
-    return read_data(TUI, "TUI")
+def read_tui(script: Path = TUI, name: str = "TUI") -> dict:
+    return read_data(script, name)
 
 
 def strings_in(node, key: str = "") -> list[tuple[str, str]]:
@@ -345,12 +355,14 @@ def strings_in(node, key: str = "") -> list[tuple[str, str]]:
 def tui_strings() -> list[tuple[str, str]]:
     """Every string either session shows, for the voice check."""
     found = []
-    for beat in read_cli().get("beats", []):
-        if beat.get("text"):
-            found.append((f"cli {beat['kind']}", beat["text"]))
-    for key, text in strings_in(read_tui()):
-        if key not in FREE_TEXT_KEYS:
-            found.append((f"tui {key}", text))
+    for script, name in SESSIONS:
+        for beat in read_cli(script, name).get("beats", []):
+            if beat.get("text"):
+                found.append((f"cli {beat['kind']}", beat["text"]))
+    for script, name in SCREEN_SETS:
+        for key, text in strings_in(read_tui(script, name)):
+            if key not in FREE_TEXT_KEYS:
+                found.append((f"tui {key}", text))
     return found
 
 
@@ -365,32 +377,32 @@ def _unknown(text: str, patterns: list) -> bool:
     return not any(pattern.search(text) for pattern, _ in patterns)
 
 
-def cli_problems() -> list[str]:
+def cli_problems(script: Path = CLI, name: str = "CLI") -> list[str]:
     """The CLI session has the right shape, and prints only what mov prints."""
-    session = read_cli()
+    session = read_cli(script, name)
     if not session:
-        return ["cli.js: could not read window.MOV.CLI -- has the shape changed?"]
+        return [f"{script.name}: could not read window.MOV.{name} -- has the shape changed?"]
 
     problems = []
     for key in ("rows", "columns"):
         if not isinstance(session.get(key), int):
-            problems.append(f"cli.js: {key} must be an integer")
+            problems.append(f"{script.name}: {key} must be an integer")
     beats = session.get("beats") or []
     if not beats:
-        problems.append("cli.js: no beats")
+        problems.append(f"{script.name}: no beats")
 
     patterns = _formats()
     for index, beat in enumerate(beats):
         kind = beat.get("kind")
         if kind not in KINDS:
-            problems.append(f"cli.js: beat {index} has kind {kind!r}; known: {', '.join(sorted(KINDS))}")
+            problems.append(f"{script.name}: beat {index} has kind {kind!r}; known: {', '.join(sorted(KINDS))}")
             continue
         tone = beat.get("tone")
         if tone is not None and tone not in TONES:
-            problems.append(f"cli.js: beat {index} has tone {tone!r}; known: {', '.join(sorted(TONES))}")
+            problems.append(f"{script.name}: beat {index} has tone {tone!r}; known: {', '.join(sorted(TONES))}")
         if kind in ("line", "prompt") and _unknown(beat.get("text", ""), patterns):
             problems.append(
-                f"cli.js: beat {index} is not something mov prints:\n"
+                f"{script.name}: beat {index} is not something mov prints:\n"
                 f"    {beat.get('text')!r}\n"
                 f"    add the format to verify/mov-strings.json with the mov source that emits it, "
                 f"or fix the line"
@@ -398,32 +410,32 @@ def cli_problems() -> list[str]:
     return problems
 
 
-def tui_problems() -> list[str]:
+def tui_problems(script: Path = TUI, name: str = "TUI") -> list[str]:
     """The TUI frames have the right shape, and every label is one of mov's."""
-    session = read_tui()
+    session = read_tui(script, name)
     if not session:
-        return ["tui.js: could not read window.MOV.TUI -- has the shape changed?"]
+        return [f"{script.name}: could not read window.MOV.{name} -- has the shape changed?"]
 
     problems = []
     for key in ("rows", "columns"):
         if not isinstance(session.get(key), int):
-            problems.append(f"tui.js: {key} must be an integer")
+            problems.append(f"{script.name}: {key} must be an integer")
     frames = session.get("frames") or []
     if not frames:
-        problems.append("tui.js: no frames")
+        problems.append(f"{script.name}: no frames")
 
     patterns = _formats()
     for index, frame in enumerate(frames):
         screen = frame.get("screen")
         if screen not in SCREENS:
-            problems.append(f"tui.js: frame {index} has screen {screen!r}; known: {', '.join(sorted(SCREENS))}")
+            problems.append(f"{script.name}: frame {index} has screen {screen!r}; known: {', '.join(sorted(SCREENS))}")
             continue
         for key, text in strings_in(frame):
             if key in FREE_TEXT_KEYS or key == "screen":
                 continue
             if _unknown(text, patterns):
                 problems.append(
-                    f"tui.js: frame {index} {key} is not something mov shows:\n"
+                    f"{script.name}: frame {index} {key} is not something mov shows:\n"
                     f"    {text!r}\n"
                     f"    add the format to verify/mov-strings.json with the mov source that emits it, "
                     f"or fix the string"
@@ -431,7 +443,7 @@ def tui_problems() -> list[str]:
     for key in ("placeholder", "empty", "title"):
         text = session.get(key, "")
         if _unknown(text, patterns):
-            problems.append(f"tui.js: {key} {text!r} is not something mov shows")
+            problems.append(f"{script.name}: {key} {text!r} is not something mov shows")
     return problems
 
 
@@ -443,7 +455,10 @@ def main() -> int:
     if not problems:
         problems = (
             offences(css) + custom_properties(css) + themes(css)
-            + map_problems() + cli_problems() + tui_problems() + voice()
+            + [problem for path in MAPS for problem in map_problems(path)]
+            + [problem for script, name in SESSIONS for problem in cli_problems(script, name)]
+            + [problem for script, name in SCREEN_SETS for problem in tui_problems(script, name)]
+            + voice()
         )
 
     if problems:
@@ -452,14 +467,15 @@ def main() -> int:
             print(f"  {problem}")
         return 1
 
-    zones, groups, objects, _, arcs = read_map()
-    beats = len(read_cli().get("beats", []))
-    frames = len(read_tui().get("frames", []))
-    print(
-        f"OK  {len(zones)} zones, {len(groups)} groups, {len(objects)} objects, {len(arcs)} arcs; "
-        f"{beats} CLI beats and {frames} TUI frames, every string one of mov's; "
-        f"{len(css.splitlines())} lines of CSS within the rules"
-    )
+    for path, (cli, cli_name), (tui, tui_name) in zip(MAPS, SESSIONS, SCREEN_SETS):
+        zones, groups, objects, _, arcs = read_map(path)
+        beats = len(read_cli(cli, cli_name).get("beats", []))
+        frames = len(read_tui(tui, tui_name).get("frames", []))
+        print(
+            f"OK  {path.name}: {len(zones)} zones, {len(groups)} groups, {len(objects)} objects, {len(arcs)} arcs; "
+            f"{beats} CLI beats and {frames} TUI frames, every string one of mov's"
+        )
+    print(f"OK  {len(css.splitlines())} lines of CSS within the rules")
     return 0
 
 

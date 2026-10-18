@@ -4,16 +4,18 @@
 
 **Live: [mov-cli.duckdns.org](https://mov-cli.duckdns.org)**
 
-An interactive map of [mov](https://github.com/Arelius-D/mov). Four zones,
-what sits in each, and what passes between them.
+An interactive map of [mov](https://github.com/Arelius-D/mov), for Azure and
+for AWS. The zones, what sits in each, and what passes between them.
 
 Click anything to read about it. Hover to see what it connects to. Type in the
-filter to narrow the map.
+filter to narrow the map. **Azure | AWS** at the top switches the whole page,
+map, session and screens, to the other cloud. Each shows what mov does there
+and nothing it does not.
 
 Two more tabs. **CLI** is a small terminal playing one session end to end: a
 profile written, planned and deployed, each step its own decision. **TUI** is
 the picker itself, mov's full-screen application, drawn one screen at a time:
-search what the subscription offers, pick, watch what each pick brings along and
+search what the subscription or account offers, pick, watch what each pick brings along and
 why, answer what the picks require, name the project, read the file before it
 is written.
 
@@ -21,7 +23,8 @@ Both are scripts, not recordings. Every line the CLI prints and every label,
 note and key binding the TUI shows is one of mov's, in mov's spelling, and the
 checker refuses a string that matches nothing in `verify/mov-strings.json` -- so
 neither can drift from the tool without the build saying so. `#map`, `#cli`
-and `#tui` are links.
+and `#tui` are links, and `?cloud=aws` in front of any of them opens the AWS
+view.
 
 ## Running it
 
@@ -36,8 +39,12 @@ blocked over `file://`.
 ```
 index.html        markup
 src/map.js        zones, groups, objects, arcs. All of the map's content.
+src/map-aws.js    the same, for an AWS account
 src/cli.js        the CLI session. All of that tab's content.
+src/cli-aws.js    the same, for an AWS account
 src/tui.js        the TUI screens, frame by frame. All of that tab's content.
+src/tui-aws.js    the same, for an AWS account
+src/cloud.js      which cloud the page shows: ?cloud=aws puts the AWS data in place
 src/help.js       every command and its help. Generated; see verify/help-from-mov.py.
 src/render.js     map data to DOM
 src/arcs.js       arc geometry
@@ -53,8 +60,10 @@ verify/help-from-mov.py   writes src/help.js from `mov -h`
 verify/labels.py  drives the page: every arc labelled, on its line, inside the map
 ```
 
-Everything on the map comes from `map.js`. Adding an object is one entry in
-one array.
+Everything on the map comes from `map.js`, or `map-aws.js` for AWS. Adding an
+object is one entry in one array. Both maps are drawn by the same code: the
+switch is a link to the page with the other cloud's data, and the map is built
+once per load, as it always was.
 
 The Usage tab comes from mov itself. `verify/help-from-mov.py` runs `mov -h`
 and `mov <command> -h` and writes `src/help.js`, so that tab cannot drift from
@@ -88,9 +97,9 @@ python verify/labels.py
 | Specificity | No `!important`. |
 | Tokens | Declared and used, both directions. Same set in every palette. |
 | Copy | No reasoning-out-loud constructions in anything a visitor reads. |
-| Map data | No arc to a missing object. No object in a missing zone or group. No empty group. No object without arcs. |
+| Map data | No arc to a missing object. No object in a missing zone or group. No empty group. No object without arcs. Both maps. |
 | Scripts | `map.js` and `tui.js` parse. A broken string in either blanks its view while the masthead renders fine. |
-| Session | Every line matches a format in `verify/mov-strings.json`, each with the mov source that prints it. |
+| Session | Every line matches a format in `verify/mov-strings.json`, each with the mov source that prints it. Both clouds' sessions and screens. |
 
 Checked by hand: keyboard navigation, both themes plus the system default,
 narrow viewports, `prefers-reduced-motion`.
@@ -100,6 +109,11 @@ narrow viewports, `prefers-reduced-motion`.
 Every value shown is one `mov` produced against a live subscription:
 `rg-acme-v34`, `Standard_B2ts_v2`, `swedencentral`, a real HTTP probe. The
 budget alert address is the one exception, replaced because this page is public.
+
+The AWS view's values are the same kind: one run in a real account as the
+company acme, `stk-acme-selfhosted`, `t3.micro`, `eu-north-1`, the stack's own
+events and the instance's address, taken down again after. The account id is
+zeroed, for the same reason.
 
 ## Licence
 

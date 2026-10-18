@@ -192,6 +192,11 @@ window.MOV = window.MOV || {};
     body.textContent = "";
     footer.textContent = "";
     app.classList.toggle("has-help", Boolean(overlay));
+    /* mov puts the pin first on every screen. A session that names none
+       draws none. */
+    if (window.MOV.TUI.pin && frame.screen in STEP_OF) {
+      body.appendChild(element("div", "tui__muted", window.MOV.TUI.pin));
+    }
     if (frame.screen in STEP_OF) body.appendChild(steps(STEP_OF[frame.screen]));
     if (frame.screen === "pick") body.appendChild(pick(frame, typed));
     if (frame.screen === "configure") body.appendChild(configure(frame));
