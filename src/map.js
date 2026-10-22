@@ -352,7 +352,7 @@ window.MOV.OBJECTS = [
     name: "Users and groups",
     blurb: "Tenant-scoped, kept apart.",
     detail:
-      "mov creates Entra ID users and groups, and never removes them as part of tearing an environment down. Deleting a resource group is routine. Deleting a person is not. A person, group or service principal the tenant already has is named under `existing`, looked up, given roles, and never touched.",
+      "mov creates Entra ID users and groups, and never removes them as part of tearing an environment down. Deleting a resource group is routine. Deleting a person is not. A person, group or service principal the tenant already has is named under `existing`, looked up, given roles, and never touched. Administrative units are made here too, for a role over some people and no one else.",
   },
   {
     id: "rg",
@@ -504,7 +504,7 @@ window.MOV.OBJECTS = [
     name: "id-acme-notify",
     blurb: "A workload's own sign-in.",
     detail:
-      "What an app or a machine signs in as, with no secret anywhere. It can hold Microsoft Graph permissions of its own, granted and read back once it stands, and an app registration can trust it instead of holding a secret. A GitHub workflow signs in as it too, through a federated credential, with the ids it needs set as repository variables.",
+      "What an app or a machine signs in as, with no secret anywhere. It can hold Microsoft Graph permissions of its own, granted and read back once it stands, and an app registration can trust it instead of holding a secret. A GitHub workflow signs in as it too, through a federated credential, with the ids it needs set as repository variables. It can hold an Entra directory role, over the tenant or one administrative unit.",
   },
   {
     id: "role",
