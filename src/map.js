@@ -352,7 +352,7 @@ window.MOV.OBJECTS = [
     name: "Users and groups",
     blurb: "Tenant-scoped, kept apart.",
     detail:
-      "mov creates Entra ID users and groups, and never removes them as part of tearing an environment down. Deleting a resource group is routine. Deleting a person is not.",
+      "mov creates Entra ID users and groups, and never removes them as part of tearing an environment down. Deleting a resource group is routine. Deleting a person is not. A person, group or service principal the tenant already has is named under `existing`, looked up, given roles, and never touched.",
   },
   {
     id: "rg",
@@ -515,7 +515,7 @@ window.MOV.OBJECTS = [
     name: "Communication and Email Service Owner",
     blurb: "On exactly what it touches.",
     detail:
-      "A principal, a role and a scope: the group, the storage account, one container, table or queue in it, or one resource of the resources block. Each is named the way ARM names it, so mov knows its own from the rest. One the profile no longer declares is listed, and `--prune-roles` removes it once the new ones stand.",
+      "A principal, a role and a scope: the group, the storage account, one container, table or queue in it, or one resource of the resources block. Or another group in the subscription, whole or one resource in it, where the role is recorded by id and `down` deletes it. The principal is the environment's identity, or a person, group or service principal from the directory, made by mov or given to it. Each is named the way ARM names it, so mov knows its own from the rest. One the profile no longer declares is listed, and `--prune-roles` removes it once the new ones stand.",
     evidence: {
       language: "text",
       text: "· roleAssignments 9e9981eb-76b9-5ae3-8fee-5834ca4728de: succeeded after 5s",
