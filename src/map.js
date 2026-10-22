@@ -504,7 +504,7 @@ window.MOV.OBJECTS = [
     name: "id-acme-notify",
     blurb: "A workload's own sign-in.",
     detail:
-      "What an app or a machine signs in as, with no secret anywhere. It can hold Microsoft Graph permissions of its own, granted and read back once it stands, and an app registration can trust it instead of holding a secret.",
+      "What an app or a machine signs in as, with no secret anywhere. It can hold Microsoft Graph permissions of its own, granted and read back once it stands, and an app registration can trust it instead of holding a secret. A GitHub workflow signs in as it too, through a federated credential, with the ids it needs set as repository variables.",
   },
   {
     id: "role",
