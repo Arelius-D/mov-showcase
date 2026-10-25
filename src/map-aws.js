@@ -104,7 +104,7 @@ window.MOV.AWS = {
       name: "AWS CLI",
       blurb: "What actually talks to AWS.",
       detail:
-        "mov shells out to `aws`. Everything it does is a command you could have typed yourself. Every one is recorded. `aws login` signs the workspace's own user in, and a session that ends in the middle of a command is offered back to the user who held it.",
+        "mov shells out to `aws`. Everything it does is a command you could have typed yourself. Every one is recorded. `mov use --login` signs the workspace's own user in and refuses root, and a session that ends in the middle of a command is offered back to the user who held it.",
     },
     {
       id: "workspace",
